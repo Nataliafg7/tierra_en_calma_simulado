@@ -1,0 +1,174 @@
+<section class="portada">
+  <div class="columna columna-izquierda">
+    
+    <!-- Bloque descriptivo -->
+    <div class="sobre-tu-monstera">
+      <h2 class="title-flower">
+        Sobre tu<br><span class="title-script">Monstera</span>
+      </h2>
+      <p class="subtitle-flower">
+        Esta planta tropical ama la luz suave y el riego moderado.  
+        Aquí podrás conocer sus condiciones, cuidar su bienestar y  
+        ver cómo evoluciona día a día.
+      </p>
+    </div>
+
+    <div class="monit-card">
+      <div class="monit-sensor-value">
+        <div *ngIf="isConnected; else sinConexion">
+          <b>Temperatura:</b> {{ sensorData.temperatura }}<br>
+          <b>Humedad del suelo:</b> {{ sensorData.humedadSuelo }}
+        </div>
+        <ng-template #sinConexion> --- </ng-template>
+      </div>
+      <div class="status-chip" [ngClass]="isConnected ? 'status-online' : 'status-offline'">
+        <span class="monit-dot"></span>
+        {{ isConnected ? 'Conectado' : 'Desconectado' }}
+      </div>
+      <div class="monit-row">Actualización cada 2s</div>
+      <div class="monit-row">{{ lastUpdate }}</div>
+    </div>
+  </div>
+
+
+<div class="columna columna-centro">
+  <div class="tips-cuidado">
+    <h2 class="title-flower">
+      Tips de<br><span class="title-script">Cuidado</span>
+    </h2>
+
+    <div class="tips-text">
+      <h3>Luz</h3>
+      <p>Prefiere la luz indirecta brillante. La luz directa puede <br>quemar sus hojas. 
+        Gira la planta cada semana para<br> que crezca pareja hacia la luz.</p>
+
+      <h3>Hojas y limpieza</h3>
+      <p>Limpia sus hojas una vez por semana con<br> un paño húmedo para quitar el polvo. </p>
+
+      <h3>Ambiente</h3>
+      <p>Ideal entre 18 y 28 °C. Evita corrientes de<br> aire frío o cambios bruscos de temperatura.</p>
+    </div>
+  </div>
+</div>
+
+<div class="columna columna-derecha">
+  <div class="historial-titulo">
+    <h2 class="title-flower">
+      Historial de<br><span class="title-script">Riego</span>
+    </h2>
+  </div>
+
+  <div class="monit-card monit-historial">
+    <div class="monit-history-list">
+      <div class="history-item" *ngFor="let item of historialRiego">
+        <span class="history-time">{{ item.hora }}</span>
+        <span class="history-msg">
+          {{ item.tipo === 'manual' ? '' : '' }}{{ item.mensaje }}
+        </span>
+      </div>
+
+      <div *ngIf="historialRiego.length === 0" class="history-empty">
+        No hay registros de riego aún
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="planta-derecha"></div>
+</section>
+
+<!-- SECCIÓN TARJETAS ESTILO SAVE THE DATE --> 
+<section class="tarjetas-save-date">
+  <div class="tarjetas-wrapper">
+
+    <!-- Tarjeta amarilla -->
+    <div class="tarjeta-save tarjeta-amarilla">
+      <div class="hoja-izquierda"></div>
+      <div class="hoja-derecha"></div>
+      <div class="titulo-riega">
+        <h2 class="title-flower">
+          Riega<br><span class="title-script">con Calma</span>
+        </h2>
+      </div>
+    </div>
+
+    <!-- Tarjeta blanca -->
+    <div class="tarjeta-save tarjeta-blanca">
+      <div class="tarjeta-circulo"></div>
+
+      <div class="contenido-tarjeta">
+        <p class="frase-superior">
+          El agua despierta la vida,<br>
+          el cuidado mantiene su calma.
+        </p>
+
+        <h2 class="title-flower">Hidrata tu<br><span class="title-script">Monstera</span></h2>
+
+        <button class="btn-riego" (click)="activarRiego()">Regar ahora</button>
+        <button class="btn-riego" (click)="verificarCondiciones()">Verificar condiciones</button>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="seccion-blanca">
+  <div class="contenido-blanco">
+    <h2 class="title-flower">
+      Gráfico de relación<br><span class="title-script">Humedad vs Temperatura</span>
+    </h2>
+
+    <div class="monit-card">
+      <div class="monit-chart">
+        <canvas #soilChart></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECCIÓN FRASE INSPIRADORA -->
+<section class="frase-calma">
+  <div class="texto-frase">
+    <p class="intro-frase">Entre la luz, el agua y la calma</p>
+    <h2>
+      Tu<span class="script">Monstera</span> florece<br>
+      cuando tú también te detienes a <br>
+      <span class="script">Cuidar.</span>
+    </h2>
+  </div>
+</section>
+
+<!--  REGISTRAR CUIDADOS  -->
+<section class="cuidados-wrapper">
+  <div class="cuidados-container">
+    <h2 class="cuidados-title">Registrar<span>Cuidado</span></h2>
+
+    <div class="cuidados-grid">
+      <!-- Imagen lateral -->
+      <div class="cuidados-img"></div>
+
+      <!-- Formulario con efecto vidrio -->
+      <form class="cuidados-form" (ngSubmit)="guardarCuidado()">
+        <label for="fecha">Fecha</label>
+        <input id="fecha" type="date" [(ngModel)]="nuevoCuidado.fecha" name="fecha">
+
+        <label for="tipo">Tipo de cuidado</label>
+        <select id="tipo" [(ngModel)]="nuevoCuidado.tipo_cuidado" name="tipoclear">
+          <option value="" disabled selected>Selecciona una opción</option>
+          <option value="fertilizacion">Fertilización</option>
+          <option value="poda">Poda</option>
+        </select>
+
+        <label for="detalles">Detalles</label>
+        <textarea 
+          id="detalles" 
+          [(ngModel)]="nuevoCuidado.detalles" 
+          name="detalles" 
+          placeholder="Agrega notas sobre cómo cuidaste tu planta...">
+        </textarea>
+
+        <button type="submit" class="btn-guardar">Guardar cuidado</button>
+      </form>
+    </div>
+  </div>
+</section>

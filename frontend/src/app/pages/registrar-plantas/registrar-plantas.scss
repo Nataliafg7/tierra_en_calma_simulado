@@ -1,0 +1,390 @@
+.registrar-plantas-container {
+    min-height: 100vh;
+    background-color: white;
+    padding: 120px 0 0;
+}
+
+.registro-header {
+    text-align: center;
+    padding: 40px 20px;
+    background: white;
+    margin-bottom: 0;
+    
+    .titulo-principal {
+        font-family: 'STIX Two Text', serif;
+        font-size: 2.8rem;
+        font-weight: 400;
+        color: #c6a78f; /* tono beige claro */
+        margin: 0;
+        line-height: 1.1;
+
+        .Subtitle {
+            display: block;
+            font-family: 'Mea Culpa', cursive;
+            font-size: 3.3rem;
+            font-weight: 400;
+            color: #9b5a2a;
+            margin-top: -10px;
+        }
+        }
+
+}
+
+.planta-section {
+    padding: 80px 0;
+    
+    &:nth-child(even) {
+        background: white;
+    }
+    
+    &:nth-child(odd) {
+        background: #f8f9fa;
+    }
+}
+
+.planta-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+/* Sección izquierda (imagen a la izquierda) */
+.izquierda .planta-content {
+    grid-template-areas: "imagen info";
+}
+
+/* Sección derecha (imagen a la derecha) */
+.derecha .planta-content {
+    grid-template-areas: "info imagen";
+}
+
+.planta-imagen {
+    grid-area: imagen;
+    position: relative;
+    
+    .imagen-planta {
+        width: 100%;
+        height: 500px;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    
+    .decoracion {
+        position: absolute;
+        bottom: -20px;
+        right: -20px;
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #8b937e 0%, #6b735e 100%);
+        border-radius: 50%;
+        z-index: -1;
+    }
+}
+
+.derecha .planta-imagen .decoracion {
+    right: auto;
+    left: -20px;
+}
+
+/* Imágenes específicas para cada sección */
+.potus-section .imagen-planta {
+    background-image: url('../../../assets/images/PotusRegistrar.png');
+}
+
+.lengua-suegra-section .imagen-planta {
+    background-image: url('../../../assets/images/LenguaSuegraRegistrar.png');
+}
+
+.ceriman-section .imagen-planta {
+    background-image: url('../../../assets/images/CerimanRegistrar.png');
+}
+
+.dolar-section .imagen-planta {
+    background-image: url('../../../assets/images/DolarRegistrar.png');
+}
+
+.hoja-violin-section .imagen-planta {
+    background-image: url('../../../assets/images/HojaViolinRegistrar.png');
+}
+
+.palma-areca-section .imagen-planta {
+    background-image: url('../../../assets/images/PalmaRegistrar.png');
+}
+
+.planta-info {
+    grid-area: info;
+    
+    .planta-nombre {
+        font-family: "Mea Culpa", cursive;
+        font-size: 2.5rem;
+        color: #9b5a2a;
+        margin: 0 0 10px 0;
+        font-weight: 200;
+    }
+    
+    .planta-cientifico {
+        font-family: "Old Standard TT", serif;
+        font-size: 1.1rem;
+        color: #9b592a86;
+        font-style: italic;
+        margin: 0 0 30px 0;
+    }
+    
+    .planta-descripcion {
+        font-family: 'STIX Two Text', serif;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #555;
+        margin-bottom: 40px;
+        
+        p {
+            margin-bottom: 20px;
+            
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+}
+
+.btn-anadir {
+    background-color: #9b5a2a;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-family: "Old Standard TT", serif;
+    font-size: 1.1rem;
+    font-weight: 200;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 5px 20px rgba(139, 147, 126, 0.3);
+    
+    &:hover {
+        transform: translateY(-3px);
+    }
+    
+    &:active {
+        transform: translateY(-1px);
+    }
+    
+    i {
+        font-size: 1.3rem;
+    }
+}
+
+/* Responsive */
+@media screen and (max-width: 968px) {
+    .planta-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+    }
+    
+    .izquierda .planta-content,
+    .derecha .planta-content {
+        grid-template-areas: 
+            "imagen"
+            "info";
+    }
+    
+    .planta-imagen .imagen-planta {
+        height: 300px;
+    }
+    
+    .planta-info .planta-nombre {
+        font-size: 2rem;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .registrar-plantas-container {
+        padding: 100px 0 0;
+    }
+    
+    .registro-header {
+        padding: 30px 20px;
+        
+        .titulo-principal {
+            font-size: 3rem;
+        }
+    }
+    
+    .planta-section {
+        padding: 60px 0;
+    }
+    
+    .planta-content {
+        padding: 0 15px;
+        gap: 30px;
+    }
+    
+    .planta-imagen .imagen-planta {
+        height: 250px;
+    }
+    
+    .planta-info .planta-nombre {
+        font-size: 1.8rem;
+    }
+    
+    .planta-info .planta-descripcion {
+        font-size: 1rem;
+    }
+    
+    .btn-anadir {
+        padding: 12px 30px;
+        font-size: 1rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .registro-header .titulo-principal {
+        font-size: 2.5rem;
+    }
+    
+    .planta-imagen .imagen-planta {
+        height: 200px;
+    }
+    
+    .planta-info .planta-nombre {
+        font-size: 1.6rem;
+    }
+    
+    .decoracion {
+        width: 60px;
+        height: 60px;
+        bottom: -10px;
+        right: -10px;
+    }
+    
+    .derecha .planta-imagen .decoracion {
+        left: -10px;
+    }
+}
+
+/*  ESTILOS POP UP NOMBRE PERSONALIZADO  */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+
+  &.activo {
+    opacity: 1;
+    pointer-events: all;
+  }
+}
+
+/*  Contenedor del popup con efecto vidrio  */
+.popup-contenido {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+  padding: 40px;
+  width: 400px;
+  text-align: center;
+  animation: aparecer 0.3s ease;
+  font-family: 'Old Standard TT', serif;
+
+  h2 {
+    font-size: 1.8rem;
+    color: #4a3b2b;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: #3f3f3f;
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
+
+  .input-nombre {
+    width: 100%;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
+    color: #3c3728;
+    outline: none;
+    margin-bottom: 25px;
+    font-family: 'STIX Two Text', serif;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    &::placeholder {
+      color: rgba(60, 55, 40, 0.5);
+    }
+  }
+
+  .popup-botones {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+
+    .btn-confirmar,
+    .btn-cancelar {
+      padding: 12px 30px;
+      border-radius: 30px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      font-family: 'Old Standard TT', serif;
+    }
+
+    .btn-confirmar {
+      background-color: #9b5a2a;
+      color: white;
+
+      &:hover {
+        background-color: #814821;
+        transform: translateY(-2px);
+      }
+    }
+
+    .btn-cancelar {
+      background-color: rgba(255, 255, 255, 0.6);
+      color: #4a3b2b;
+      border: 1px solid rgba(155, 90, 42, 0.3);
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.9);
+        transform: translateY(-2px);
+      }
+    }
+  }
+}
+
+/* Animación suave */
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

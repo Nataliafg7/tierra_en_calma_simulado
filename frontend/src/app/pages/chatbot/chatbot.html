@@ -1,0 +1,165 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<!-- Imagen de portada -->
+<section class="portada">
+  <div class="portada-overlay">
+    <h2 class="portada-titulo">¡Pregúntale a tu asistente de jardinería!</h2>
+    <button class="portada-boton" (click)="abrirChat()">Iniciar Chat</button>
+  </div>
+
+  <!-- Ventana de chat -->
+  <div class="chat-ventana" *ngIf="chatAbierto">
+    <div class="chat-header">
+      <span>Asistente de jardinería</span>
+      <button class="cerrar-chat" (click)="cerrarChat()">✕</button>
+    </div>
+
+    <div class="chat-mensajes">
+      <div *ngFor="let m of mensajes" [ngClass]="{'mensaje-bot': m.autor === 'bot', 'mensaje-usuario': m.autor === 'usuario'}">
+        {{ m.texto }}
+      </div>
+
+      <!-- Mostrar categorías -->
+      <div *ngIf="!categoriaSeleccionada">
+        <button class="opcion" *ngFor="let c of categorias" (click)="seleccionarCategoria(c)">
+          {{ c.categoria }}
+        </button>
+      </div>
+
+      <!-- Mostrar preguntas de la categoría -->
+      <div *ngIf="categoriaSeleccionada && !preguntaSeleccionada">
+        <button class="opcion" *ngFor="let p of categoriaSeleccionada.preguntas" (click)="seleccionarPregunta(p)">
+          {{ p.texto }}
+        </button>
+      </div>
+
+          <!-- Botones de volver -->
+      <div *ngIf="preguntaSeleccionada">
+        <button class="opcion volver" (click)="volverAPreguntas()">Volver a preguntas</button>
+        <button class="opcion volver" (click)="volverACategorias()">Volver al inicio</button>
+      </div>
+
+    </div> 
+  </div> 
+</section> 
+
+<section class="contenido-chatbot">
+  <h2 class="proposito-titulo">La luna guía tus tijeras:<br><span class="Subtitle">Poda en el momento perfecto</span></h2>
+
+
+  <div class="carrusel-wrapper">
+    <button class="carrusel-btn izquierda" (click)="moverCarrusel('izquierda')">❮</button>
+
+    <div class="carrusel-viewport" #carrusel>
+      <div class="carrusel">
+        <!-- Tarjetas -->
+        <div class="tarjeta" *ngFor="let mes of meses" [ngClass]="mes.clase">
+          <div class="tarjeta-inner">
+
+            <!-- Lado frontal -->
+            <div class="tarjeta-frente">
+              <h3>{{ mes.nombre }}</h3>
+            </div>
+
+            <!-- Lado trasero -->
+            <div class="tarjeta-atras">
+              <h4>{{ mes.nombre }}</h4>
+              <ul>
+                <li *ngFor="let fase of mes.fases">{{ fase }}</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="carrusel-btn derecha" (click)="moverCarrusel('derecha')">❯</button>
+  </div>
+</section>
+
+
+<section class="fases-lunares">
+  <h2 class="titulo-fases">Fases lunares y<br><span class="Subtitle">Su influencia en la poda</span></h2>
+
+  <div class="fases-grid">
+
+    <!-- Cuarto Creciente -->
+    <div class="fase">
+      <div class="icono fase-creciente"></div>
+      <h3>Cuarto Creciente</h3>
+      <p>
+        Durante esta fase, la savia comienza a subir hacia las ramas, 
+        lo que favorece el crecimiento y vigor de las plantas. Ideal para podas de formación o para estimular nuevos brotes.
+      </p>
+    </div>
+
+    <!-- Luna Llena -->
+    <div class="fase">
+      <div class="icono fase-llena"></div>
+      <h3>Luna Llena</h3>
+      <p>
+        La savia alcanza su punto más alto, por lo que las plantas están llenas de vitalidad. 
+        No se recomienda realizar podas intensas, ya que las heridas tardan más en cicatrizar. 
+        Se sugiere enfocarse en recolección o trasplantes.
+      </p>
+    </div>
+
+    <!-- Cuarto Menguante -->
+    <div class="fase">
+      <div class="icono fase-menguante"></div>
+      <h3>Cuarto Menguante</h3>
+      <p>
+        La energía se dirige hacia las raíces, lo que ayuda a fortalecerlas. 
+        Es el mejor momento para un mantenimiento o eliminación de ramas secas, 
+        ya que la planta cicatriza rápido.
+      </p>
+    </div>
+
+    <!-- Luna Nueva -->
+    <div class="fase">
+      <div class="icono fase-nueva"></div>
+      <h3>Luna Nueva</h3>
+      <p>
+        Es una fase de reposo y renovación. 
+        Las plantas están en pausa, por lo que no se recomienda podar, 
+        sino dejar que descansen antes del siguiente ciclo lunar.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- Sección de características / consejos -->
+<section class="caracteristicas">
+  <h2 class="titulo-caracteristicas">Consejos esenciales para tus plantas</h2>
+
+  <div class="iconos-grid">
+
+    <div class="icono-item">
+      <div class="ventana-icono"><i class="fas fa-droplet"></i></div>
+      <p>Riego equilibrado según la estación</p>
+    </div>
+
+    <div class="icono-item">
+      <div class="ventana-icono"><i class="fas fa-sun"></i></div>
+      <p>Buena exposición a la luz solar</p>
+    </div>
+
+    <div class="icono-item">
+      <div class="ventana-icono"><i class="fas fa-scissors"></i></div>
+      <p>Podas ligeras en fases adecuadas</p>
+    </div>
+
+    <div class="icono-item">
+      <div class="ventana-icono"><i class="fas fa-seedling"></i></div>
+      <p>Fertilización natural cada 30 días</p>
+    </div>
+
+    <div class="icono-item">
+      <div class="ventana-icono"><i class="fas fa-water"></i></div>
+      <p>Mantén humedad sin encharcar</p>
+    </div>
+
+  </div>
+</section>

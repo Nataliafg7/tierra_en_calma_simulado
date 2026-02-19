@@ -1,0 +1,173 @@
+<div class="registrar-plantas-container">
+    <div class="registro-header">
+        <h1 class="titulo-principal">
+            Registrar
+            <span class="Subtitle">Planta</span>
+        </h1>
+    </div>
+
+    <!-- Sección 1: Potus -->
+    <section class="planta-section izquierda potus-section">
+        <div class="planta-content">
+            <div class="planta-imagen">
+                <div class="imagen-planta"></div>
+                <div class="decoracion"></div>
+            </div>
+            <div class="planta-info">
+                <h2 class="planta-nombre">Potus</h2>
+                <p class="planta-cientifico">Epipremnum aureum</p>
+                <div class="planta-descripcion">
+                    <p>Su nombre científico es Epipremnum aureum. Es una planta de interior que se desarrolla bien en 
+                    temperaturas de 15 °C a 30 °C y requiere una humedad entre 50 y 70 %. Se fertiliza cada 1 a 2 meses y 
+                    necesita podas 1 o 2 veces al año para controlar ramas largas o secas. Prefiere luz indirecta y debe 
+                    regarse solo cuando la capa superior del sustrato esté seca, evitando encharcamientos. Es muy adaptable, 
+                    purifica el aire y aporta un toque verde y fresco a cualquier espacio interior.</p>
+                </div>
+                <button class="btn-anadir" (click)="anadirPlanta('potus')">
+                    <i class='bx bx-plus'></i>
+                    Agregar
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección 2: Lengua de Suegra -->
+    <section class="planta-section derecha lengua-suegra-section">
+        <div class="planta-content">
+            <div class="planta-info">
+                <h2 class="planta-nombre">Lengua de suegra</h2>
+                <p class="planta-cientifico">Sansevieria trifasciata</p>
+                <div class="planta-descripcion">
+                    <p>Su nombre científico es Sansevieria trifasciata. Es una planta de interior que se adapta muy bien a temperaturas entre 
+                        12 °C y 28 °C y requiere una humedad del 30 al 40 %. Se fertiliza cada 3 a 4 meses y solo necesita poda una vez al año 
+                        para retirar las hojas dañadas. Es muy resistente, tolera poca agua y poca luz, lo que la hace perfecta para espacios 
+                        con escasa atención. Es excelente para limpiar el aire y liberar oxígeno por la noche, aportando bienestar y frescura 
+                        al hogar.</p>
+                </div>
+                <button class="btn-anadir" (click)="anadirPlanta('lengua-de-suegra')">
+                    <i class='bx bx-plus'></i>
+                    Agregar
+                </button>
+            </div>
+            <div class="planta-imagen">
+                <div class="imagen-planta"></div>
+                <div class="decoracion"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección 3: Cerimán  -->
+    <section class="planta-section izquierda ceriman-section">
+        <div class="planta-content">
+            <div class="planta-imagen">
+                <div class="imagen-planta"></div>
+                <div class="decoracion"></div>
+            </div>
+            <div class="planta-info">
+                <h2 class="planta-nombre">Cerimán</h2>
+                <p class="planta-cientifico">Monstera deliciosa</p>
+                <div class="planta-descripcion">
+                    <p>Su nombre científico es Monstera deliciosa. Es una planta de interior que crece bien en temperaturas de 18 °C a 
+                        30 °C y requiere humedad moderada a alta, idealmente entre 60 y 80 %. Se fertiliza cada 1 a 2 meses en época de 
+                        crecimiento y se poda según sea necesario para controlar su tamaño y retirar hojas dañadas. Prefiere luz indirecta 
+                        brillante y riego cuando el sustrato esté seco en la superficie. Es perfecta para dar un toque tropical y 
+                        elegante al hogar, además de mejorar la calidad del aire.</p>
+                </div>
+                <button class="btn-anadir" (click)="anadirPlanta('monstera')">
+                    <i class='bx bx-plus'></i>
+                    Agregar
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección 4: Dólar  -->
+    <section class="planta-section derecha dolar-section">
+        <div class="planta-content">
+            <div class="planta-info">
+                <h2 class="planta-nombre">Dólar</h2>
+                <p class="planta-cientifico">Aglaonema spp</p>
+                <div class="planta-descripcion">
+                    <p>Su nombre científico es Aglaonema spp. Es una planta de interior que se adapta a temperaturas de 18 °C a 26 °C y 
+                        requiere una humedad de 50 a 60 %. Se fertiliza cada 2 meses y necesita poda una vez al año para retirar hojas viejas. 
+                        Tolera poca luz y requiere riego moderado evitando el exceso de agua. Es una planta decorativa resistente, ideal para 
+                        interiores con poca luz y se asocia con prosperidad y energías positivas en el hogar.</p>
+                </div>
+                <button class="btn-anadir" (click)="anadirPlanta('dolar-aglaonema')">
+                    <i class='bx bx-plus'></i>
+                    Agregar
+                </button>
+            </div>
+            <div class="planta-imagen">
+                <div class="imagen-planta"></div>
+                <div class="decoracion"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección 5: Hoja de Violín -->
+    <section class="planta-section izquierda hoja-violin-section">
+        <div class="planta-content">
+            <div class="planta-imagen">
+                <div class="imagen-planta"></div>
+                <div class="decoracion"></div>
+            </div>
+            <div class="planta-info">
+                <h2 class="planta-nombre">Hoja de Violín</h2>
+                <p class="planta-cientifico">Ficus lyrata</p>
+                <div class="planta-descripcion">
+                    <p>Su nombre científico es Ficus lyrata. Es una planta de interior que prospera en temperaturas de 16 °C a 27 °C 
+                    con humedad media. Se fertiliza cada 1 a 2 meses durante su crecimiento y se le retiran hojas secas o dañadas para 
+                    mantener su porte. Requiere luz brillante indirecta y riego moderado. Es una planta elegante que transforma cualquier 
+                    rincón en un espacio sofisticado y acogedor, transmitiendo paz y armonía mientras purifica el aire.</p>
+                </div>
+                <button class="btn-anadir" (click)="anadirPlanta('hoja-de-violin')">
+                    <i class='bx bx-plus'></i>
+                    Agregar
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección 6: Palma Areca -->
+    <section class="planta-section derecha palma-areca-section">
+        <div class="planta-content">
+            <div class="planta-info">
+                <h2 class="planta-nombre">Palma Areca</h2>
+                <p class="planta-cientifico">Dypsis lutescens</p>
+                <div class="planta-descripcion">
+                    <p>Su nombre científico es Dypsis lutescens. Es una planta de interior que prospera en temperaturas de 16 °C a 27 °C y requiere una humedad 
+                    de 60 a 70 %. Debe fertilizarse cada mes durante su crecimiento y necesita un retiro regular de hojas secas. Prefiere luz brillante indirecta, 
+                    sustrato con buen drenaje y humedad moderada. Aporta frescura tropical, mejora la humedad ambiental y purifica el aire, creando espacios más saludables y agradables.</p>
+                </div>
+                <button class="btn-anadir" (click)="anadirPlanta('palma-areca')">
+                    <i class='bx bx-plus'></i>
+                    Agregar
+                </button>
+            </div>
+            <div class="planta-imagen">
+                <div class="imagen-planta"></div>
+                <div class="decoracion"></div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Popup para nombrar planta -->
+<div class="popup-overlay" id="popup-nombre">
+  <div class="popup-contenido">
+    <h2>Asigna un nombre a tu planta 🌿</h2>
+    <p>Personalízala para que la identifiques fácilmente en tu lista.</p>
+
+    <input
+      type="text"
+      placeholder="Ejemplo: Mi Potus favorito"
+      class="input-nombre"
+    />
+
+    <div class="popup-botones">
+      <button class="btn-confirmar">Guardar</button>
+      <button class="btn-cancelar">Cancelar</button>
+    </div>
+  </div>
+</div>

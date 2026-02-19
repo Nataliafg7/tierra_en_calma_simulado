@@ -1,0 +1,341 @@
+.hero {
+  height: clamp(550px, 68vh, 740px);
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 75%;
+  background-image: url('../../../assets/images/intentomil.png');
+  background-size: 100% auto;
+  background-position: 250% bottom;
+  background-repeat: no-repeat;
+  z-index: 1;
+}
+
+.ventana-container {
+  position: absolute;
+  z-index: 4;
+  left: 8%;
+  top: 55%;
+  transform: translateY(-50%);
+}
+
+.ventana {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1.5px solid #ca9a72;
+  border-radius: 150px 150px 12px 12px;
+  padding: 0;
+  height: 380px;
+  width: 300px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  position: relative;
+  margin-top: 0;
+  transition: all 0.3s ease;
+}
+
+.ventana-cuerpo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  padding: 2.5rem 2rem;
+}
+
+.ventana-texto {
+  font-family: 'STIX Two Text', serif;
+  font-size: 1rem;
+  font-weight: 200;
+  color: #3a3a3a;
+  line-height: 1.4;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+}
+
+.ventana-texto br {
+  display: block;
+  content: "";
+  margin-bottom: 0.3rem;
+}
+
+.ventana-icono {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+  animation: flotar 3s ease-in-out infinite;
+}
+
+.ventana-icono i {
+  font-size: 5rem;
+  color: #ca9a72;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes flotar {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.proposito {
+  background-color: #ffffff;
+  padding: 4rem 2rem;
+}
+
+.proposito-contenedor {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.proposito-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.proposito-titulo {
+  font-family: 'STIX Two Text', serif;
+  font-size: 2.8rem;
+  font-weight: 400;
+  color: #c6a78f;
+  line-height: 1.1;
+  display: inline-block;
+  margin: 10px;
+}
+
+.proposito-titulo .Subtitle {
+  font-family: 'Mea Culpa', cursive;
+  font-size: 3.3rem;
+  font-weight: 400;
+  color: #9b5a2a;
+  display: block;
+  margin-top: 5px;
+  text-align: center;
+}
+
+.proposito-linea {
+  width: 150px;
+  height: 3px;
+  background: #e3c5ac;
+  margin: 0 auto;
+}
+
+.proposito-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 4rem;
+}
+
+.proposito-texto {
+  flex: 1;
+  font-family: 'STIX Two Text', serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #3a3a3a;
+  text-align: center;
+}
+
+.proposito-texto p {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.proposito-imagen {
+  flex: 0 0 400px;
+}
+
+.imagen-placeholder {
+  width: 100%;
+  height: 500px;
+  background-image: url('../../../assets/images/Historiaa.png');
+  background-size: 100% auto;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.proposito-imagen img {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+}
+
+.tarjetas-especiales {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbf8 100%);
+  padding: 5rem 2rem;
+}
+
+.tarjetas-contenedor {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2rem;
+  align-items: stretch;
+}
+
+.tarjeta {
+  background: #F2D8C2;
+  border: 1.5px solid #F2D8C2;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 30px rgba(139, 169, 134, 0.1);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.tarjeta:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(139, 169, 134, 0.2);
+  border-color: #93511c;
+}
+
+.tarjeta-izquierda {
+  text-align: left;
+  background-color: #fff5ed;
+}
+
+.tarjeta-izquierda .tarjeta-titulo-especial {
+  font-family: 'Mea culpa', cursive;
+  font-size: 2.2rem;
+  font-weight: 200;
+  color: #93511c;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-style: italic;
+}
+
+.tarjeta-centro {
+  padding: 0;
+  overflow: hidden;
+  background-color: #f6f5f3; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tarjeta-imagen {
+  width: 100%;
+  height: 100%;
+  background-image: url('../../../assets/images/Trazooos.png');
+  background-position: 50% center;
+  background-size: 80% auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tarjeta-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+.tarjeta-imagen .imagen-placeholder {
+  width: 100%;
+  height: 300px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: 'STIX Two Text', serif;
+  font-size: 1.2rem;
+  font-style: italic;
+}
+
+.tarjeta-derecha {
+  text-align: left;
+  background-color: #fff5ed;
+}
+
+.tarjeta-derecha .tarjeta-titulo-funciona {
+  font-family: 'Mea Culpa', cursive;
+  font-size: 2.2rem;
+  font-weight: normal;
+  color: #93511c;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-style: italic;
+}
+
+.tarjeta-contenido {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.tarjeta-texto-especial {
+  font-family: 'STIX Two Text', serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #444;
+  margin: 0;
+}
+
+.tarjeta-texto-especial strong {
+  color: #2d4a2f;
+  font-weight: 200;
+}
+
+.imagen-ancha {
+  width: 100%;
+  padding: 0;
+  background: #f8fbf8;
+  background-image: url('../../../assets/images/Jaardin.png');
+  background-position: 40% center;
+  background-size: 100% auto;
+}
+
+.imagen-ancha-contenedor {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.imagen-banner {
+  width: 100%;
+  height: 600px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.imagen-banner-placeholder {
+  width: 100%;
+  height: 500px;
+  background: linear-gradient(135deg, #8ba986, #a8c0a4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: 'STIX Two Text', serif;
+  font-size: 1.5rem;
+  font-style: italic;
+  text-align: center;
+}
+
+.imagen-banner-placeholder span {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: block;
+}

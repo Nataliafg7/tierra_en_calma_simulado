@@ -1,0 +1,135 @@
+.contenedor-admin {
+  font-family: 'STIX Two Text', serif;
+  background: linear-gradient(180deg, #fcf9f3 0%, #f9f5ec 100%);
+  min-height: 100vh;
+  padding: 60px 80px;
+  color: #2c3424;
+}
+
+/*  Títulos principales  */
+.contenedor-admin h1 {
+  text-align: center;
+  color: #93511c;
+  font-weight: 400;
+  font-size: 2.4rem;
+  margin-bottom: 2rem;
+  letter-spacing: 0.5px;
+}
+
+.contenedor-admin section {
+  margin-bottom: 4rem;
+}
+
+/*  Subtítulos  */
+.contenedor-admin h2 {
+  font-weight: 400;
+  color: rgba(147, 81, 28, 0.75);
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid #93511c;
+  padding-left: 10px;
+  letter-spacing: 0.5px;
+}
+
+/*  Tablas  */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 22px rgba(147, 81, 28, 0.08);
+  font-size: 0.95rem;
+  margin-top: 1rem;
+}
+
+thead {
+  background-color: #efdbad;
+}
+
+th {
+  color: #93511c;
+  font-weight: 600;
+  text-align: left;
+  padding: 14px 18px;
+  font-family: "Old Standard TT", serif;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid rgba(147, 81, 28, 0.15);
+}
+
+td {
+  padding: 12px 18px;
+  color: #2c3424;
+  border-bottom: 1px solid rgba(147, 81, 28, 0.1);
+  transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+  background: rgba(239, 219, 173, 0.25);
+}
+
+/*  Alternar filas  */
+tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/*  Estado vacío o carga  */
+.cargando {
+  text-align: center;
+  color: #93511c;
+  font-size: 1.2rem;
+  margin-top: 4rem;
+  letter-spacing: 0.5px;
+  animation: aparecer 0.6s ease-in-out;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*  Scroll de tablas grandes  */
+section {
+  overflow-x: auto;
+  background: transparent;
+  border-radius: 14px;
+  padding: 10px 0;
+}
+
+/*  Ajustes visuales  */
+table th:first-child,
+table td:first-child {
+  border-left: none;
+}
+
+table th:last-child,
+table td:last-child {
+  border-right: none;
+}
+
+/*  Diseño responsive  */
+@media (max-width: 900px) {
+  .contenedor-admin {
+    padding: 40px 20px;
+  }
+
+  table {
+    font-size: 0.85rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+}

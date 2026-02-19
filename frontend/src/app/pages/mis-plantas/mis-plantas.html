@@ -1,0 +1,167 @@
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-container">
+    <div class="hero-circle"></div>
+    <div class="hero-flor"></div>
+
+    <div class="hero-texto">
+      <div class="hero-linea"></div>
+      <div class="hero-contenido">
+        <h2 class="hero-titulo">Consejo del mes</h2>
+        <p class="hero-descripcion">
+          Hablar o poner música suave a tus plantas parece un mito, pero estudios demuestran que el sonido y la vibración
+          favorecen su crecimiento.
+        </p>
+        <p class="hero-bienvenida">
+          Bienvenid@,<span> {{ nombreUsuario }}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="titulo-seccion">
+    <h1 class="titulo-principal">
+      Mis<br><span class="Subtitle">Plantas</span>
+    </h1>
+  </div>
+
+  <!-- Grid dinámico -->
+  <div class="plantas-grid">
+    <div
+      *ngFor="let p of plantas | slice:(page-1)*pageSize : page*pageSize"
+      class="planta-card"
+      [ngClass]="plantClass(p)">
+      <div class="card-overlay"></div>
+      <div class="card-content">
+        <h3 class="planta-nombre">{{ p.NOMBRE_COMUN }}</h3>
+        <p class="planta-descripcion" [innerHTML]="desc(p)"></p>
+        <button class="btn-monitorear" (click)="monitorear(p)">Monitorear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div style="display:flex;gap:12px;justify-content:center;align-items:center;margin:16px 0 40px;">
+    <button class="btn-registrar"
+            (click)="page = Math.max(1, page-1)"
+            [disabled]="page === 1">
+      Anterior
+    </button>
+    <span>Página {{ page }} de {{ Math.ceil((plantas?.length || 0) / pageSize) }}</span>
+    <button class="btn-registrar"
+            (click)="page = Math.min(Math.ceil((plantas?.length || 0) / pageSize), page+1)"
+            [disabled]="page >= Math.ceil((plantas?.length || 0) / pageSize)">
+      Siguiente
+    </button>
+  </div>
+</div>
+
+<!-- Nueva Sección: ¿Tienes nuevas plantas? -->
+<section class="nuevas-plantas-section">
+  <div class="nuevas-plantas-container">
+    <!-- Títulos -->
+    <div class="nuevas-plantas-header">
+      <h2 class="nuevas-plantas-titulo">¿Tienes nuevas plantas?</h2>
+      <p class="nuevas-plantas-subtitulo">Añade una nueva</p>
+    </div>
+
+    <!-- Carrusel -->
+    <div class="carrusel-wrapper">
+      <div class="carrusel-container">
+        <div class="carrusel" #carrusel>
+
+          <!-- Tarjeta 1 - Cerimán -->
+          <div class="carrusel-item">
+            <div class="planta-carrusel-card Ceriman-card">
+              <div class="carrusel-overlay"></div>
+              <div class="carrusel-content">
+                <h3 class="carrusel-nombre">Cerimán</h3>
+                <p class="carrusel-descripcion">
+                  Con sus hojas amplias y perforadas, invita a aceptar la imperfección como belleza y crecimiento.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tarjeta 2 - Dólar -->
+          <div class="carrusel-item">
+            <div class="planta-carrusel-card Dolar-card">
+              <div class="carrusel-overlay"></div>
+              <div class="carrusel-content">
+                <h3 class="carrusel-nombre">Dólar</h3>
+                <p class="carrusel-descripcion">
+                  Representa la abundancia y la prosperidad. Recuerda que la constancia atrae buenos frutos.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tarjeta 3 - Lengua de suegra -->
+          <div class="carrusel-item">
+            <div class="planta-carrusel-card LenguaSuegra-card">
+              <div class="carrusel-overlay"></div>
+              <div class="carrusel-content">
+                <h3 class="carrusel-nombre">Lengua de suegra</h3>
+                <p class="carrusel-descripcion">
+                  Fuerte y purificadora. Sobrevive en casi cualquier entorno, recordando que adaptarse también es crecer.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tarjeta 4 - Hoja de violín -->
+          <div class="carrusel-item">
+            <div class="planta-carrusel-card HojaViolin-card">
+              <div class="carrusel-overlay"></div>
+              <div class="carrusel-content">
+                <h3 class="carrusel-nombre">Hoja de violín</h3>
+                <p class="carrusel-descripcion">
+                  Con sus hojas grandes y elegantes, simboliza la armonía y la conexión entre el arte y la naturaleza.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tarjeta 5 - Potus -->
+          <div class="carrusel-item">
+            <div class="planta-carrusel-card Potus-card">
+              <div class="carrusel-overlay"></div>
+              <div class="carrusel-content">
+                <h3 class="carrusel-nombre">Potus</h3>
+                <p class="carrusel-descripcion">
+                  Crece libremente siguiendo la luz, recordando que cada camino —aunque se enrede— puede florecer con paciencia.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tarjeta 6 - Palma Areca -->
+          <div class="carrusel-item">
+            <div class="planta-carrusel-card PalmaAreca-card">
+              <div class="carrusel-overlay"></div>
+              <div class="carrusel-content">
+                <h3 class="carrusel-nombre">Palma Areca</h3>
+                <p class="carrusel-descripcion">
+                  Es una planta ideal para meditar sobre el desapego, el fluir y la renovación. Perfecta para aligerar el alma.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- /.carrusel -->
+
+        <!-- Botones laterales -->
+        <button class="carrusel-btn izquierda" (click)="anterior()">❮</button>
+        <button class="carrusel-btn derecha" (click)="siguiente()">❯</button>
+      </div> <!-- /.carrusel-container -->
+    </div> <!-- /.carrusel-wrapper -->
+
+    <!-- Botón registrar -->
+    <button class="btn-registrar" (click)="registrarNuevaPlanta()">
+      <i class='bx bx-plus'></i>
+      Registrar nueva planta
+    </button>
+  </div> <!-- /.nuevas-plantas-container -->
+</section>

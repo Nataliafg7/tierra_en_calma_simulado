@@ -1,0 +1,123 @@
+<div class="contenedor-admin" *ngIf="!cargando; else cargandoTpl">
+  <h1>Panel Administrativo – Reportes del Sistema</h1>
+
+  <section>
+    <h2>Estado de Plantas de Usuarios</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID Usuario</th>
+          <th>Nombre</th>
+          <th>Planta</th>
+          <th>Personalizado</th>
+          <th>Temperatura</th>
+          <th>Humedad</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of vistas.estado_plantas">
+          <td>{{ p.ID_USUARIO }}</td>
+          <td>{{ p.NOMBRE_USUARIO }}</td>
+          <td>{{ p.NOMBRE_COMUN }}</td>
+          <td>{{ p.NOMBRE_PERSONALIZADO }}</td>
+          <td>{{ p.TEMPERATURA }}</td>
+          <td>{{ p.HUMEDAD }}</td>
+          <td>{{ p.FECHA_HORA | date:'short' }}</td>
+        </tr>
+        <tr *ngIf="vistas.estado_plantas.length === 0">
+          <td colspan="7">Sin registros disponibles</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Historial de Riegos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Planta</th>
+          <th>Nombre común</th>
+          <th>Fecha</th>
+          <th>Tipo</th>
+          <th>Duración (s)</th>
+          <th>Motivo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of vistas.historial_riegos">
+          <td>{{ r.USUARIO }}</td>
+          <td>{{ r.PLANTA }}</td>
+          <td>{{ r.NOMBRE_COMUN }}</td>
+          <td>{{ r.FECHA_HORA | date:'short' }}</td>
+          <td>{{ r.TIPO_RIEGO }}</td>
+          <td>{{ r.DURACION_SEG }}</td>
+          <td>{{ r.MOTIVO }}</td>
+        </tr>
+        <tr *ngIf="vistas.historial_riegos.length === 0">
+          <td colspan="7">Sin registros disponibles</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Alertas por Condiciones Críticas</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID Planta Usuario</th>
+          <th>Nombre Común</th>
+          <th>Temperatura</th>
+          <th>Humedad</th>
+          <th>Alerta</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of vistas.alertas_condiciones">
+          <td>{{ a.ID_PLANTA_USUARIO }}</td>
+          <td>{{ a.NOMBRE_COMUN }}</td>
+          <td>{{ a.TEMPERATURA }}</td>
+          <td>{{ a.HUMEDAD }}</td>
+          <td>{{ a.ALERTA }}</td>
+        </tr>
+        <tr *ngIf="vistas.alertas_condiciones.length === 0">
+          <td colspan="5">Sin registros disponibles</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Cuidados Programados</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Planta</th>
+          <th>Nombre Común</th>
+          <th>Tipo</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of vistas.cuidados_programados">
+          <td>{{ c.USUARIO }}</td>
+          <td>{{ c.PLANTA }}</td>
+          <td>{{ c.NOMBRE_COMUN }}</td>
+          <td>{{ c.TIPO_CUIDADO }}</td>
+          <td>{{ c.FECHA | date:'shortDate' }}</td>
+        </tr>
+        <tr *ngIf="vistas.cuidados_programados.length === 0">
+          <td colspan="5">Sin registros disponibles</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<ng-template #cargandoTpl>
+  <p class="cargando">Cargando vistas...</p>
+</ng-template>

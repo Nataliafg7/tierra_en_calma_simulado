@@ -1,0 +1,85 @@
+<header class="header">
+  <nav class="nav">
+    <!-- Lado izquierdo -->
+    <div class="nav-left">
+      <a routerLink="/mis-plantas" class="nav-link">Mis plantas</a>
+      <a routerLink="/registrar-plantas" class="nav-link">Registrar plantas</a>
+    </div>
+
+    <!-- Logo central -->
+    <div class="logo">
+      <h1 class="logo-text" (click)="irAHome()">Tierra en Calma</h1>
+    </div>
+
+    <!-- Lado derecho -->
+    <div class="nav-right">
+      <a routerLink="/chatbot" class="nav-link">Chatbot</a>
+      <a (click)="cerrarSesion()" class="nav-link">Cerrar sesión</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="footer" id="footer">
+  <div class="footer-container">
+    <div class="footer-info">
+      <h2 class="footer-title">Estamoos aquí para ayudarte</h2>
+      <div class="footer-img"></div>
+
+      <div class="footer-contactos">
+        <div class="footer-contacto">
+          <i class="fas fa-phone"></i>
+          <span>(12) 456-7890</span>
+        </div>
+        <div class="footer-contacto">
+          <i class="fab fa-instagram"></i>
+          <span>@TierraEnCalma</span>
+        </div>
+        <div class="footer-contacto">
+          <i class="fas fa-envelope"></i>
+          <span>tierraencalma.a@gmail.com</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-form">
+      <h3 class="footer-form-title">Nosotros te contactamos</h3>
+      <form (ngSubmit)="enviarFormulario()" #contactForm="ngForm">
+        <label for="nombre">Nombre completo</label>
+        <input
+          type="text"
+          id="nombre"
+          placeholder="Tu nombre"
+          name="nombre"
+          [(ngModel)]="contacto.nombre"
+          required
+        />
+
+        <label for="correo">Correo electrónico</label>
+        <input
+          type="email"
+          id="correo"
+          placeholder="tu.email@ejemplo.com"
+          name="correo"
+          [(ngModel)]="contacto.correo"
+          required
+        />
+
+        <label for="mensaje">Mensaje</label>
+        <textarea
+          id="mensaje"
+          placeholder="¿Cómo podemos ayudarte?"
+          name="mensaje"
+          [(ngModel)]="contacto.mensaje"
+          rows="4"
+          required
+        ></textarea>
+
+        <button type="submit" [disabled]="!contactForm.valid">Enviar mensaje</button>
+      </form>
+    </div>
+  </div>
+</footer>

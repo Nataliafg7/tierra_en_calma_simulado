@@ -1,0 +1,101 @@
+<div class="container" [class.activate]="isContainerActive" [class.transitioning]="isTransitioning">
+  <div class="transition-cover" *ngIf="isTransitioning"></div>
+
+  <!--  LOGIN  -->
+  <div class="form-box login" [class.hidden]="isContainerActive">
+    <form (submit)="onLoginSubmit($event)">
+      <h1>Inicio de sesión</h1>
+
+      <div class="input-box">
+        <input type="text" placeholder="Correo" [(ngModel)]="loginCorreo" name="loginCorreo" required>
+        <i class='bx bxs-user'></i>
+      </div>
+
+      <div class="input-box">
+        <input type="password" placeholder="Contraseña" [(ngModel)]="loginContrasena" name="loginContrasena" required>
+        <i class='bx bxs-lock-alt'></i>
+      </div>
+
+      <div class="forgot-link">
+        <a href="#" (click)="openForgotPasswordModal($event)">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button type="submit" class="btn">Ingresar</button>
+    </form>
+  </div>
+
+  <!--  REGISTRO  -->
+  <div class="form-box register" [class.hidden]="!isContainerActive">
+    <form (submit)="onRegisterSubmit($event)">
+      <h1>Registro</h1>
+
+      <div class="input-box">
+        <input type="text" placeholder="Identificación" [(ngModel)]="regIdUsuario" name="regIdUsuario" required>
+        <i class='bx bxs-user'></i>
+      </div>
+
+      <div class="input-box">
+        <input type="text" placeholder="Nombre" [(ngModel)]="regNombre" name="regNombre" required>
+        <i class='bx bxs-user'></i>
+      </div>
+
+      <div class="input-box">
+        <input type="text" placeholder="Apellido" [(ngModel)]="regApellido" name="regApellido" required>
+        <i class='bx bxs-user'></i>
+      </div>
+
+      <div class="input-box">
+        <input type="text" placeholder="Teléfono" [(ngModel)]="regTelefono" name="regTelefono" required>
+        <i class='bx bxs-phone'></i>
+      </div>
+
+      <div class="input-box">
+        <input type="email" placeholder="Correo" [(ngModel)]="regCorreo" name="regCorreo" required>
+        <i class='bx bxs-envelope'></i>
+      </div>
+
+      <div class="input-box">
+        <input type="password" placeholder="Contraseña" [(ngModel)]="regContrasena" name="regContrasena" required>
+        <i class='bx bxs-lock-alt'></i>
+      </div>
+
+      <button type="submit" class="btn">Registrar</button>
+    </form>
+  </div>
+
+  <!--  PANEL DESLIZANTE  -->
+  <div class="toggle-box"></div>
+
+  <div class="toggle-panel toggle-left">
+    <h1>Hola, ¡bienvenido!</h1>
+    <p>¿Primera vez en Tierra en Calma?</p>
+    <button class="btn register-btn" (click)="showRegister()">Regístrate</button>
+  </div>
+
+  <div class="toggle-panel toggle-right">
+    <h1>¡Bienvenido de nuevo!</h1>
+    <p>¿Ya tienes una cuenta?</p>
+    <button class="btn login-btn" (click)="showLogin()">Iniciar sesión</button>
+  </div>
+</div>
+
+<!--  MODAL RECUPERAR CONTRASEÑA  -->
+<div class="modal-overlay" *ngIf="isForgotPasswordModalOpen">
+  <div class="modal">
+    <h2>Recuperar contraseña</h2>
+    <p>Ingresa tu correo electrónico y te enviaremos tu contraseña.</p>
+
+    <input
+      type="email"
+      placeholder="tu.email@ejemplo.com"
+      [(ngModel)]="forgotIdentification"
+      name="forgotIdentification"
+      required
+    />
+
+    <div class="modal-buttons">
+      <button (click)="sendPasswordReset()">Enviar</button>
+      <button class="cancel" (click)="closeForgotPasswordModal()">Cancelar</button>
+    </div>
+  </div>
+</div>

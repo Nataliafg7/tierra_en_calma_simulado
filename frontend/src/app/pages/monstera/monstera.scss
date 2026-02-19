@@ -1,0 +1,979 @@
+.portada {
+  display: flex;
+  height: 700px;
+  position: relative;
+  overflow: hidden;
+}
+
+.columna {
+  flex: 1;
+  height: 100%;
+}
+
+.columna-izquierda {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 8rem;
+  gap: 1.8rem;
+  background-color: #f4dfcc;
+}
+
+.columna-centro {
+  background-color: #f0ece2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 6rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  text-align: left;
+}
+
+.columna-derecha {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 8rem;
+  gap: 1.8rem;
+  background-color: #f4e1e0;
+}
+
+.columna-izquierda .monit-card {
+  width: 85%;
+  max-width: 340px;
+  padding: 28px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(45, 74, 47, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-family: 'STIX Two Text', serif;
+  animation: aparecer 0.4s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(45, 74, 47, 0.3);
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sobre-tu-monstera {
+  text-align: center;
+  padding: 0 1rem;
+  max-width: 320px;
+}
+
+.title-flower {
+  font-family: 'STIX Two Text', serif;
+  font-weight: 400;
+  color: rgba(147, 81, 28, 0.4);
+  font-size: 2.5rem;
+  line-height: 2.5rem;
+  margin-bottom: 3rem;
+
+  .title-script {
+    display: block;
+    font-family: 'Mea Culpa', cursive;
+    font-size: 2.8rem;
+    color: #93511c;
+    margin-top: -0.1rem;
+  }
+}
+
+.subtitle-flower {
+  font-family: 'STIX Two Text', serif;
+  font-size: 1rem;
+  color: #4b4b4b;
+  line-height: 1.6rem;
+  text-align: center;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.monit-sensor-value {
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: #93511c;
+  margin: 10px 0 20px;
+}
+
+.monit-row {
+  font-size: 0.9rem;
+  color: #6b6b6b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.status-chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-online {
+  background: rgba(184, 200, 184, 0.3);
+  color: #2c3424;
+}
+
+.status-offline {
+  background: rgba(200, 123, 95, 0.25);
+  color: #c87b5f;
+}
+
+.monit-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  &.online {
+    background: #b8c8b8;
+  }
+  &.offline {
+    background: #c87b5f;
+  }
+}
+
+.planta-derecha {
+  position: absolute;
+  bottom: 20px;
+  left: 35%;
+  transform: translateX(50%);
+  width: 400px;
+  height: 400px;
+  background-image: url('../../../assets/images/MonsteraSinFondo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+}
+
+.tips-cuidado {
+  text-align: left;
+  padding: 2rem 0;
+  max-width: 580px;
+  margin: 0 auto;
+  margin-left: 1.5rem;
+  color: #2c3424;
+}
+
+.tips-cuidado .title-flower {
+  font-family: 'STIX Two Text', serif;
+  font-weight: 400;
+  color: rgba(147, 81, 28, 0.4);
+  font-size: 2.5rem;
+  line-height: 2.5rem;
+  margin-bottom: 1.2rem;
+  margin-left: 4rem;
+  text-align: center;
+
+  .title-script {
+    display: block;
+    font-family: 'Mea Culpa', cursive;
+    font-size: 2.8rem;
+    color: #93511c;
+    margin-top: -0.3rem;
+  }
+}
+
+.tips-text {
+  font-family: 'STIX Two Text', serif;
+  font-size: 1rem;
+  color: #3c3c3c;
+  line-height: 1.7rem;
+}
+
+.tips-text h3 {
+  color: #93511c;
+  font-size: 1.1rem;
+  margin-top: 1.6rem;
+  font-weight: 600;
+}
+
+.tips-text p {
+  margin-top: 0.4rem;
+  margin-bottom: 0.8rem;
+}
+
+.tips-text ul {
+  margin-top: 0.5rem;
+  margin-left: 1.2rem;
+  list-style-type: disc;
+}
+
+.tips-text li {
+  margin-bottom: 0.4rem;
+  color: #4b4b4b;
+}
+
+/* Botón secundario (ya no se usa en historial, pero lo dejamos por si) */
+.btn-riego-2 {
+  background: #93511c;
+  color: #fff;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 25px;
+  font-family: "Old Standard TT", serif;
+  font-size: 1rem;
+  font-weight: 200;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    background: #758a72;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(117, 138, 114, 0.4);
+  }
+  &:active { transform: translateY(0); }
+}
+
+.monit-chart {
+  height: 300px;
+  margin-top: 10px;
+}
+
+.historial-titulo {
+  text-align: center;
+  padding: 0 1rem;
+  max-width: 320px;
+}
+
+.historial-titulo .title-flower {
+  font-family: 'STIX Two Text', serif;
+  font-weight: 400;
+  color: rgba(147, 81, 28, 0.4);
+  font-size: 2.5rem;
+  line-height: 2.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.historial-titulo .title-script {
+  display: block;
+  font-family: 'Mea Culpa', cursive;
+  font-size: 2.8rem;
+  color: #93511c;
+  margin-top: -0.1rem;
+}
+
+/* === Tarjeta con efecto similar al resto === */
+.monit-historial {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(45, 74, 47, 0.1);
+  width: 85%;
+  max-width: 340px;
+  padding: 24px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(147, 81, 28, 0.2);
+  }
+}
+
+/* === Lista del historial (mantiene tu lógica original) === */
+.monit-history-list {
+  width: 100%;
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 6px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(244, 246, 244, 0.9);
+  }
+}
+
+.history-time {
+  font-size: 0.85rem;
+  color: #859b82;
+}
+
+.history-msg {
+  font-weight: 400;
+  color: #2c3424;
+}
+
+.history-empty {
+  font-size: 0.9rem;
+  color: #777;
+  text-align: center;
+  margin-top: 12px;
+}
+
+/* Sección tarjetas */
+
+/* === Sección blanca de las tarjetas === */
+.tarjetas-save-date {
+  position: relative;
+  background: linear-gradient(180deg, #fcf9f3 0%, #f9f5ec 100%);
+  padding: 100px 0 100px;
+  display: flex;
+  justify-content: center;
+  overflow: visible;
+  z-index: 3;
+}
+
+/* ===== Sección rosada con frase ===== */
+.seccion-frase {
+  background-color: #f8ebea;
+  margin-top: -90px;
+  padding: 80px 20px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.seccion-frase h2 {
+  font-family: 'STIX Two Text', serif;
+  font-size: 2rem;
+  color: #7a4d2b;
+  font-weight: 400;
+  line-height: 1.4;
+
+  span {
+    font-family: 'Mea Culpa', cursive;
+    color: #9b4d2b;
+    font-size: 2.4rem;
+    margin-left: 4px;
+  }
+}
+
+/* Aseguramos que las tarjetas estén por encima */
+.tarjetas-wrapper {
+  position: relative;
+  z-index: 1; /* 🔹 el contenido principal */
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 90px;
+  flex-wrap: wrap;
+}
+
+
+.tarjeta-save {
+  width: 400px;
+  height: 580px;
+  border-radius: 200px 200px 16px 16px; 
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  position: relative;
+  background-color: #fff;
+  border: 4px solid transparent;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 30px rgba(147, 81, 28, 0.2);
+  }
+}
+
+.tarjeta-amarilla {
+  background-color: #efdbad;
+  position: relative;
+  overflow: visible;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    border: 3px solid rgba(147, 81, 28, 0.35);
+    border-radius: 180px 180px 12px 12px;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background-image: url('../../../assets/images/OtraopcionM.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom center;
+    z-index: 3;
+  }
+}
+
+.titulo-riega {
+  text-align: center;
+  padding-top: 2rem;
+}
+
+.titulo-riega .title-flower {
+  font-family: 'STIX Two Text', serif;
+  font-weight: 400;
+  color: rgba(147, 81, 28, 0.45);
+  font-size: 2.6rem;
+  line-height: 2.5rem;
+  margin-bottom: 0.4rem;
+
+  .title-script {
+    display: block;
+    font-family: 'Mea Culpa', cursive;
+    font-size: 2.8rem;
+    color: #93511c;
+    margin-top: -0.2rem;
+  }
+}
+
+.tarjeta-blanca {
+  background-image: url(../../../assets/images/Papel.png);
+  background-size: 130%;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 15px solid #efdbad;
+  position: relative;
+  position: relative;
+  border-radius: 200px 200px 16px 16px;
+  padding: 60px 40px 80px;
+  text-align: center;
+  font-family: "Old Standard TT", serif;
+  color: #5a4128;
+  font-weight: 200;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 520px;
+}
+
+/* === Círculo superior decorativo === */
+.tarjeta-circulo {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 10px;
+  border-radius: 50%;
+  background-image: url('../../../assets/images/Amarrilla.png');
+  background-size: 130%;
+  background-position: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tarjeta-circulo {
+  position: absolute;
+  top: 50px;
+  right: -80px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  z-index: 0;
+}
+
+/* ===== Contenido dentro de la tarjeta blanca ===== */
+.contenido-tarjeta {
+  position: relative;
+  z-index: 2;
+  padding: 80px 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.frase-superior {
+  font-family: "STIX Two Text", serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: #6b6b6b;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.nombre-planta {
+  font-family: "Mea Culpa", cursive;
+  font-size: 2.5rem;
+  color: #93511c;
+  margin-bottom: 15px;
+  font-weight: 200;
+}
+
+.info-riego {
+  font-size: 1rem;
+  color: #6b6b6b;
+  margin-bottom: 20px;
+
+  span {
+    font-weight: 500;
+    color: #93511c;
+  }
+}
+
+.frase-final {
+  font-family: "STIX Two Text", serif;
+  font-size: 0.8rem;
+  color: #777;
+  margin-bottom: 30px;
+}
+
+.btn-riego {
+  background: #93511c;
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 25px;
+  font-family: "Old Standard TT", serif;
+  font-size: 1rem;
+  font-weight: 300;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(117, 138, 114, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* 🌿 Hoja decorativa izquierda */
+.hoja-izquierda {
+  position: absolute;
+  bottom: -100px;
+  left: -300px;
+  width: 250px;
+  height: 300px;
+  background-image: url('../../../assets/images/OtraOP1.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transform: rotate(-10deg);
+  z-index: 0;
+}
+
+/* 🌿 Hoja decorativa derecha */
+  .hoja-derecha {
+    position: absolute;
+    top: -100px;
+    right: -740px;
+    width: 220px;
+    height: 350px;
+    background-image: url('../../../assets/images/OtraOP2.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transform: rotate(15deg);
+    z-index: 0;
+  }
+
+/* ===== Sección frase inspiradora ===== */
+.frase-calma {
+  position: relative;
+  background-color: #f8eae8;
+  padding: 100px 0;
+  text-align: center;
+  overflow: hidden;
+  z-index: 0;
+
+  // 🌸 Flor izquierda
+  &::before {
+    content: "";
+    position: absolute;
+    top: 30px;
+    left: 120px;
+    width: 300px;
+    height: 300px;
+    background-image: url('../../../assets/images/MonsteraAcuarela.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.9;
+    transform: rotate(-5deg);
+    z-index: 1;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 40px;
+    right: 120px;
+    background-image: url('../../../assets/images/MonsteraAcuarela.png');
+    width: 300px;
+    height: 300px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.9;
+    transform: rotate(8deg);
+    z-index: 1;
+  }
+
+  // === Texto central ===
+  .texto-frase {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+    margin: 0 auto;
+
+    .intro-frase {
+      font-family: 'STIX Two Text', serif;
+      font-size: 1rem;
+      color: #7a5b4b;
+      margin-bottom: 14px;
+      letter-spacing: 1px;
+    }
+
+    h2 {
+      font-family: 'STIX Two Text', serif;
+      font-size: 2.4rem;
+      line-height: 1.4;
+      color: #93511c;
+      font-weight: 400;
+    }
+
+    .script {
+      font-family: 'Mea Culpa', cursive;
+      font-size: 3rem;
+      color: #93511c;
+    }
+
+    .no-script {
+      font-family: 'STIX Two Text', serif;
+      font-weight: 600;
+      color: #93511c;
+      font-style: normal;
+    }
+  }
+}
+
+/* ===== Nueva sección blanca ===== */
+.seccion-blanca {
+  position: relative; 
+  background-color: #ffffff;
+  padding: 120px 80px;
+  text-align: left;
+  z-index: 1;
+  margin-top: -60px;
+  border-top-left-radius: 50px;
+  border-top-right-radius: 50px;
+  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-right: 140px;
+}
+
+.seccion-blanca::after {
+  content: "";
+  position: absolute;
+  top: 250px;
+  right: 215px;
+  width: 500px; 
+  height: 500px; 
+
+  background-image: url('../../../assets/images/ImagenMonstera.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  /* === Estética === */
+  border-radius: 10px;
+  box-shadow: 0 14px 30px rgba(147, 81, 28, 0.18);
+  filter: brightness(0.98) contrast(1.05) saturate(1.1);
+  opacity: 0.95;
+  transition: all 0.4s ease-in-out;
+  z-index: 1;
+
+  &:hover {
+    transform: scale(1.04);
+    box-shadow: 0 18px 36px rgba(147, 81, 28, 0.25);
+    filter: brightness(1.03) contrast(1.05) saturate(1.15);
+  }
+}
+
+/* Contenido sobre la imagen */
+.seccion-blanca .contenido-blanco {
+  position: relative;
+  z-index: 2;
+}
+
+/* === Contenedor principal (columna izquierda) === */
+.contenido-blanco {
+  max-width: 700px;
+  margin-left: 100px;
+  font-family: 'STIX Two Text', serif;
+  color: #2c3424;
+}
+
+/* === Título principal === */
+.seccion-blanca .title-flower {
+  font-family: 'STIX Two Text', serif;
+  font-weight: 400;
+  color: rgba(147, 81, 28, 0.45);
+  font-size: 2.6rem;
+  line-height: 2.5rem;
+  margin-bottom: 1rem;
+
+  .title-script {
+    display: block;
+    font-family: 'Mea Culpa', cursive;
+    font-size: 3rem;
+    color: #93511c;
+    margin-top: -0.3rem;
+  }
+}
+
+/* === Tarjeta del gráfico (sin fondo blanco adicional) === */
+.seccion-blanca .monit-card {
+  background: none;
+  box-shadow: none;
+  padding: 0;
+  margin-top: 20px;
+  max-width: 650px;
+}
+
+/* === Título del gráfico === */
+.monit-card-title {
+  font-family: 'STIX Two Text', serif;
+  font-size: 1.2rem;
+  color: #93511c;
+  font-weight: 500;
+  margin-bottom: 1.2rem;
+  text-align: left;
+}
+
+/* === Contenedor del gráfico === */
+.monit-chart {
+  width: 100%;
+  height: 501px;
+  background: #fffbef;
+  box-shadow: 0 8px 20px rgba(147, 81, 28, 0.08);
+  padding: 50px;
+}
+
+/* === Canvas === */
+.monit-chart canvas {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+}
+
+
+/* === Sección general === */
+.cuidados-wrapper {
+  background: linear-gradient(180deg, #fcf9f3 0%, #f9f5ec 100%);
+  padding: 100px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* === Contenedor con fondo y vidrio === */
+.cuidados-container {
+  position: relative;
+  width: 85%;
+  max-width: 1200px;
+  border-radius: 30px;
+  padding: 50px 70px;
+  background-image: url('../../../assets/images/ImgLogin.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+
+  /* capa translúcida tipo vidrio */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 30px;
+    z-index: 1;
+  }
+
+  /* Asegura que el contenido quede por encima */
+  > * {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+/* === Título === */
+.cuidados-title {
+  font-family: 'STIX Two Text', serif;
+  font-size: 2.8rem;
+  color: rgba(147, 81, 28, 0.45);
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+  line-height: 1.1;
+
+  span {
+    display: block;
+    font-family: 'Mea Culpa', cursive;
+    font-size: 3.3rem;
+    color: #93511c;
+    margin-top: -0.4rem;
+  }
+}
+
+/* === Texto introductorio === */
+.cuidados-text {
+  font-family: 'STIX Two Text', serif;
+  color: #2c3424;
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 2rem auto;
+  line-height: 1.5;
+}
+
+/* === Grid: imagen + formulario === */
+.cuidados-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+  align-items: center;
+}
+
+/* === Imagen lateral === */
+.cuidados-img {
+  width: 100%;
+  height: 450px;
+  background-image: url('../../../assets/images/Cuidados3.jpg');
+  background-size: cover;
+  background-position: center;
+  border-radius: 25px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* === Formulario === */
+.cuidados-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  label {
+    font-size: 0.95rem;
+    color: #2c3424;
+    text-align: left;
+    font-weight: 500;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1.5px solid rgba(147, 81, 28, 0.3);
+    border-radius: 10px;
+    outline: none;
+    font-family: 'STIX Two Text', serif;
+    font-size: 15px;
+    color: #2d4a2f;
+    transition: all 0.3s ease;
+
+    &:focus {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: #93511c;
+      box-shadow: 0 0 8px rgba(147, 81, 28, 0.3);
+    }
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #8c8c8c;
+    font-style: italic;
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+}
+
+/* === Botón === */
+.btn-guardar {
+  background: rgba(147, 81, 28, 0.9);
+  color: #fff;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 25px;
+  font-family: "Old Standard TT", serif;
+  font-size: 1rem;
+  font-weight: 200;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(147, 81, 28, 0.25);
+
+  &:hover {
+    transform: translateY(-2px);
+    background: rgba(147, 81, 28, 1);
+    box-shadow: 0 10px 25px rgba(147, 81, 28, 0.35);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* === Responsive === */
+@media (max-width: 900px) {
+  .cuidados-grid {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .cuidados-img {
+    height: 300px;
+  }
+}

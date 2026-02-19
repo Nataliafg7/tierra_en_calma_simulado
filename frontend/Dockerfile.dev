@@ -1,0 +1,16 @@
+# Etapa de desarrollo de Angular
+FROM node:20
+WORKDIR /app
+
+# Copia solo dependencias primero
+COPY package*.json ./
+RUN npm install
+
+# Copia el resto del código fuente
+COPY . .
+
+# Exponer el puerto de Angular dev server
+EXPOSE 4200
+
+# Ejecutar Angular en modo desarrollo con live reload
+CMD ["npm", "start"]
