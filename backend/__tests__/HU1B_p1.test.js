@@ -1,26 +1,68 @@
-const request = require("supertest"); // Para simular una petición HTTP a Express
+/**
+ * ============================================================
+ * PRUEBA UNITARIA – HU1 REGISTRO DE USUARIO
+ * Escenario 1 (P1): Registro exitoso
+ * ============================================================
+ *
+ * Objetivo:
+ * Verificar que cuando la conexión a Oracle, el INSERT y el cierre
+ * de conexión se ejecutan correctamente, el endpoint /api/register
+ * responde con HTTP 200 y el mensaje de éxito esperado.
+ *
+ * Tipo de prueba:
+ * Prueba unitaria (aislada de servicios externos).
+ *
+ * Justificación:
+ * Para cumplir con el concepto de prueba unitaria, no se utiliza
+ * una conexión real a Oracle. En su lugar, se simula (mock)
+ * el comportamiento del módulo oracledb para controlar el flujo
+ * del escenario exitoso sin depender de infraestructura externa.
+ */
 
-// Mock: reemplaza oracledb real por uno falso controlado por la prueba
-// ¿Por qué? Porque es prueba unitaria: no dependemos de Oracle real.
+const request = require("supertest"); 
+// Supertest permite simular una petición HTTP hacia el endpoint
+// sin necesidad de levantar el servidor real con app.listen().
+
+// Se crea un mock del módulo oracledb.
+// Esto reemplaza temporalmente la implementación real durante la prueba.
+// De esta manera, la prueba no depende de la base de datos real.
 jest.mock("oracledb", () => ({
   getConnection: jest.fn()
 }));
 
 const oracledb = require("oracledb");
-const app = require("../server"); // Importa tu app Express (server.js exporta app)
+
+// Se importa la aplicación Express exportada desde server.js.
+// Esto permite probar directamente la lógica del endpoint.
+const app = require("../server");
+
 
 test("P1 - Registro exitoso devuelve 200 y mensaje de éxito", async () => {
-  // Conexión falsa: simula lo que Oracle devuelve cuando todo sale bien
-  // ¿Por qué? Tu endpoint usa connection.execute() y connection.close().
+
+  /**
+   * Se define una conexión simulada (fakeConn).
+   * Esta conexión contiene los métodos que el endpoint utiliza:
+   *  - execute(): simula la ejecución exitosa del INSERT.
+   *  - close(): simula el cierre correcto de la conexión.
+   *
+   * mockResolvedValue indica que la promesa se resuelve correctamente.
+   */
   const fakeConn = {
-    execute: jest.fn().mockResolvedValue({ rowsAffected: 1 }), // INSERT OK
-    close: jest.fn().mockResolvedValue(undefined),             // close OK
+    execute: jest.fn().mockResolvedValue({ rowsAffected: 1 }),
+    close: jest.fn().mockResolvedValue(undefined),
   };
 
-  // Cuando el código llame oracledb.getConnection(), le devolvemos nuestra conexión falsa
+  /**
+   * Se configura el comportamiento del mock:
+   * Cuando el código del endpoint invoque
+   * oracledb.getConnection(), devolverá fakeConn.
+   */
   oracledb.getConnection.mockResolvedValue(fakeConn);
 
-  // Hacemos la petición al endpoint real (sin levantar el servidor)
+  /**
+   * Se realiza la petición HTTP simulada al endpoint real.
+   * Se envía un cuerpo válido que representa un registro correcto.
+   */
   const res = await request(app)
     .post("/api/register")
     .send({
@@ -32,11 +74,19 @@ test("P1 - Registro exitoso devuelve 200 y mensaje de éxito", async () => {
       contrasena: "12345678",
     });
 
-  // Verificamos el resultado esperado del escenario 1
+  /**
+   * Validaciones del escenario esperado (P1):
+   * 1. El estado HTTP debe ser 200 (éxito).
+   * 2. El mensaje de respuesta debe coincidir con el definido en el backend.
+   */
   expect(res.status).toBe(200);
   expect(res.body).toEqual({ message: "Usuario registrado con éxito" });
 
-  // Verificamos que el flujo feliz sí se ejecutó
+  /**
+   * Validación del flujo interno:
+   * Se comprueba que los métodos principales del flujo exitoso
+   * fueron ejecutados exactamente una vez.
+   */
   expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
   expect(fakeConn.execute).toHaveBeenCalledTimes(1);
   expect(fakeConn.close).toHaveBeenCalledTimes(1);
