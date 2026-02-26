@@ -16,7 +16,7 @@ describe("HU1 - Registro de usuario - Error de conexión", () => {
 
   test("P2 - Debe retornar 500 cuando falla la conexión a Oracle", async () => {
 
-    // 1️ Simulo un error en la conexión a Oracle
+    // 1️ Se simula un error en la conexión a Oracle
     // Se fuerza que getConnection lance una excepción
     const errorConexion = new Error("Fallo de conexión a Oracle");
     oracledb.getConnection.mockRejectedValue(errorConexion);
@@ -26,15 +26,15 @@ describe("HU1 - Registro de usuario - Error de conexión", () => {
     const response = await request(app)
       .post("/api/register")
       .send({
-        nombre: "Carlos",
-        correo: "carlos@test.com",
+        nombre: "Juliana",
+        correo: "julianacasas3@gmail.com",
         password: "123456"
       });
 
-    // 3️ Verifico que el sistema responda con error 500
+    // 3️ Se verifica que el sistema responda con error 500
     expect(response.status).toBe(500);
 
-    // 4️ Verifico que el mensaje de error sea el definido en el backend
+    // 4️ Se verifica que el mensaje de error sea el definido en el backend
     expect(response.body).toHaveProperty("error", "Error al registrar usuario");
 
     // 5️ Confirmo que efectivamente se intentó establecer la conexión
