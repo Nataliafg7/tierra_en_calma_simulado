@@ -11,34 +11,50 @@ const nodemailer = require("nodemailer");
 const mqttService = require("./mqttService");
 const cuidadosService = require("./cuidadosService");
 const pkgCentralService = require("./pkgCentralService");
+
 console.log("Nodemailer cargado correctamente");
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-//CONFIGURACIÓN ORACLE 
+/**
+ * NUEVO (para pruebas unitarias):
+ * - Cuando corremos Jest ponemos NODE_ENV=test.
+ * - En ese modo NO queremos:
+ *   1) probar conexión real a Oracle al iniciar,
+ *   2) iniciar MQTT,
+ *   3) levantar el servidor con app.listen,
+ * porque las unitarias deben ser rápidas y no depender de servicios externos.
+ * En ejecución normal (npm start / node server.js) esto queda FALSE y todo funciona igual que antes.
+ */
+const IS_TEST = process.env.NODE_ENV === "test";
+
+//CONFIGURACIÓN ORACLE
 const dbConfig = {
   user: process.env.ORACLE_USER,
   password: process.env.ORACLE_PASS,
   connectString: process.env.ORACLE_CONN
 };
 
-// TEST DE CONEXIÓN AL INICIAR 
-(async () => {
-  console.log("Probando conexión a Oracle...");
-  try {
-    const conn = await oracledb.getConnection(dbConfig);
-    const result = await conn.execute("SELECT 'Conexión OK' AS estado FROM DUAL");
-    console.log(`Conexión exitosa a Oracle: ${result.rows[0][0]}`);
-    await conn.close();
-  } catch (err) {
-    console.error("Error al conectar con Oracle al iniciar el servidor:");
-    console.error(`Código: ${err.errorNum || err.code}`);
-    console.error(`Mensaje: ${err.message}`);
-  }
-})();
+// TEST DE CONEXIÓN AL INICIAR (solo en ejecución normal; en tests unitarios se omite)
+if (!IS_TEST) {
+  (async () => {
+    console.log("Probando conexión a Oracle...");
+    try {
+      const conn = await oracledb.getConnection(dbConfig);
+      const result = await conn.execute("SELECT 'Conexión OK' AS estado FROM DUAL");
+      console.log(`Conexión exitosa a Oracle: ${result.rows[0][0]}`);
+      await conn.close();
+    } catch (err) {
+      console.error("Error al conectar con Oracle al iniciar el servidor:");
+      console.error(`Código: ${err.errorNum || err.code}`);
+      console.error(`Mensaje: ${err.message}`);
+    }
+  })();
+}
 
-// REGISTRO DE USUARIOS 
+// REGISTRO DE USUARIOS
 app.post("/api/register", async (req, res) => {
   const { id_usuario, nombre, apellido, telefono, correo_electronico, contrasena } = req.body;
   try {
@@ -67,7 +83,8 @@ app.post("/api/register", async (req, res) => {
     });
   }
 });
-//  LOGIN 
+
+//  LOGIN
 app.post("/api/login", async (req, res) => {
   const { correo_electronico, contrasena } = req.body;
 
@@ -89,7 +106,7 @@ app.post("/api/login", async (req, res) => {
       const usuario = result.rows[0];
       const correo = (usuario.CORREO_ELECTRONICO || '').trim().toLowerCase();
 
-      // DETECTAR ADMINISTRADOR 
+      // DETECTAR ADMINISTRADOR
       const role = correo === 'admin@tierraencalma.com' ? 'admin' : 'user';
 
       console.log(`Login exitoso para ${correo} (rol: ${role})`);
@@ -153,12 +170,14 @@ app.post("/api/contacto", async (req, res) => {
 });
 
 
-
 // ======================= CONFIGURACIÓN MQTT =======================
-mqttService.initMQTT(process.env.MQTT_BROKER, {
-  username: process.env.MQTT_USER,
-  password: process.env.MQTT_PASS,
-}, process.env.MQTT_TOPIC);
+// NUEVO: en pruebas unitarias no iniciamos MQTT (no es necesario para probar /api/register)
+if (!IS_TEST) {
+  mqttService.initMQTT(process.env.MQTT_BROKER, {
+    username: process.env.MQTT_USER,
+    password: process.env.MQTT_PASS,
+  }, process.env.MQTT_TOPIC);
+}
 
 app.get("/api/datos", (req, res) => {
   res.json({ dato: mqttService.getUltimoDato() });
@@ -281,6 +300,7 @@ app.get("/api/mis-plantas", async (req, res) => {
     if (connection) try { await connection.close(); } catch { }
   }
 });
+
 // ======================= CUIDADOS =======================
 app.post("/api/cuidados", async (req, res) => {
   const { id_planta_usuario, fecha, tipo, detalles } = req.body;
@@ -301,6 +321,7 @@ app.post("/api/cuidados", async (req, res) => {
     res.status(500).json({ error: "No se pudo registrar el cuidado" });
   }
 });
+
 // ======================= SWAGGER =======================
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -312,8 +333,6 @@ process.on("unhandledRejection", (reason, promise) => {
 process.on("uncaughtException", (err) => {
   console.error("Error no capturado:", err);
 });
-
-
 
 // ======================= RUTA PARA VISTAS DEL ADMIN =======================
 app.get("/api/admin/vistas", async (req, res) => {
@@ -379,7 +398,6 @@ app.get("/api/admin/vistas", async (req, res) => {
   }
 });
 
-
 // ======================= VERIFICAR CONDICIONES =======================
 app.post("/api/verificar-condiciones", async (req, res) => {
   const idPlantaUsuario = Number(req.body?.id_planta_usuario);
@@ -405,12 +423,18 @@ app._router.stack.forEach(r => {
 });
 
 // ======================= INICIO SERVIDOR =======================
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
-  console.log(`Intentando conectar con Oracle: ${dbConfig.connectString}`);
+// NUEVO: en pruebas unitarias NO levantamos servidor real. En ejecución normal funciona igual que antes.
+if (!IS_TEST) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
+    console.log(`Intentando conectar con Oracle: ${dbConfig.connectString}`);
 
-  // Iniciar simulador de sensores
-  console.log("[INIT] Iniciando simulador de sensores...");
-  mqttService.initMQTT(null, { everyMs: 2000 }, null, true);
-});
+    // Iniciar simulador de sensores
+    console.log("[INIT] Iniciando simulador de sensores...");
+    mqttService.initMQTT(null, { everyMs: 2000 }, null, true);
+  });
+}
+
+// NUEVO: exportar app para que Jest/Supertest puedan probar /api/register sin levantar el servidor
+module.exports = app;
