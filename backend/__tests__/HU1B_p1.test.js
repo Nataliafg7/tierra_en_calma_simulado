@@ -68,9 +68,9 @@ test("P1 - Registro exitoso devuelve 200 y mensaje de éxito", async () => {
     .send({
       id_usuario: 1,
       nombre: "Juliana",
-      apellido: "Flórez",
+      apellido: "Casas",
       telefono: "3000000000",
-      correo_electronico: "juliana@test.com",
+      correo_electronico: "julianacasas3@tgmail.comcom",
       contrasena: "12345678",
     });
 
