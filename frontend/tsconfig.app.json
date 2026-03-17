@@ -8,7 +8,7 @@
   },
   "include": [
     "src/**/*.ts"
-  ],
+, "src/app/pages/monstera/monstera.spec.ts.off"  ],
   "exclude": [
     "src/**/*.spec.ts"
   ]
