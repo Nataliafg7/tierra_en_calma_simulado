@@ -13,8 +13,8 @@ function startSimulator({ everyMs = 10000, onDato = null } = {}) {
     t += (Math.random() - 0.5);
     h += (Math.random() - 0.5) * 2; //intervalos, escala
 
-    t = Math.max(0, Math.min(45, t)); //modifcar el valor 0 y 45 que es el rango
-    h = Math.max(0, Math.min(90, h));
+    t = Math.max(0, Math.min(52, t)); //modifcar el valor 0 y 45 que es el rango
+    h = Math.max(0, Math.min(95, h));
 
     const dato = `T:${t.toFixed(2)},H:${h.toFixed(2)}%`;
 

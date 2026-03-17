@@ -5,7 +5,6 @@
   "scripts": {
     "test": "set NODE_ENV=test&& jest --runInBand",
     "start": "node server.js"
-    
   },
   "dependencies": {
     "body-parser": "^1.20.3",

@@ -72,7 +72,7 @@ function initMQTT(brokerUrl, options, topic, useSimulator = false) {
   if (useSimulator) {
     isSimulatorMode = true;
     console.log("[MQTT] Modo SIMULADOR activado");
-    startSimulator({ everyMs: options?.everyMs || 2000, onDato: procesarDatoInterno });
+    startSimulator({ everyMs: options?.everyMs || 10000, onDato: procesarDatoInterno });
   } else {
     isSimulatorMode = false;
     client = mqtt.connect(brokerUrl, options);
@@ -125,7 +125,7 @@ async function procesarDatoMQTT(dato) {
       console.warn("[MQTT][SKIP] CURRENT_SENSOR_ID vacío. No se inserta.");
       return;
     }
-
+  
     const temperatura = Number(parseFloat(match[1]).toFixed(2));
     const humedad = Number(parseFloat(match[2]).toFixed(2));
     if (isNaN(temperatura) || isNaN(humedad)) {

@@ -432,7 +432,7 @@ if (!IS_TEST) {
 
     // Iniciar simulador de sensores
     console.log("[INIT] Iniciando simulador de sensores...");
-    mqttService.initMQTT(null, { everyMs: 2000 }, null, true);
+    mqttService.initMQTT(null, { everyMs: 10000 }, null, true);
   });
 }
 
