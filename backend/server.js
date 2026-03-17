@@ -208,16 +208,6 @@ app.post('/api/monitorear', async (req, res) => {
 });
 
 // ======================= PLANTAS =======================
-app.post("/api/regar", (req, res) => {
-  try {
-    client.publish("plantas/regar", "REGAR");
-    console.log("Comando de riego enviado (topic plantas/regar)");
-    res.json({ message: "Comando de riego enviado a la planta" });
-  } catch (err) {
-    console.error("Error publicando en MQTT:", err);
-    res.status(500).json({ error: "Error al activar el riego" });
-  }
-});
 
 app.post("/api/registrar-planta", async (req, res) => {
   const { id_usuario, id_planta } = req.body;
@@ -311,7 +301,7 @@ app.post("/api/cuidados", async (req, res) => {
   try {
     const r = await cuidadosService.crearCuidado({
       id_planta_usuario: Number(id_planta_usuario),
-      fecha,                         // 'YYYY-MM-DD' o ISO
+      fecha,        
       tipo_cuidado: tipo,
       detalle: detalles,
     });
@@ -437,4 +427,4 @@ if (!IS_TEST) {
 }
 
 // NUEVO: exportar app para que Jest/Supertest puedan probar /api/register sin levantar el servidor
-module.exports = app;
+module.exports = app; 

@@ -99,6 +99,7 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
   }
+  
   verificarCondiciones(): void {
     if (!this.idPlantaUsuario) return alert('Falta ID de planta');
     fetch('http://localhost:3000/api/verificar-condiciones', {
