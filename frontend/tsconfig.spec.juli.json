@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/spec"
+  },
+  "include": [
+    "src/app/pages/login/__tests__/HU1F_*.spec.ts",
+    "src/app/pages/login/__tests__/HU3F_*.spec.ts",
+    "src/app/pages/registrar-plantas/**/*.spec.ts",
+    "src/app/pages/mis-plantas/__tests__/HU11F_*.spec.ts",
+    "src/**/*.d.ts"
+  ]
+}
