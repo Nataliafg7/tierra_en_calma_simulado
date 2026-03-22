@@ -1,0 +1,461 @@
+PASS __tests__/app.routes.test.js
+  ● Console
+
+    console.error
+      Error: err
+          at Object.<anonymous> (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\__tests__\app.routes.test.js:103:64)
+          at Promise.finally.completed (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 321 |[39m       res[33m.[39mjson(result)[33m;[39m
+     [90m 322 |[39m     } [36mcatch[39m (e) {
+    [31m[1m>[22m[39m[90m 323 |[39m       console[33m.[39merror(e)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 324 |[39m       res[33m.[39mstatus([35m500[39m)[33m.[39mjson({ ok[33m:[39m [36mfalse[39m[33m,[39m error[33m:[39m [32m"Error al verificar condiciones"[39m })[33m;[39m
+     [90m 325 |[39m     }
+     [90m 326 |[39m   })[33m;[39m[0m
+
+      at error (app.js:323:15)
+
+    console.error
+      Error: DB Error
+          at Object.<anonymous> (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\__tests__\app.routes.test.js:156:48)
+          at Promise.finally.completed (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 304 |[39m       })[33m;[39m
+     [90m 305 |[39m     } [36mcatch[39m (err) {
+    [31m[1m>[22m[39m[90m 306 |[39m       console[33m.[39merror(err)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 307 |[39m       res[33m.[39mstatus([35m500[39m)[33m.[39mjson({ error[33m:[39m [32m"Error al consultar las vistas administrativas"[39m })[33m;[39m
+     [90m 308 |[39m     }
+     [90m 309 |[39m   })[33m;[39m[0m
+
+      at error (app.js:306:15)
+
+FAIL __tests__/server.routes.test.js
+  ● Console
+
+    console.log
+      Nodemailer cargado correctamente
+
+      at Object.log (server.js:38:9)
+
+    console.log
+      Rutas cargadas: /api/verificar-condiciones habilitada
+
+      at Object.log (server.js:53:9)
+
+    console.log
+       Ruta registrada: /api/register
+
+      at log (server.js:56:13)
+          at Array.forEach (<anonymous>)
+
+    console.log
+       Ruta registrada: /api/login
+
+      at log (server.js:56:13)
+          at Array.forEach (<anonymous>)
+
+    console.log
+       Ruta registrada: /api/contacto
+
+      at log (server.js:56:13)
+          at Array.forEach (<anonymous>)
+
+    console.log
+       Ruta registrada: /api/datos
+
+      at log (server.js:56:13)
+          at Array.forEach (<anonymous>)
+
+    console.log
+       Ruta registrada: /api/historial
+
+      at log (server.js:56:13)
+          at Array.forEach (<anonymous>)
+
+    console.log
+       Ruta registrada: /api/monitorear
+
+      at log (server.js:56:13)
+          at Array.forEach (<anonymous>)
+
+    console.log
+       Ruta registrada: /api/registrar-planta
+
+      at log (server.js:56:13)
+          at Array.forEach (<anonymous>)
+
+    console.log
+       Ruta registrada: /api/plantas
+
+      at log (server.js:56:13)
+          at Array.forEach (<anonymous>)
+
+    console.log
+       Ruta registrada: /api/mis-plantas
+
+      at log (server.js:56:13)
+          at Array.forEach (<anonymous>)
+
+    console.log
+       Ruta registrada: /api/cuidados
+
+      at log (server.js:56:13)
+          at Array.forEach (<anonymous>)
+
+    console.log
+       Ruta registrada: /api/admin/vistas
+
+      at log (server.js:56:13)
+          at Array.forEach (<anonymous>)
+
+    console.log
+       Ruta registrada: /api/verificar-condiciones
+
+      at log (server.js:56:13)
+          at Array.forEach (<anonymous>)
+
+    console.error
+      Error: DB Error
+          at Object.<anonymous> (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\__tests__\server.routes.test.js:86:48)
+          at Promise.finally.completed (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 85 |[39m       }
+     [90m 86 |[39m     } [36mcatch[39m (err) {
+    [31m[1m>[22m[39m[90m 87 |[39m       console[33m.[39merror(err)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 88 |[39m       res[33m.[39mstatus([35m500[39m)[33m.[39msend({ error[33m:[39m [32m"Error al iniciar sesión"[39m })[33m;[39m
+     [90m 89 |[39m     }
+     [90m 90 |[39m   })[33m;[39m[0m
+
+      at error (app.js:87:15)
+
+    console.error
+      Error: Mail Error
+          at Object.<anonymous> (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\__tests__\server.routes.test.js:103:47)
+          at C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-mock\build\index.js:305:39
+          at Object.<anonymous> (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-mock\build\index.js:312:13)
+          at Object.mockConstructor (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-mock\build\index.js:102:19)
+          at createTransport (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\app.js:101:36)
+          at Layer.handle [as handle_request] (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\express\lib\router\layer.js:95:5)
+          at next (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\express\lib\router\route.js:149:13)
+          at Route.dispatch (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\express\lib\router\route.js:119:3)
+          at Layer.handle [as handle_request] (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\express\lib\router\layer.js:95:5)
+          at C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\express\lib\router\index.js:284:15
+          at Function.process_params (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\express\lib\router\index.js:346:12)
+          at next (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\express\lib\router\index.js:280:10)
+          at C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\body-parser\lib\read.js:137:5
+          at AsyncResource.runInAsyncScope (node:async_hooks:214:14)
+          at invokeCallback (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\raw-body\index.js:238:16)
+          at done (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\raw-body\index.js:227:7)
+          at IncomingMessage.onEnd (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\raw-body\index.js:287:7)
+          at IncomingMessage.emit (node:events:518:28)
+          at endReadableNT (node:internal/streams/readable:1698:12)
+          at processTicksAndRejections (node:internal/process/task_queues:90:21)
+
+    [0m [90m 123 |[39m       res[33m.[39mjson({ message[33m:[39m [32m"Mensaje enviado correctamente"[39m })[33m;[39m
+     [90m 124 |[39m     } [36mcatch[39m (err) {
+    [31m[1m>[22m[39m[90m 125 |[39m       console[33m.[39merror(err)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 126 |[39m       res[33m.[39mstatus([35m500[39m)[33m.[39mjson({ error[33m:[39m [32m"Error al enviar el correo"[39m })[33m;[39m
+     [90m 127 |[39m     }
+     [90m 128 |[39m   })[33m;[39m[0m
+
+      at error (app.js:125:15)
+
+    console.error
+      Error: DB Error
+          at Object.<anonymous> (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\__tests__\server.routes.test.js:176:48)
+          at Promise.finally.completed (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 304 |[39m       })[33m;[39m
+     [90m 305 |[39m     } [36mcatch[39m (err) {
+    [31m[1m>[22m[39m[90m 306 |[39m       console[33m.[39merror(err)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 307 |[39m       res[33m.[39mstatus([35m500[39m)[33m.[39mjson({ error[33m:[39m [32m"Error al consultar las vistas administrativas"[39m })[33m;[39m
+     [90m 308 |[39m     }
+     [90m 309 |[39m   })[33m;[39m[0m
+
+      at error (app.js:306:15)
+
+    console.error
+      Error: DB Error
+          at Object.<anonymous> (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\__tests__\server.routes.test.js:187:48)
+          at Promise.finally.completed (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 171 |[39m       res[33m.[39msend({ message[33m:[39m [32m"Planta registrada con éxito en tu jardín"[39m })[33m;[39m
+     [90m 172 |[39m     } [36mcatch[39m (err) {
+    [31m[1m>[22m[39m[90m 173 |[39m       console[33m.[39merror(err)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 174 |[39m       res[33m.[39mstatus([35m500[39m)[33m.[39msend({ error[33m:[39m [32m"Error al registrar planta"[39m })[33m;[39m
+     [90m 175 |[39m     }
+     [90m 176 |[39m   })[33m;[39m[0m
+
+      at error (app.js:173:15)
+
+    console.error
+      Error: DB Error
+          at Object.<anonymous> (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\__tests__\server.routes.test.js:204:64)
+          at Promise.finally.completed (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\NataliaF\Downloads\tierra_en_calma_simulado\backend\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 321 |[39m       res[33m.[39mjson(result)[33m;[39m
+     [90m 322 |[39m     } [36mcatch[39m (e) {
+    [31m[1m>[22m[39m[90m 323 |[39m       console[33m.[39merror(e)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 324 |[39m       res[33m.[39mstatus([35m500[39m)[33m.[39mjson({ ok[33m:[39m [36mfalse[39m[33m,[39m error[33m:[39m [32m"Error al verificar condiciones"[39m })[33m;[39m
+     [90m 325 |[39m     }
+     [90m 326 |[39m   })[33m;[39m[0m
+
+      at error (app.js:323:15)
+
+  ● Rutas Server (server.js) › MQTT y Sensores › POST /api/regar - Exito (Endpoint 1)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 404
+
+    [0m [90m 121 |[39m       [36mconst[39m res [33m=[39m [36mawait[39m request(app)[33m.[39mpost([32m'/api/regar'[39m)[33m;[39m
+     [90m 122 |[39m       [90m// En server.js hay 2 endpoints /api/regar. El primero procesa y retorna 200.[39m
+    [31m[1m>[22m[39m[90m 123 |[39m       expect(res[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m     |[39m                          [31m[1m^[22m[39m
+     [90m 124 |[39m     })[33m;[39m
+     [90m 125 |[39m
+     [90m 126 |[39m     test([32m'POST /api/monitorear - Falla 400 por string'[39m[33m,[39m [36masync[39m () [33m=>[39m {[0m
+
+      at Object.toBe (__tests__/server.routes.test.js:123:26)
+
+PASS __tests__/pkgCentral.service.test.js
+  ● Console
+
+    console.log
+      [PKG_CENTRAL] Activando riego físico via MQTT...
+
+      at Object.log [as verificarCondiciones] (pkgCentralService.js:60:15)
+
+PASS __tests__/mqtt.service.test.js
+  ● Console
+
+    console.log
+      [SENSORES][CREATE OK] PU=5 → ID_SENSOR=100
+
+      at log (mqttService.js:58:13)
+
+    console.log
+      [SENSORES][SET ACTIVE] PU=5 CURRENT_SENSOR_ID=100
+
+      at Object.log [as setSensorForPlanta] (mqttService.js:68:11)
+
+    console.log
+      [SENSORES] Ya existe sensor para PU=5: ID_SENSOR=5
+
+      at log (mqttService.js:39:15)
+
+    console.log
+      [SENSORES][SET ACTIVE] PU=5 CURRENT_SENSOR_ID=5
+
+      at Object.log [as setSensorForPlanta] (mqttService.js:68:11)
+
+    console.log
+      [SENSORES] Ya existe sensor para PU=9: ID_SENSOR=9
+
+      at log (mqttService.js:39:15)
+
+    console.log
+      [SENSORES][SET ACTIVE] PU=9 CURRENT_SENSOR_ID=9
+
+      at Object.log [as setSensorForPlanta] (mqttService.js:68:11)
+
+    console.error
+      [RIEGO][DB] error: DB DOWN
+
+    [0m [90m 214 |[39m     [36mreturn[39m { ok[33m:[39m [36mtrue[39m[33m,[39m id_sensor[33m:[39m [33mCURRENT_SENSOR_ID[39m[33m,[39m id_lectura[33m:[39m idLectura }[33m;[39m
+     [90m 215 |[39m   } [36mcatch[39m (err) {
+    [31m[1m>[22m[39m[90m 216 |[39m     console[33m.[39merror([32m"[RIEGO][DB] error:"[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 217 |[39m     [36mreturn[39m { ok[33m:[39m [36mfalse[39m[33m,[39m error[33m:[39m err[33m.[39mmessage }[33m;[39m
+     [90m 218 |[39m   } [36mfinally[39m {
+     [90m 219 |[39m     [36mif[39m (conn) [36mtry[39m { [36mawait[39m conn[33m.[39mclose()[33m;[39m } [36mcatch[39m { }[0m
+
+      at Object.error [as enviarComandoRiego] (mqttService.js:216:13)
+      at Object.<anonymous> (__tests__/mqtt.service.test.js:88:20)
+
+    console.log
+      [RIEGO-FISICO] Comando físico enviado al topic plantas/regar
+
+      at Object.log [as enviarComandoFisicoRiego] (mqttService.js:231:13)
+
+    console.error
+      [RIEGO-FISICO] Error enviando comando: Crashed
+
+    [0m [90m 232 |[39m     [36mreturn[39m { ok[33m:[39m [36mtrue[39m }[33m;[39m
+     [90m 233 |[39m   } [36mcatch[39m (err) {
+    [31m[1m>[22m[39m[90m 234 |[39m     console[33m.[39merror([32m"[RIEGO-FISICO] Error enviando comando:"[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 235 |[39m     [36mreturn[39m { ok[33m:[39m [36mfalse[39m[33m,[39m error[33m:[39m err[33m.[39mmessage }[33m;[39m
+     [90m 236 |[39m   }
+     [90m 237 |[39m }[0m
+
+      at Object.error [as enviarComandoFisicoRiego] (mqttService.js:234:13)
+      at Object.enviarComandoFisicoRiego (__tests__/mqtt.service.test.js:99:38)
+
+    console.log
+      [SENSORES] Ya existe sensor para PU=5: ID_SENSOR=5
+
+      at log (mqttService.js:39:15)
+
+    console.log
+      [SENSORES][SET ACTIVE] PU=5 CURRENT_SENSOR_ID=5
+
+      at Object.log [as setSensorForPlanta] (mqttService.js:68:11)
+
+    console.log
+      [MQTT][INSERT OK] sensor=5 id_lectura=999 T=25.5°C H=45.3% fecha=2026-03-22T21:35:08.557Z rows=1
+
+      at log (mqttService.js:158:13)
+
+    console.log
+      [SENSORES] Ya existe sensor para PU=11: ID_SENSOR=11
+
+      at log (mqttService.js:39:15)
+
+    console.log
+      [SENSORES][SET ACTIVE] PU=11 CURRENT_SENSOR_ID=11
+
+      at Object.log [as setSensorForPlanta] (mqttService.js:68:11)
+
+PASS __tests__/simuladorSensor.test.js
+  ● Console
+
+    console.log
+      [SIM] Iniciado - Generando datos cada 1000 ms
+
+      at Object.log [as startSimulator] (SimuladorSensor.js:9:11)
+
+    console.log
+      [SIM] Dato generado: T:24.20,H:54.02%
+
+      at log (SimuladorSensor.js:21:13)
+
+    console.log
+      [SIM] Detenido
+
+      at Object.log [as stopSimulator] (SimuladorSensor.js:34:11)
+
+    console.log
+      [SIM] Iniciado - Generando datos cada 100 ms
+
+      at Object.log [as startSimulator] (SimuladorSensor.js:9:11)
+
+    console.log
+      [SIM] Dato generado: T:24.41,H:54.54%
+
+      at log (SimuladorSensor.js:21:13)
+
+    console.log
+      [SIM] Detenido
+
+      at Object.log [as stopSimulator] (SimuladorSensor.js:34:11)
+
+PASS __tests__/helpers/oracleSeed.js
+----------------------|---------|----------|---------|---------|------------------------------------------------------------------------
+File                  | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                      
+----------------------|---------|----------|---------|---------|------------------------------------------------------------------------
+All files             |   84.83 |    62.79 |   78.04 |   84.89 |                                                                        
+ SimuladorSensor.js   |     100 |    28.57 |     100 |     100 | 4-33                                                                   
+ app.js               |   93.75 |    84.61 |     100 |   93.54 | 149-150,193-194,225-226,248-249                                        
+ mqttService.js       |   79.62 |    56.75 |   71.42 |   80.39 | 74-76,84-85,95,104-105,123-124,127-128,134-135,175-176,179-180,225-226 
+ pkgCentralService.js |     100 |    83.33 |      50 |     100 | 59                                                                     
+ server.js            |      50 |       40 |      20 |      50 | 16-25,31,35,43-50,61-63                                                
+----------------------|---------|----------|---------|---------|------------------------------------------------------------------------
+
+Test Suites: 1 failed, 5 passed, 6 total
+Tests:       1 failed, 52 passed, 53 total
+Snapshots:   0 total
+Time:        1.642 s
+Ran all test suites.
