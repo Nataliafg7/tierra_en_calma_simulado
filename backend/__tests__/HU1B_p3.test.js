@@ -1,51 +1,77 @@
-// HU1B_p3.test.js
-// Prueba unitaria correspondiente al camino independiente P3
-// Escenario: Error durante el INSERT
-
 const request = require("supertest");
-const app = require("../server");
 
-// Mock del módulo oracledb
+// Se reemplaza Oracle por un mock
 jest.mock("oracledb", () => ({
   getConnection: jest.fn()
 }));
 
 const oracledb = require("oracledb");
 
+// IMPORTANTE: se usa app.js porque ahí está la lógica del endpoint
+const app = require("../app");
+
 describe("HU1 - Registro de usuario - Error en INSERT", () => {
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   test("P3 - Debe retornar 500 cuando falla el INSERT", async () => {
 
-    // 1️ Se simulo una conexión exitosa
+    // =========================
+    // Arrange
+    // =========================
+
+    // Conexión simulada
     const mockConnection = {
       execute: jest.fn(),
       close: jest.fn()
     };
 
+    // La conexión sí funciona
     oracledb.getConnection.mockResolvedValue(mockConnection);
 
-    // 2️ Se simula error en el método execute (INSERT)
+    // Pero el INSERT falla
     const errorInsert = new Error("Error en INSERT");
     mockConnection.execute.mockRejectedValue(errorInsert);
 
-    // 3️  Se envía la solicitud POST válida
+    // Datos válidos del endpoint real
+    const nuevoUsuario = {
+      id_usuario: 1,
+      nombre: "Juliana",
+      apellido: "Casas",
+      telefono: "3000000000",
+      correo_electronico: "juliana.casas@gmail.com",
+      contrasena: "12345678"
+    };
+
+    // =========================
+    // Act
+    // =========================
+
     const response = await request(app)
       .post("/api/register")
-      .send({
-        nombre: "juliana",
-        correo: "juliana@gmail.com",
-        password: "123456"
-      });
+      .send(nuevoUsuario);
 
-    // 4️ Se verifica que el sistema responda con 500
+    // =========================
+    // Assert
+    // =========================
+
     expect(response.status).toBe(500);
 
-    // 5️ Se verifica que el mensaje de error sea el esperado
-    expect(response.body).toHaveProperty("error", "Error al registrar usuario");
+    expect(response.body).toHaveProperty(
+      "error",
+      "Error al registrar usuario"
+    );
 
-    // 6️ SSe Confirma que se intentó ejecutar el INSERT
+    // Se intentó conectar
+    expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
+
+    // Se intentó ejecutar el INSERT
     expect(mockConnection.execute).toHaveBeenCalledTimes(1);
 
+    // IMPORTANTE: no debe cerrarse porque falló antes
+    expect(mockConnection.close).not.toHaveBeenCalled();
   });
 
 });

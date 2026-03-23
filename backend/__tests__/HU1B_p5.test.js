@@ -1,65 +1,98 @@
-// HU1B_p5.test.js
-// Prueba unitaria correspondiente al camino independiente P5
-// Escenario: Camino estructural adicional (re-evaluación en N3 antes de ir a catch)
-
 const request = require("supertest");
-const app = require("../server");
 
-// Mock del módulo oracledb
+// Se reemplaza el módulo real de Oracle por un mock
 jest.mock("oracledb", () => ({
   getConnection: jest.fn()
 }));
 
 const oracledb = require("oracledb");
+const app = require("../app");
 
 describe("HU1 - Registro de usuario - Camino estructural adicional (P5)", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-  test("P5 - Debe cubrir re-evaluación estructural: una ejecución OK y luego una ejecución que cae en catch", async () => {
+  test("P5 - Debe cubrir una ejecución exitosa y una segunda ejecución que cae en catch", async () => {
+    // =========================
+    // Arrange
+    // =========================
 
-    // 1️ Se crea una conexión simulada con sus métodos
+    // Se crea una conexión simulada para reutilizarla en ambas ejecuciones
     const mockConnection = {
       execute: jest.fn(),
       close: jest.fn()
     };
 
-    // 2️ Se configura el mock para que siempre entregue conexión
+    // Siempre se obtiene conexión correctamente
     oracledb.getConnection.mockResolvedValue(mockConnection);
 
-    // 3️  Primera ejecución: todo funciona (flujo exitoso)
+    // Primera ejecución: el INSERT funciona y la conexión se cierra bien
     mockConnection.execute.mockResolvedValueOnce({ rowsAffected: 1 });
-    mockConnection.close.mockResolvedValueOnce();
+    mockConnection.close.mockResolvedValueOnce(undefined);
+
+    const usuario1 = {
+      id_usuario: 1,
+      nombre: "Mario",
+      apellido: "Gomez",
+      telefono: "3000000000",
+      correo_electronico: "mario@test.com",
+      contrasena: "12345678"
+    };
+
+    // =========================
+    // Act - Primera ejecución
+    // =========================
 
     const response1 = await request(app)
       .post("/api/register")
-      .send({
-        nombre: "Mario",
-        correo: "mario@test.com",
-        password: "123456"
-      });
+      .send(usuario1);
+
+    // =========================
+    // Assert - Primera ejecución
+    // =========================
 
     expect(response1.status).toBe(200);
-    expect(response1.body).toHaveProperty("message", "Usuario registrado con éxito");
+    expect(response1.body).toEqual({
+      message: "Usuario registrado con éxito"
+    });
 
-    // 4️ Segunda ejecución: se fuerza un error para desviar el flujo al catch
-    // En este caso, simulo que el INSERT falla en el segundo intento
+    // Segunda ejecución: el INSERT falla
     const errorInsert = new Error("Error en INSERT (segundo intento)");
     mockConnection.execute.mockRejectedValueOnce(errorInsert);
 
+    const usuario2 = {
+      id_usuario: 2,
+      nombre: "Mario",
+      apellido: "Lopez",
+      telefono: "3111111111",
+      correo_electronico: "mario2@test.com",
+      contrasena: "12345678"
+    };
+
+    // =========================
+    // Act - Segunda ejecución
+    // =========================
+
     const response2 = await request(app)
       .post("/api/register")
-      .send({
-        nombre: "Mario",
-        correo: "mario2@test.com",
-        password: "123456"
-      });
+      .send(usuario2);
+
+    // =========================
+    // Assert - Segunda ejecución
+    // =========================
 
     expect(response2.status).toBe(500);
-    expect(response2.body).toHaveProperty("error", "Error al registrar usuario");
+    expect(response2.body).toHaveProperty(
+      "error",
+      "Error al registrar usuario"
+    );
 
-    // 5️ Verificaciones adicionales para confirmar que se recorrió la lógica
+    // Se valida la cantidad de veces que se recorrió el flujo
     expect(oracledb.getConnection).toHaveBeenCalledTimes(2);
     expect(mockConnection.execute).toHaveBeenCalledTimes(2);
 
+    // Solo la primera ejecución alcanzó a cerrar la conexión
+    expect(mockConnection.close).toHaveBeenCalledTimes(1);
   });
-
 });

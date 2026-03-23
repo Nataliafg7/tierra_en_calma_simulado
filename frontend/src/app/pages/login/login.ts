@@ -32,11 +32,11 @@ export class LoginComponent implements OnInit {
   // Recuperación
   forgotIdentification = '';
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
+constructor(
+  private readonly authService: AuthService,
+  private readonly router: Router,
+  private readonly route: ActivatedRoute
+) {}
 
   ngOnInit() {
     // 1) Abrir registro si esta ruta lo indica (login/registro)
