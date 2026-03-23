@@ -29,30 +29,75 @@ function createApp() {
     connectString: process.env.ORACLE_CONN,
   };
 
-  // ======================= REGISTRO DE USUARIOS =======================
-  app.post("/api/register", async (req, res) => {
-    const { id_usuario, nombre, apellido, telefono, correo_electronico, contrasena } = req.body;
-    try {
-      const connection = await oracledb.getConnection(dbConfig);
+// ======================= REGISTRO DE USUARIOS =======================
+app.post("/api/register", async (req, res) => {
+  const {
+    id_usuario,
+    nombre,
+    apellido,
+    telefono,
+    correo_electronico,
+    contrasena
+  } = req.body;
 
-      await connection.execute(
-        `INSERT INTO TIERRA_EN_CALMA.USUARIOS 
-         (ID_USUARIO, NOMBRE, APELLIDO, TELEFONO, CORREO_ELECTRONICO, CONTRASENA)
-         VALUES (:id_usuario, :nombre, :apellido, :telefono, :correo_electronico, :contrasena)`,
-        { id_usuario, nombre, apellido, telefono, correo_electronico, contrasena },
-        { autoCommit: true }
-      );
+  // Se valida que todos los campos obligatorios lleguen en la solicitud
+  if (
+    id_usuario === undefined ||
+    !nombre ||
+    !apellido ||
+    !telefono ||
+    !correo_electronico ||
+    !contrasena
+  ) {
+    return res.status(400).send({
+      error: "Todos los campos son obligatorios"
+    });
+  }
 
-      await connection.close();
-      res.send({ message: "Usuario registrado con éxito" });
-    } catch (err) {
-      res.status(500).send({
-        error: "Error al registrar usuario",
-        detalles: err.message,
-      });
+  // Se valida el formato básico del correo electrónico
+  const correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!correoValido.test(correo_electronico)) {
+    return res.status(400).send({
+      error: "El correo electrónico no es válido"
+    });
+  }
+
+  // Se valida una longitud mínima de contraseña
+  if (contrasena.length < 8) {
+    return res.status(400).send({
+      error: "La contraseña debe tener al menos 8 caracteres"
+    });
+  }
+
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+
+    await connection.execute(
+      `INSERT INTO TIERRA_EN_CALMA.USUARIOS 
+       (ID_USUARIO, NOMBRE, APELLIDO, TELEFONO, CORREO_ELECTRONICO, CONTRASENA)
+       VALUES (:id_usuario, :nombre, :apellido, :telefono, :correo_electronico, :contrasena)`,
+      { id_usuario, nombre, apellido, telefono, correo_electronico, contrasena },
+      { autoCommit: true }
+    );
+
+    return res.send({ message: "Usuario registrado con éxito" });
+  } catch (err) {
+    return res.status(500).send({
+      error: "Error al registrar usuario",
+      detalles: err.message,
+    });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (closeError) {
+        console.error("Error al cerrar la conexión en registro:", closeError);
+      }
     }
-  });
-
+  }
+});
   // ======================= LOGIN =======================
   app.post("/api/login", async (req, res) => {
     const { correo_electronico, contrasena } = req.body;

@@ -1,60 +1,40 @@
-/**
- * ============================================================
- * Escenario P3: Error en INSERT
- * ============================================================
- *
- * Tipo de mock:
- * - Mock de módulo
- * - Mock de implementación:
- *   - conexión OK
- *   - execute falla
- */
-
 const request = require("supertest");
-
-jest.mock("oracledb", () => ({
-  getConnection: jest.fn()
-}));
-
 const oracledb = require("oracledb");
-const { createApp } = require("../app");
-const app = createApp();
 
-describe("HU1 - Error en INSERT", () => {
+jest.mock("oracledb");
+
+describe("HU1 – Backend – Escenario 3 (P3) – Contraseña inválida", () => {
+  let app;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    const { createApp } = require("../app");
+    app = createApp();
   });
 
-  test("P3 - Retorna 500 si falla INSERT", async () => {
-
-    // Arrange
-    const conn = {
-      execute: jest.fn().mockRejectedValue(new Error("Error insert")),
-      close: jest.fn()
-    };
-
-    oracledb.getConnection.mockResolvedValue(conn);
-
-    const usuario = {
-      id_usuario: 1,
+  test("P3 – POST /api/register debe responder 400 cuando la contraseña tiene menos de 8 caracteres", async () => {
+    // Arrange:
+    // El flujo pasa la validación de campos y correo,
+    // pero debe detenerse por longitud insuficiente de contraseña.
+    const payload = {
+      id_usuario: 103,
       nombre: "Juliana",
       apellido: "Casas",
-      telefono: "3000000000",
-      correo_electronico: "juliana@gmail.com",
-      contrasena: "12345678",
+      telefono: "3001234567",
+      correo_electronico: "juliana@correo.com",
+      contrasena: "1234567"
     };
 
-    // Act
-    const res = await request(app)
-      .post("/api/register")
-      .send(usuario);
+    // Act:
+    const res = await request(app).post("/api/register").send(payload);
 
-    // Assert
-    expect(res.status).toBe(500);
-    expect(conn.execute).toHaveBeenCalled();
+    // Assert:
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({
+      error: "La contraseña debe tener al menos 8 caracteres"
+    });
 
-    // No se cierra porque falla antes
-    expect(conn.close).not.toHaveBeenCalled();
+    // No debe conectarse a la base de datos.
+    expect(oracledb.getConnection).not.toHaveBeenCalled();
   });
 });

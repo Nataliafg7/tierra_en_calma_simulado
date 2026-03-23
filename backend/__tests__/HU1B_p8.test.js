@@ -3,7 +3,7 @@ const oracledb = require("oracledb");
 
 jest.mock("oracledb");
 
-describe("HU1 – Backend – Escenario 5 (P5) – Registro exitoso aunque falle el cierre", () => {
+describe("HU1 – Backend – Escenario 8 (P8) – Error en execute y también en close", () => {
   let app;
   let connectionMock;
   let consoleSpy;
@@ -17,8 +17,12 @@ describe("HU1 – Backend – Escenario 5 (P5) – Registro exitoso aunque falle
     };
 
     oracledb.getConnection.mockResolvedValue(connectionMock);
-    connectionMock.execute.mockResolvedValue({ rowsAffected: 1 });
-    connectionMock.close.mockRejectedValue(new Error("Error cerrando conexión"));
+    connectionMock.execute.mockRejectedValue(
+      new Error("Fallo en execute")
+    );
+    connectionMock.close.mockRejectedValue(
+      new Error("Fallo al cerrar conexión")
+    );
 
     consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
 
@@ -30,14 +34,16 @@ describe("HU1 – Backend – Escenario 5 (P5) – Registro exitoso aunque falle
     consoleSpy.mockRestore();
   });
 
-  test("P5 – POST /api/register debe responder 200 aunque ocurra un error al cerrar la conexión", async () => {
+  test("P8 – POST /api/register debe responder 500 cuando falla execute y además close", async () => {
     // Arrange:
-    // Se usa mock de implementación para simular éxito en execute
-    // y fallo posterior en close.
+    // Aquí se aplica un mock secuencial del flujo:
+    // primero se obtiene conexión,
+    // luego execute falla,
+    // y finalmente close también falla dentro del finally.
     const payload = {
-      id_usuario: 105,
+      id_usuario: 108,
       nombre: "Juliana",
-      apellido: "Casas",
+      apellido: "Flórez",
       telefono: "3001234567",
       correo_electronico: "juliana@correo.com",
       contrasena: "clave1234"
@@ -47,10 +53,11 @@ describe("HU1 – Backend – Escenario 5 (P5) – Registro exitoso aunque falle
     const res = await request(app).post("/api/register").send(payload);
 
     // Assert:
-    // La respuesta exitosa ya debió haberse enviado antes del finally.
-    expect(res.status).toBe(200);
+    // La respuesta principal debe seguir siendo 500 por el error de execute.
+    expect(res.status).toBe(500);
     expect(res.body).toEqual({
-      message: "Usuario registrado con éxito"
+      error: "Error al registrar usuario",
+      detalles: "Fallo en execute"
     });
 
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);

@@ -1,50 +1,39 @@
-/**
- * ============================================================
- * Escenario P2: Error en conexión a Oracle
- * ============================================================
- *
- * Tipo de mock:
- * - Mock de módulo
- * - Mock de implementación (getConnection falla)
- */
-
 const request = require("supertest");
-
-jest.mock("oracledb", () => ({
-  getConnection: jest.fn()
-}));
-
 const oracledb = require("oracledb");
-const { createApp } = require("../app");
-const app = createApp();
 
-describe("HU1 - Error de conexión", () => {
+jest.mock("oracledb");
+
+describe("HU1 – Backend – Escenario 2 (P2) – Correo inválido", () => {
+  let app;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    const { createApp } = require("../app");
+    app = createApp();
   });
 
-  test("P2 - Retorna 500 si falla conexión", async () => {
-
-    // Arrange
-    oracledb.getConnection.mockRejectedValue(new Error("Error conexión"));
-
-    const usuario = {
-      id_usuario: 1,
+  test("P2 – POST /api/register debe responder 400 cuando el correo no tiene un formato válido", async () => {
+    // Arrange:
+    // Se envían todos los campos, pero el correo no cumple el formato esperado.
+    const payload = {
+      id_usuario: 102,
       nombre: "Juliana",
       apellido: "Casas",
-      telefono: "3000000000",
-      correo_electronico: "juliana@gmail.com",
-      contrasena: "12345678",
+      telefono: "3001234567",
+      correo_electronico: "juliana-correo.com",
+      contrasena: "clave1234"
     };
 
-    // Act
-    const res = await request(app)
-      .post("/api/register")
-      .send(usuario);
+    // Act:
+    const res = await request(app).post("/api/register").send(payload);
 
-    // Assert
-    expect(res.status).toBe(500);
-    expect(res.body).toHaveProperty("error");
+    // Assert:
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({
+      error: "El correo electrónico no es válido"
+    });
+
+    // No debe intentar conexión porque el error ocurre en validación.
+    expect(oracledb.getConnection).not.toHaveBeenCalled();
   });
 });
