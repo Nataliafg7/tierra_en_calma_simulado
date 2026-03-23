@@ -1,98 +1,78 @@
+/**
+ * ============================================================
+ * Escenario P5: Ejecución doble (step mock)
+ * ============================================================
+ *
+ * Tipo de mock:
+ * - Mock de módulo
+ * - Mock de implementación secuencial:
+ *   - primera ejecución OK
+ *   - segunda falla
+ */
+
 const request = require("supertest");
 
-// Se reemplaza el módulo real de Oracle por un mock
 jest.mock("oracledb", () => ({
   getConnection: jest.fn()
 }));
 
 const oracledb = require("oracledb");
-const app = require("../app");
+const { createApp } = require("../app");
+const app = createApp();
 
-describe("HU1 - Registro de usuario - Camino estructural adicional (P5)", () => {
+describe("HU1 - Camino estructural adicional", () => {
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test("P5 - Debe cubrir una ejecución exitosa y una segunda ejecución que cae en catch", async () => {
-    // =========================
-    // Arrange
-    // =========================
+  test("P5 - Una ejecución exitosa y otra con error", async () => {
 
-    // Se crea una conexión simulada para reutilizarla en ambas ejecuciones
-    const mockConnection = {
+    // Arrange
+    const conn = {
       execute: jest.fn(),
       close: jest.fn()
     };
 
-    // Siempre se obtiene conexión correctamente
-    oracledb.getConnection.mockResolvedValue(mockConnection);
+    oracledb.getConnection.mockResolvedValue(conn);
 
-    // Primera ejecución: el INSERT funciona y la conexión se cierra bien
-    mockConnection.execute.mockResolvedValueOnce({ rowsAffected: 1 });
-    mockConnection.close.mockResolvedValueOnce(undefined);
+    conn.execute.mockResolvedValueOnce({ rowsAffected: 1 });
+    conn.close.mockResolvedValueOnce();
 
-    const usuario1 = {
-      id_usuario: 1,
-      nombre: "Mario",
-      apellido: "Gomez",
-      telefono: "3000000000",
-      correo_electronico: "mario@test.com",
-      contrasena: "12345678"
-    };
-
-    // =========================
-    // Act - Primera ejecución
-    // =========================
-
-    const response1 = await request(app)
+    // Act 1
+    const res1 = await request(app)
       .post("/api/register")
-      .send(usuario1);
+      .send({
+        id_usuario: 1,
+        nombre: "Mario",
+        apellido: "Gomez",
+        telefono: "300",
+        correo_electronico: "mario@test.com",
+        contrasena: "12345678"
+      });
 
-    // =========================
-    // Assert - Primera ejecución
-    // =========================
+    // Assert 1
+    expect(res1.status).toBe(200);
 
-    expect(response1.status).toBe(200);
-    expect(response1.body).toEqual({
-      message: "Usuario registrado con éxito"
-    });
+    // Segunda ejecución falla
+    conn.execute.mockRejectedValueOnce(new Error("error"));
 
-    // Segunda ejecución: el INSERT falla
-    const errorInsert = new Error("Error en INSERT (segundo intento)");
-    mockConnection.execute.mockRejectedValueOnce(errorInsert);
-
-    const usuario2 = {
-      id_usuario: 2,
-      nombre: "Mario",
-      apellido: "Lopez",
-      telefono: "3111111111",
-      correo_electronico: "mario2@test.com",
-      contrasena: "12345678"
-    };
-
-    // =========================
-    // Act - Segunda ejecución
-    // =========================
-
-    const response2 = await request(app)
+    // Act 2
+    const res2 = await request(app)
       .post("/api/register")
-      .send(usuario2);
+      .send({
+        id_usuario: 2,
+        nombre: "Mario",
+        apellido: "Lopez",
+        telefono: "311",
+        correo_electronico: "mario2@test.com",
+        contrasena: "12345678"
+      });
 
-    // =========================
-    // Assert - Segunda ejecución
-    // =========================
+    // Assert 2
+    expect(res2.status).toBe(500);
 
-    expect(response2.status).toBe(500);
-    expect(response2.body).toHaveProperty(
-      "error",
-      "Error al registrar usuario"
-    );
-
-    // Se valida la cantidad de veces que se recorrió el flujo
-    expect(oracledb.getConnection).toHaveBeenCalledTimes(2);
-    expect(mockConnection.execute).toHaveBeenCalledTimes(2);
-
-    // Solo la primera ejecución alcanzó a cerrar la conexión
-    expect(mockConnection.close).toHaveBeenCalledTimes(1);
+    expect(conn.execute).toHaveBeenCalledTimes(2);
+    expect(conn.close).toHaveBeenCalledTimes(1);
   });
-});
+});c

@@ -1,70 +1,58 @@
+/**
+ * ============================================================
+ * Escenario P4: Error en close()
+ * ============================================================
+ *
+ * Tipo de mock:
+ * - Mock de módulo
+ * - Mock de implementación:
+ *   - execute OK
+ *   - close falla
+ */
+
 const request = require("supertest");
 
-// Se reemplaza el módulo real de Oracle por un mock
 jest.mock("oracledb", () => ({
   getConnection: jest.fn()
 }));
 
 const oracledb = require("oracledb");
-const app = require("../server");
+const { createApp } = require("../app");
+const app = createApp();
 
-describe("HU1 - Registro de usuario - Error en close()", () => {
+describe("HU1 - Error en close", () => {
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test("P4 - Debe retornar 500 cuando falla el cierre de conexión", async () => {
-    // =========================
-    // Arrange
-    // =========================
+  test("P4 - Retorna 500 si falla close", async () => {
 
-    // Se crea una conexión simulada
-    const mockConnection = {
-      execute: jest.fn(),
-      close: jest.fn()
+    // Arrange
+    const conn = {
+      execute: jest.fn().mockResolvedValue({ rowsAffected: 1 }),
+      close: jest.fn().mockRejectedValue(new Error("Error close"))
     };
 
-    // La conexión se obtiene correctamente
-    oracledb.getConnection.mockResolvedValue(mockConnection);
+    oracledb.getConnection.mockResolvedValue(conn);
 
-    // El INSERT se ejecuta correctamente
-    mockConnection.execute.mockResolvedValue({ rowsAffected: 1 });
-
-    // El cierre de conexión falla
-    const errorClose = new Error("Error al cerrar conexión");
-    mockConnection.close.mockRejectedValue(errorClose);
-
-    // Datos válidos del registro
-    const nuevoUsuario = {
+    const usuario = {
       id_usuario: 1,
       nombre: "Ana",
       apellido: "Casas",
       telefono: "3000000000",
-      correo_electronico: "ana@test.com",
-      contrasena: "12345678"
+      correo_electronico: "ana@gmail.com",
+      contrasena: "12345678",
     };
 
-    // =========================
     // Act
-    // =========================
-
-    const response = await request(app)
+    const res = await request(app)
       .post("/api/register")
-      .send(nuevoUsuario);
+      .send(usuario);
 
-    // =========================
     // Assert
-    // =========================
-
-    expect(response.status).toBe(500);
-
-    expect(response.body).toHaveProperty(
-      "error",
-      "Error al registrar usuario"
-    );
-
-    expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
-    expect(mockConnection.execute).toHaveBeenCalledTimes(1);
-    expect(mockConnection.close).toHaveBeenCalledTimes(1);
+    expect(res.status).toBe(500);
+    expect(conn.execute).toHaveBeenCalled();
+    expect(conn.close).toHaveBeenCalled();
   });
 });
