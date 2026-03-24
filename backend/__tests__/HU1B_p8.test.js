@@ -70,7 +70,7 @@ describe("HU1 - Backend - P8: Error en execute y también en close", () => {
     expect(closeMock).toHaveBeenCalledTimes(1);
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Error cerrando conexión",
+      "Error al cerrar la conexión en registro:",
       expect.any(Error)
     );
   });

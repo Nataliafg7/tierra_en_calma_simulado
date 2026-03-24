@@ -70,7 +70,7 @@ describe("HU1 - Backend - P5: Registro exitoso con error en close", () => {
     expect(closeMock).toHaveBeenCalledTimes(1);
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Error cerrando conexión",
+      "Error al cerrar la conexión en registro:",
       expect.any(Error)
     );
   });
