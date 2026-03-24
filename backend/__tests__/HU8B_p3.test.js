@@ -1,50 +1,85 @@
 const request = require("supertest");
+const oracledb = require("oracledb");
+const { createApp } = require("../app");
 
-describe("HU8 – Backend – Escenarios P3 y P4 (con mock justificado) – GET /api/plantas", () => {
-  // Nota: Usamos mock porque estas fallas (execute/close) NO son reproducibles de forma controlada
-  // sin modificar el server o el entorno de BD.
+jest.mock("oracledb", () => ({
+  getConnection: jest.fn(),
+  OUT_FORMAT_OBJECT: 1,
+}));
+
+jest.mock("../mqttService", () => ({}));
+jest.mock("../cuidadosService", () => ({ crearCuidado: jest.fn() }));
+jest.mock("../pkgCentralService", () => ({ verificarCondiciones: jest.fn() }));
+
+jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
+
+jest.mock("swagger-ui-express", () => ({
+  serve: [],
+  setup: () => (req, res, next) => next(),
+}));
+
+jest.mock("yamljs", () => ({
+  load: jest.fn(() => ({})),
+}));
+
+describe("HU8B P3 - GET /api/plantas", () => {
+  let app;
+  let connectionMock;
+  let errorSpy;
 
   beforeEach(() => {
-    jest.resetModules(); // importante para que el require('../app') use el mock actualizado
+    jest.clearAllMocks();
+    app = createApp();
+
+    connectionMock = {
+      execute: jest.fn(),
+      close: jest.fn(),
+    };
+
+    errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
-  test("P3 – Debe retornar 500 cuando falla connection.execute (error de consulta)", async () => {
-    // Mock de oracledb para forzar fallo en execute
-    jest.doMock("oracledb", () => ({
-      OUT_FORMAT_OBJECT: "OUT_FORMAT_OBJECT",
-      getConnection: jest.fn().mockResolvedValue({
-        execute: jest.fn().mockRejectedValue(new Error("SQL execution failed")),
-        close: jest.fn().mockResolvedValue(undefined),
-      }),
-    }));
-
-    const { createApp } = require("../app");
-    const app = createApp();
-
-    const res = await request(app).get("/api/plantas");
-
-    expect(res.status).toBe(500);
-    expect(res.headers["content-type"]).toMatch(/json/);
-    expect(res.body).toEqual({ error: "Error al obtener la lista de plantas" });
+  afterEach(() => {
+    errorSpy.mockRestore();
   });
 
-  test("P4 – Debe retornar 500 cuando falla connection.close (error al cerrar conexión)", async () => {
-    // Mock de oracledb para forzar fallo en close
-    jest.doMock("oracledb", () => ({
-      OUT_FORMAT_OBJECT: "OUT_FORMAT_OBJECT",
-      getConnection: jest.fn().mockResolvedValue({
-        execute: jest.fn().mockResolvedValue({ rows: [{ ID_PLANTA: 1, NOMBRE_COMUN: "Aloe" }] }),
-        close: jest.fn().mockRejectedValue(new Error("Close failed")),
-      }),
-    }));
+  test("debe responder 500 cuando falla la consulta y luego cerrar la conexión", async () => {
+    /*
+      Objetivo:
+      Verificar el flujo donde la conexión sí se obtiene,
+      pero la ejecución de la consulta falla.
 
-    const { createApp } = require("../app");
-    const app = createApp();
+      Mock utilizado:
+      - oracledb.getConnection: devuelve conexión simulada.
+      - connection.execute: rechaza con error simulado.
+      - connection.close: resuelve correctamente.
 
-    const res = await request(app).get("/api/plantas");
+      Qué se valida:
+      - estado HTTP 500
+      - cuerpo del error
+      - llamada a getConnection
+      - llamada a execute
+      - llamada a close desde finally
+      - registro del error en consola
+    */
 
-    expect(res.status).toBe(500);
-    expect(res.headers["content-type"]).toMatch(/json/);
-    expect(res.body).toEqual({ error: "Error al obtener la lista de plantas" });
+    // Arrange
+    oracledb.getConnection.mockResolvedValue(connectionMock);
+    connectionMock.execute.mockRejectedValue(new Error("Error en execute"));
+    connectionMock.close.mockResolvedValue();
+
+    // Act
+    const response = await request(app).get("/api/plantas");
+
+    // Assert
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({
+      error: "Error al obtener la lista de plantas",
+    });
+
+    expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
+    expect(connectionMock.execute).toHaveBeenCalledTimes(1);
+    expect(connectionMock.close).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalled();
   });
 });

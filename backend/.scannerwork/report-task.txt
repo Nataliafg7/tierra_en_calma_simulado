@@ -2,5 +2,5 @@ projectKey=tierra-back-juli-refactor
 serverUrl=http://localhost:9000
 serverVersion=26.3.0.120487
 dashboardUrl=http://localhost:9000/dashboard?id=tierra-back-juli-refactor
-ceTaskId=c05d0b60-f16c-4983-b23a-49ec0f974167
-ceTaskUrl=http://localhost:9000/api/ce/task?id=c05d0b60-f16c-4983-b23a-49ec0f974167
+ceTaskId=efbad5d3-31e8-4699-8f64-8c5421868e14
+ceTaskUrl=http://localhost:9000/api/ce/task?id=efbad5d3-31e8-4699-8f64-8c5421868e14

@@ -1,46 +1,71 @@
-/**
- * HU10 (Backend) - Asociación de planta
- * Escenario 3 (P3): Error durante el INSERT (execute falla)
- * Archivo: HU10B_p3.test.js
- *
- */
-
+const request = require("supertest");
+const oracledb = require("oracledb");
 const { createApp } = require("../app");
 
-describe("Pruebas Unitarias Backend – HU10 Asociación de planta", () => {
-  let server;
-  let baseUrl;
+jest.mock("oracledb", () => ({
+  getConnection: jest.fn(),
+  OUT_FORMAT_OBJECT: 1,
+}));
 
-  beforeAll(() => {
-    const app = createApp();
-    server = app.listen(0);
-    const port = server.address().port;
-    baseUrl = `http://localhost:${port}`;
+jest.mock("../mqttService", () => ({}));
+jest.mock("../cuidadosService", () => ({ crearCuidado: jest.fn() }));
+jest.mock("../pkgCentralService", () => ({ verificarCondiciones: jest.fn() }));
+
+jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
+
+jest.mock("swagger-ui-express", () => ({
+  serve: [],
+  setup: () => (req, res, next) => next(),
+}));
+
+jest.mock("yamljs", () => ({
+  load: jest.fn(() => ({})),
+}));
+
+describe("HU10B P3 - POST /api/registrar-planta", () => {
+  let app;
+  let errorSpy;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    app = createApp();
+    errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
-  afterAll(() => {
-    server.close();
+  afterEach(() => {
+    errorSpy.mockRestore();
   });
 
-  test("Escenario 3 (P3) – Debe retornar 500 cuando falla el INSERT (integridad)", async () => {
-    //  Usamos un id_usuario casi seguro inexistente
-    // La idea es que NO exista en TIERRA_EN_CALMA.USUARIOS
-    const payload = {
-      id_usuario: 999999,
-      id_planta: 25, // debe existir en BANCO_PLANTAS para que el fallo sea por el usuario
-    };
+  test("debe responder 500 cuando falla la obtención de la conexión", async () => {
+    /*
+      Objetivo:
+      Verificar el comportamiento cuando falla getConnection.
 
-    const resp = await fetch(`${baseUrl}/api/registrar-planta`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      Mock utilizado:
+      - oracledb.getConnection: rechaza con error simulado.
+
+      Qué se valida:
+      - estado HTTP 500
+      - mensaje de error esperado
+      - llamada a getConnection
+      - registro del error en consola
+    */
+
+    // Arrange
+    oracledb.getConnection.mockRejectedValue(new Error("Fallo de conexión"));
+
+    // Act
+    const response = await request(app)
+      .post("/api/registrar-planta")
+      .send({ id_usuario: 10, id_planta: 3 });
+
+    // Assert
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({
+      error: "Error al registrar planta",
     });
 
-    // 1) Assertion del status
-    expect(resp.status).toBe(500);
-
-    // 2) Assertion del body
-    const data = await resp.json();
-    expect(data).toEqual({ error: "Error al registrar planta" });
+    expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalled();
   });
 });

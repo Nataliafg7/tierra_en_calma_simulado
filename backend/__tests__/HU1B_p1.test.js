@@ -1,41 +1,53 @@
+// ================= MOCKS =================
+jest.mock("oracledb", () => ({
+  getConnection: jest.fn(),
+}));
+
+jest.mock("../mqttService", () => ({}));
+jest.mock("../cuidadosService", () => ({}));
+jest.mock("../pkgCentralService", () => ({}));
+jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
+jest.mock("swagger-ui-express", () => ({
+  serve: [],
+  setup: () => (req, res, next) => next(),
+}));
+jest.mock("yamljs", () => ({ load: jest.fn() }));
+
+// ================= IMPORTS =================
 const request = require("supertest");
 const oracledb = require("oracledb");
+const { createApp } = require("../app");
 
-jest.mock("oracledb");
-
-describe("HU1 – Backend – Escenario 1 (P1) – Campos incompletos", () => {
+describe("HU1 - Backend - P1: Campos incompletos", () => {
   let app;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    const { createApp } = require("../app");
     app = createApp();
+    jest.clearAllMocks();
   });
 
-  test("P1 – POST /api/register debe responder 400 cuando faltan campos obligatorios", async () => {
+  test("Debe responder 400 cuando faltan campos obligatorios", async () => {
     // Arrange:
-    // En este escenario se envía un cuerpo incompleto.
-    // La validación debe detener el flujo antes de intentar conexión con la base de datos.
-    const payload = {
-      id_usuario: 101,
+    // Se envía un cuerpo incompleto para validar que el flujo se detiene
+    const body = {
+      id_usuario: 1,
       nombre: "Juliana",
-      apellido: "Casas",
-      telefono: "3001234567",
-      correo_electronico: "juliana@correo.com"
-      // contrasena ausente
+      apellido: "Florez",
+      telefono: "123456",
+      correo_electronico: "test@mail.com"
+      // falta contrasena
     };
 
     // Act:
-    const res = await request(app).post("/api/register").send(payload);
+    const res = await request(app).post("/api/register").send(body);
 
     // Assert:
-    // Se espera un 400 por datos incompletos.
     expect(res.status).toBe(400);
     expect(res.body).toEqual({
       error: "Todos los campos son obligatorios"
     });
 
-    // Como la validación falló, no debe abrir conexión.
+    // No debe tocar la base de datos
     expect(oracledb.getConnection).not.toHaveBeenCalled();
   });
 });

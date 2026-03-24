@@ -1,50 +1,96 @@
-/**
- * HU3 - Inicio de sesión (Backend)
- * Escenario 5 (P5): Error durante la ejecución del SELECT (Camino C5)
- * Archivo: HU3B_p5.test.js
- *
- * Reglas:
- * - Sin mocks
- * - Sin Supertest
- * - Con Jest
- * - Petición HTTP real con fetch
- * - Servidor temporal levantado con createApp()
- */
+// ================= MOCKS =================
+// Tipos de mock usados:
+// - Mock de módulo
+// - jest.fn
+// - Mock de implementación:
+//   execute responde bien y close falla
+// - También se usa spy sobre console.error para verificar el log
+jest.mock("oracledb", () => ({
+  getConnection: jest.fn(),
+  OUT_FORMAT_OBJECT: 1,
+}));
 
+jest.mock("../mqttService", () => ({}));
+jest.mock("../cuidadosService", () => ({ crearCuidado: jest.fn() }));
+jest.mock("../pkgCentralService", () => ({ verificarCondiciones: jest.fn() }));
+jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
+jest.mock("swagger-ui-express", () => ({
+  serve: [],
+  setup: () => (req, res, next) => next(),
+}));
+jest.mock("yamljs", () => ({ load: jest.fn(() => ({})) }));
+
+const request = require("supertest");
+const oracledb = require("oracledb");
 const { createApp } = require("../app");
 
-describe("Pruebas Unitarias – HU3 Inicio de sesión (Backend)", () => {
-  let server;
-  let baseUrl;
+describe("HU3 - Backend - P5: login exitoso con error en close", () => {
+  let app;
+  let executeMock;
+  let closeMock;
+  let consoleErrorSpy;
 
-  beforeAll(() => {
-    const app = createApp();
-    server = app.listen(0);
+  beforeEach(() => {
+    jest.clearAllMocks();
+    app = createApp();
 
-    const port = server.address().port;
-    baseUrl = `http://localhost:${port}`;
-  });
-
-  afterAll(() => {
-    server.close();
-  });
-
-  test("Escenario 5 (P5) – Debe retornar 500 cuando falla el SELECT y entra al catch", async () => {
-    // Forzamos error real en execute enviando valores inválidos
-    const loginPayload = {
-      correo_electronico: null,
-      contrasena: null,
-    };
-
-    const response = await fetch(`${baseUrl}/api/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(loginPayload),
+    executeMock = jest.fn().mockResolvedValue({
+      rows: [
+        {
+          ID_USUARIO: 10,
+          NOMBRE: "Juliana",
+          APELLIDO: "Florez",
+          TELEFONO: "3001234567",
+          CORREO_ELECTRONICO: "juliana@correo.com",
+        },
+      ],
     });
 
-    const data = await response.json();
+    closeMock = jest.fn().mockRejectedValue(new Error("Error al cerrar conexión"));
 
-    expect(response.status).toBe(500);
-    expect(data).toEqual({ error: "Error al iniciar sesión" });
+    oracledb.getConnection.mockResolvedValue({
+      execute: executeMock,
+      close: closeMock,
+    });
+
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore();
+  });
+
+  test("Debe responder 200 aunque falle el cierre de la conexión en finally", async () => {
+    // Arrange:
+    const body = {
+      correo_electronico: "juliana@correo.com",
+      contrasena: "clave1234",
+    };
+
+    // Act:
+    const res = await request(app).post("/api/login").send(body);
+
+    // Assert:
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({
+      message: "Login exitoso",
+      user: {
+        ID_USUARIO: 10,
+        NOMBRE: "Juliana",
+        APELLIDO: "Florez",
+        TELEFONO: "3001234567",
+        CORREO_ELECTRONICO: "juliana@correo.com",
+      },
+      role: "user",
+    });
+
+    expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
+    expect(executeMock).toHaveBeenCalledTimes(1);
+    expect(closeMock).toHaveBeenCalledTimes(1);
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "Error al cerrar la conexión en login:",
+      expect.any(Error)
+    );
   });
 });

@@ -1,61 +1,85 @@
 const request = require("supertest");
-const { createApp } = require("../app"); // ajusta la ruta si tu test está en otra carpeta
+const oracledb = require("oracledb");
+const { createApp } = require("../app");
 
-describe("HU8 – Backend – Escenario 1 (P1) – Consulta exitosa del banco de especies (GET /api/plantas)", () => {
+jest.mock("oracledb", () => ({
+  getConnection: jest.fn(),
+  OUT_FORMAT_OBJECT: 1,
+}));
+
+jest.mock("../mqttService", () => ({}));
+jest.mock("../cuidadosService", () => ({ crearCuidado: jest.fn() }));
+jest.mock("../pkgCentralService", () => ({ verificarCondiciones: jest.fn() }));
+
+jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
+
+jest.mock("swagger-ui-express", () => ({
+  serve: [],
+  setup: () => (req, res, next) => next(),
+}));
+
+jest.mock("yamljs", () => ({
+  load: jest.fn(() => ({})),
+}));
+
+describe("HU8B P1 - GET /api/plantas", () => {
   let app;
+  let connectionMock;
 
-  // Sin mocks: esto depende de que Oracle esté disponible y las variables de entorno estén correctas.
-  beforeAll(() => {
+  beforeEach(() => {
+    jest.clearAllMocks();
     app = createApp();
+
+    connectionMock = {
+      execute: jest.fn(),
+      close: jest.fn(),
+    };
   });
 
-  // Aumentamos timeout por posible latencia de BD
-  jest.setTimeout(30000);
+  test("debe responder 200 y retornar la lista de plantas cuando la consulta se ejecuta correctamente", async () => {
+    /*
+      Objetivo:
+      Verificar el flujo exitoso del endpoint /api/plantas.
 
-  test("P1.1 – Debe responder HTTP 200 y retornar un arreglo JSON", async () => {
-    const res = await request(app).get("/api/plantas");
+      Mock utilizado:
+      - oracledb.getConnection: devuelve una conexión simulada.
+      - connection.execute: devuelve filas simuladas.
+      - connection.close: resuelve correctamente.
 
-    expect(res.status).toBe(200);
+      Qué se valida:
+      - estado HTTP 200
+      - cuerpo de la respuesta con la lista de plantas
+      - llamada a getConnection
+      - llamada a execute con el SQL esperado
+      - llamada a close al finalizar
+    */
 
-    // Content-Type suele ser application/json; charset=utf-8
-    expect(res.headers["content-type"]).toMatch(/json/);
+    // Arrange
+    const plantasMock = [
+      { ID_PLANTA: 1, NOMBRE_COMUN: "Aloe Vera" },
+      { ID_PLANTA: 2, NOMBRE_COMUN: "Lavanda" },
+    ];
 
-    // Debe retornar un arreglo (puede ser vacío si la tabla no tiene registros)
-    expect(Array.isArray(res.body)).toBe(true);
-  });
+    oracledb.getConnection.mockResolvedValue(connectionMock);
+    connectionMock.execute.mockResolvedValue({ rows: plantasMock });
+    connectionMock.close.mockResolvedValue();
 
-  test("P1.2 – Cada elemento debe tener ID_PLANTA y NOMBRE_COMUN cuando existan filas", async () => {
-    const res = await request(app).get("/api/plantas");
+    // Act
+    const response = await request(app).get("/api/plantas");
 
-    expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
+    // Assert
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(plantasMock);
 
-    // Subprueba solo si hay datos (no asumimos que la tabla tenga filas)
-    if (res.body.length > 0) {
-      const first = res.body[0];
-
-      expect(first).toHaveProperty("ID_PLANTA");
-      expect(first).toHaveProperty("NOMBRE_COMUN");
-
-      // Tipos razonables según SELECT
-      expect(first.ID_PLANTA).not.toBeUndefined();
-      expect(first.NOMBRE_COMUN).not.toBeUndefined();
-    }
-  });
-
-  test("P1.3 – La lista debe venir ordenada por NOMBRE_COMUN (ORDER BY del SQL)", async () => {
-    const res = await request(app).get("/api/plantas");
-
-    expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-
-    // Si hay 0 o 1 elemento, por definición está ordenado
-    if (res.body.length > 1) {
-      const nombres = res.body.map((x) => (x.NOMBRE_COMUN ?? "").toString());
-
-      // Verifica orden ascendente (comparación simple de strings)
-      const sorted = [...nombres].sort((a, b) => a.localeCompare(b));
-      expect(nombres).toEqual(sorted);
-    }
+    expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
+    expect(connectionMock.execute).toHaveBeenCalledTimes(1);
+    expect(connectionMock.execute).toHaveBeenCalledWith(
+      `SELECT ID_PLANTA, NOMBRE_COMUN
+       FROM TIERRA_EN_CALMA.BANCO_PLANTAS
+       ORDER BY NOMBRE_COMUN`,
+      {},
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    expect(connectionMock.close).toHaveBeenCalledTimes(1);
   });
 });

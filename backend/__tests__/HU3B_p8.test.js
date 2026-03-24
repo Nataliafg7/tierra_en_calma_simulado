@@ -1,24 +1,31 @@
 // ================= MOCKS =================
+// Tipos de mock usados:
+// - Mock de módulo
+// - jest.fn
+// - Mock secuencial del flujo:
+//   primero execute falla dentro del try
+//   y luego close falla dentro del finally
+// - Spy sobre console.error para comprobar el registro del error
 jest.mock("oracledb", () => ({
   getConnection: jest.fn(),
+  OUT_FORMAT_OBJECT: 1,
 }));
 
 jest.mock("../mqttService", () => ({}));
-jest.mock("../cuidadosService", () => ({}));
-jest.mock("../pkgCentralService", () => ({}));
+jest.mock("../cuidadosService", () => ({ crearCuidado: jest.fn() }));
+jest.mock("../pkgCentralService", () => ({ verificarCondiciones: jest.fn() }));
 jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
 jest.mock("swagger-ui-express", () => ({
   serve: [],
   setup: () => (req, res, next) => next(),
 }));
-jest.mock("yamljs", () => ({ load: jest.fn() }));
+jest.mock("yamljs", () => ({ load: jest.fn(() => ({})) }));
 
-// ================= IMPORTS =================
 const request = require("supertest");
 const oracledb = require("oracledb");
 const { createApp } = require("../app");
 
-describe("HU1 - Backend - P5: Registro exitoso con error en close", () => {
+describe("HU3 - Backend - P8: error en execute y también en close", () => {
   let app;
   let executeMock;
   let closeMock;
@@ -28,8 +35,8 @@ describe("HU1 - Backend - P5: Registro exitoso con error en close", () => {
     jest.clearAllMocks();
     app = createApp();
 
-    executeMock = jest.fn().mockResolvedValue({});
-    closeMock = jest.fn().mockRejectedValue(new Error("Error cerrando conexión"));
+    executeMock = jest.fn().mockRejectedValue(new Error("Fallo en execute"));
+    closeMock = jest.fn().mockRejectedValue(new Error("Fallo al cerrar conexión"));
 
     oracledb.getConnection.mockResolvedValue({
       execute: executeMock,
@@ -43,26 +50,20 @@ describe("HU1 - Backend - P5: Registro exitoso con error en close", () => {
     consoleErrorSpy.mockRestore();
   });
 
-  test("Debe responder 200 aunque falle el cierre de la conexión", async () => {
+  test("Debe responder 500 cuando falla execute y además falla el cierre", async () => {
     // Arrange:
-    // Se simula un registro exitoso y luego un fallo al cerrar la conexión.
     const body = {
-      id_usuario: 5,
-      nombre: "Juliana",
-      apellido: "Florez",
-      telefono: "123456",
-      correo_electronico: "test@mail.com",
-      contrasena: "12345678",
+      correo_electronico: "juliana@correo.com",
+      contrasena: "clave1234",
     };
 
     // Act:
-    const res = await request(app).post("/api/register").send(body);
+    const res = await request(app).post("/api/login").send(body);
 
     // Assert:
-    // La respuesta exitosa ya se debió enviar antes del finally.
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(500);
     expect(res.body).toEqual({
-      message: "Usuario registrado con éxito",
+      error: "Error al iniciar sesión",
     });
 
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
@@ -70,7 +71,7 @@ describe("HU1 - Backend - P5: Registro exitoso con error en close", () => {
     expect(closeMock).toHaveBeenCalledTimes(1);
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Error cerrando conexión",
+      "Error al cerrar la conexión en login:",
       expect.any(Error)
     );
   });

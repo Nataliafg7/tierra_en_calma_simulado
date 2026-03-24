@@ -1,70 +1,75 @@
+// ================= MOCKS =================
+jest.mock("oracledb", () => ({
+  getConnection: jest.fn(),
+}));
+
+jest.mock("../mqttService", () => ({}));
+jest.mock("../cuidadosService", () => ({}));
+jest.mock("../pkgCentralService", () => ({}));
+jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
+jest.mock("swagger-ui-express", () => ({
+  serve: [],
+  setup: () => (req, res, next) => next(),
+}));
+jest.mock("yamljs", () => ({ load: jest.fn() }));
+
+// ================= IMPORTS =================
 const request = require("supertest");
 const oracledb = require("oracledb");
+const { createApp } = require("../app");
 
-jest.mock("oracledb");
-
-describe("HU1 – Backend – Escenario 8 (P8) – Error en execute y también en close", () => {
+describe("HU1 - Backend - P8: Error en execute y también en close", () => {
   let app;
-  let connectionMock;
-  let consoleSpy;
+  let executeMock;
+  let closeMock;
+  let consoleErrorSpy;
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    connectionMock = {
-      execute: jest.fn(),
-      close: jest.fn()
-    };
-
-    oracledb.getConnection.mockResolvedValue(connectionMock);
-    connectionMock.execute.mockRejectedValue(
-      new Error("Fallo en execute")
-    );
-    connectionMock.close.mockRejectedValue(
-      new Error("Fallo al cerrar conexión")
-    );
-
-    consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
-
-    const { createApp } = require("../app");
     app = createApp();
+
+    executeMock = jest.fn().mockRejectedValue(new Error("Fallo en execute"));
+    closeMock = jest.fn().mockRejectedValue(new Error("Fallo al cerrar conexión"));
+
+    oracledb.getConnection.mockResolvedValue({
+      execute: executeMock,
+      close: closeMock,
+    });
+
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
-    consoleSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 
-  test("P8 – POST /api/register debe responder 500 cuando falla execute y además close", async () => {
+  test("Debe responder 500 cuando falla execute y además falla close", async () => {
     // Arrange:
-    // Aquí se aplica un mock secuencial del flujo:
-    // primero se obtiene conexión,
-    // luego execute falla,
-    // y finalmente close también falla dentro del finally.
-    const payload = {
-      id_usuario: 108,
+    // En este escenario falla la inserción y luego también el cierre.
+    const body = {
+      id_usuario: 8,
       nombre: "Juliana",
-      apellido: "Flórez",
-      telefono: "3001234567",
-      correo_electronico: "juliana@correo.com",
-      contrasena: "clave1234"
+      apellido: "Florez",
+      telefono: "123456",
+      correo_electronico: "test@mail.com",
+      contrasena: "12345678",
     };
 
     // Act:
-    const res = await request(app).post("/api/register").send(payload);
+    const res = await request(app).post("/api/register").send(body);
 
     // Assert:
-    // La respuesta principal debe seguir siendo 500 por el error de execute.
     expect(res.status).toBe(500);
     expect(res.body).toEqual({
       error: "Error al registrar usuario",
-      detalles: "Fallo en execute"
+      detalles: "Fallo en execute",
     });
 
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
-    expect(connectionMock.execute).toHaveBeenCalledTimes(1);
-    expect(connectionMock.close).toHaveBeenCalledTimes(1);
+    expect(executeMock).toHaveBeenCalledTimes(1);
+    expect(closeMock).toHaveBeenCalledTimes(1);
 
-    expect(consoleSpy).toHaveBeenCalledWith(
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
       "Error cerrando conexión",
       expect.any(Error)
     );

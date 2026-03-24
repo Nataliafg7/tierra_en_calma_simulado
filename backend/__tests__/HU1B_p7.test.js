@@ -1,55 +1,65 @@
+// ================= MOCKS =================
+jest.mock("oracledb", () => ({
+  getConnection: jest.fn(),
+}));
+
+jest.mock("../mqttService", () => ({}));
+jest.mock("../cuidadosService", () => ({}));
+jest.mock("../pkgCentralService", () => ({}));
+jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
+jest.mock("swagger-ui-express", () => ({
+  serve: [],
+  setup: () => (req, res, next) => next(),
+}));
+jest.mock("yamljs", () => ({ load: jest.fn() }));
+
+// ================= IMPORTS =================
 const request = require("supertest");
 const oracledb = require("oracledb");
+const { createApp } = require("../app");
 
-jest.mock("oracledb");
-
-describe("HU1 – Backend – Escenario 7 (P7) – Error en execute con cierre correcto", () => {
+describe("HU1 - Backend - P7: Error en execute con close exitoso", () => {
   let app;
-  let connectionMock;
+  let executeMock;
+  let closeMock;
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    connectionMock = {
-      execute: jest.fn(),
-      close: jest.fn()
-    };
-
-    oracledb.getConnection.mockResolvedValue(connectionMock);
-    connectionMock.execute.mockRejectedValue(
-      new Error("Fallo en execute")
-    );
-    connectionMock.close.mockResolvedValue();
-
-    const { createApp } = require("../app");
     app = createApp();
+
+    executeMock = jest.fn().mockRejectedValue(new Error("Fallo en execute"));
+    closeMock = jest.fn().mockResolvedValue();
+
+    oracledb.getConnection.mockResolvedValue({
+      execute: executeMock,
+      close: closeMock,
+    });
   });
 
-  test("P7 – POST /api/register debe responder 500 cuando falla execute y luego cerrar la conexión", async () => {
+  test("Debe responder 500 cuando falla execute y luego cerrar la conexión", async () => {
     // Arrange:
-    // Este escenario usa mock de implementación fallida para execute
-    // y cierre exitoso para validar el finally.
-    const payload = {
-      id_usuario: 107,
+    // Se simula una conexión exitosa, pero la inserción falla.
+    const body = {
+      id_usuario: 7,
       nombre: "Juliana",
-      apellido: "Flórez",
-      telefono: "3001234567",
-      correo_electronico: "juliana@correo.com",
-      contrasena: "clave1234"
+      apellido: "Florez",
+      telefono: "123456",
+      correo_electronico: "test@mail.com",
+      contrasena: "12345678",
     };
 
     // Act:
-    const res = await request(app).post("/api/register").send(payload);
+    const res = await request(app).post("/api/register").send(body);
 
     // Assert:
     expect(res.status).toBe(500);
     expect(res.body).toEqual({
       error: "Error al registrar usuario",
-      detalles: "Fallo en execute"
+      detalles: "Fallo en execute",
     });
 
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
-    expect(connectionMock.execute).toHaveBeenCalledTimes(1);
-    expect(connectionMock.close).toHaveBeenCalledTimes(1);
+    expect(executeMock).toHaveBeenCalledTimes(1);
+    expect(closeMock).toHaveBeenCalledTimes(1);
   });
 });

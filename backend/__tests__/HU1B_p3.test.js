@@ -1,32 +1,44 @@
+// ================= MOCKS =================
+jest.mock("oracledb", () => ({
+  getConnection: jest.fn(),
+}));
+
+jest.mock("../mqttService", () => ({}));
+jest.mock("../cuidadosService", () => ({}));
+jest.mock("../pkgCentralService", () => ({}));
+jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
+jest.mock("swagger-ui-express", () => ({
+  serve: [],
+  setup: () => (req, res, next) => next(),
+}));
+jest.mock("yamljs", () => ({ load: jest.fn() }));
+
+// ================= IMPORTS =================
 const request = require("supertest");
 const oracledb = require("oracledb");
+const { createApp } = require("../app");
 
-jest.mock("oracledb");
-
-describe("HU1 – Backend – Escenario 3 (P3) – Contraseña inválida", () => {
+describe("HU1 - Backend - P3: Contraseña inválida", () => {
   let app;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    const { createApp } = require("../app");
     app = createApp();
+    jest.clearAllMocks();
   });
 
-  test("P3 – POST /api/register debe responder 400 cuando la contraseña tiene menos de 8 caracteres", async () => {
+  test("Debe responder 400 cuando la contraseña es menor a 8 caracteres", async () => {
     // Arrange:
-    // El flujo pasa la validación de campos y correo,
-    // pero debe detenerse por longitud insuficiente de contraseña.
-    const payload = {
-      id_usuario: 103,
+    const body = {
+      id_usuario: 3,
       nombre: "Juliana",
-      apellido: "Casas",
-      telefono: "3001234567",
-      correo_electronico: "juliana@correo.com",
-      contrasena: "1234567"
+      apellido: "Florez",
+      telefono: "123456",
+      correo_electronico: "test@mail.com",
+      contrasena: "1234"
     };
 
     // Act:
-    const res = await request(app).post("/api/register").send(payload);
+    const res = await request(app).post("/api/register").send(body);
 
     // Assert:
     expect(res.status).toBe(400);
@@ -34,7 +46,6 @@ describe("HU1 – Backend – Escenario 3 (P3) – Contraseña inválida", () =>
       error: "La contraseña debe tener al menos 8 caracteres"
     });
 
-    // No debe conectarse a la base de datos.
     expect(oracledb.getConnection).not.toHaveBeenCalled();
   });
 });

@@ -22,13 +22,20 @@ jest.mock("yamljs", () => ({
   load: jest.fn(() => ({})),
 }));
 
-describe("HU8B P2 - GET /api/plantas", () => {
+describe("HU8B P5 - GET /api/plantas", () => {
   let app;
+  let connectionMock;
   let errorSpy;
 
   beforeEach(() => {
     jest.clearAllMocks();
     app = createApp();
+
+    connectionMock = {
+      execute: jest.fn(),
+      close: jest.fn(),
+    };
+
     errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
@@ -36,26 +43,33 @@ describe("HU8B P2 - GET /api/plantas", () => {
     errorSpy.mockRestore();
   });
 
-  test("debe responder 500 cuando ocurre un error al obtener la conexión", async () => {
+  test("debe responder 500 cuando falla la consulta y además falla el cierre de la conexión", async () => {
     /*
       Objetivo:
-      Verificar el comportamiento del endpoint cuando falla getConnection.
+      Verificar el escenario más completo de error:
+      falla la consulta principal y luego también falla close.
 
       Mock utilizado:
-      - oracledb.getConnection: rechaza con un error simulado.
+      - oracledb.getConnection: devuelve conexión simulada.
+      - connection.execute: rechaza con error simulado.
+      - connection.close: rechaza con error simulado.
 
       Qué se valida:
       - estado HTTP 500
-      - mensaje de error esperado
-      - que sí se intentó obtener conexión
-      - que se registró el error por consola
+      - cuerpo del error principal
+      - intento de ejecutar consulta
+      - intento de cerrar conexión
+      - registro de errores en consola
 
       Observación:
-      En este escenario no existe conexión, por eso no hay cierre.
+      El error principal sigue siendo el de la consulta.
+      El error de close se registra, pero no reemplaza la respuesta enviada.
     */
 
     // Arrange
-    oracledb.getConnection.mockRejectedValue(new Error("Fallo de conexión"));
+    oracledb.getConnection.mockResolvedValue(connectionMock);
+    connectionMock.execute.mockRejectedValue(new Error("Error en execute"));
+    connectionMock.close.mockRejectedValue(new Error("Error en close"));
 
     // Act
     const response = await request(app).get("/api/plantas");
@@ -67,6 +81,8 @@ describe("HU8B P2 - GET /api/plantas", () => {
     });
 
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
+    expect(connectionMock.execute).toHaveBeenCalledTimes(1);
+    expect(connectionMock.close).toHaveBeenCalledTimes(1);
     expect(errorSpy).toHaveBeenCalled();
   });
 });

@@ -1,65 +1,65 @@
-/**
- * HU10 (Backend) - Asociación de planta
- * Escenario 2 (P2): Error en conexión a Oracle (getConnection falla)
- * Archivo: HU10B_p2.test.js
- *
- */
+const request = require("supertest");
+const oracledb = require("oracledb");
+const { createApp } = require("../app");
 
-describe("Pruebas Unitarias Backend – HU10 Asociación de planta", () => {
-  let server;
-  let baseUrl;
+jest.mock("oracledb", () => ({
+  getConnection: jest.fn(),
+  OUT_FORMAT_OBJECT: 1,
+}));
 
-  // Guardamos env original para restaurar al final
-  const originalEnv = {
-    ORACLE_USER: process.env.ORACLE_USER,
-    ORACLE_PASS: process.env.ORACLE_PASS,
-    ORACLE_CONN: process.env.ORACLE_CONN,
-  };
+jest.mock("../mqttService", () => ({}));
+jest.mock("../cuidadosService", () => ({ crearCuidado: jest.fn() }));
+jest.mock("../pkgCentralService", () => ({ verificarCondiciones: jest.fn() }));
 
-  beforeAll(() => {
-    // 1) Forzamos credenciales inválidas ANTES de crear la app
-    process.env.ORACLE_USER = "USUARIO_INEXISTENTE";
-    process.env.ORACLE_PASS = "CLAVE_INCORRECTA";
-    process.env.ORACLE_CONN = "CONN_INVALIDA";
+jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
 
-    // 2) Importamos la app DESPUÉS de cambiar env (para que tome esos valores)
-    jest.resetModules();
-    const { createApp } = require("../app");
+jest.mock("swagger-ui-express", () => ({
+  serve: [],
+  setup: () => (req, res, next) => next(),
+}));
 
-    // 3) Levantamos servidor temporal
-    const app = createApp();
-    server = app.listen(0);
-    const port = server.address().port;
-    baseUrl = `http://localhost:${port}`;
+jest.mock("yamljs", () => ({
+  load: jest.fn(() => ({})),
+}));
+
+describe("HU10B P2 - POST /api/registrar-planta", () => {
+  let app;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    app = createApp();
   });
 
-  afterAll(() => {
-    // Cerramos servidor
-    server.close();
+  test("debe responder 400 cuando faltan datos y no debe acceder a la base de datos", async () => {
+    /*
+      Objetivo:
+      Verificar la validación previa de datos.
 
-    // Restauramos env para no dañar otras pruebas
-    process.env.ORACLE_USER = originalEnv.ORACLE_USER;
-    process.env.ORACLE_PASS = originalEnv.ORACLE_PASS;
-    process.env.ORACLE_CONN = originalEnv.ORACLE_CONN;
-  });
+      Mock utilizado:
+      - oracledb.getConnection: queda mockeado, pero no debe ser llamado.
 
-  test("Escenario 2 (P2) – Debe retornar 500 cuando falla la conexión a Oracle", async () => {
-    const payload = {
-      id_usuario: 1,
-      id_planta: 1,
+      Qué se valida:
+      - estado HTTP 400
+      - mensaje de error esperado
+      - que no se llama a getConnection
+    */
+
+    // Arrange
+    const body = {
+      id_usuario: 10,
     };
 
-    const resp = await fetch(`${baseUrl}/api/registrar-planta`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+    // Act
+    const response = await request(app)
+      .post("/api/registrar-planta")
+      .send(body);
+
+    // Assert
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      error: "Datos incompletos para registrar la planta",
     });
 
-    // 1) Assertion del status
-    expect(resp.status).toBe(500);
-
-    // 2) Assertion del body
-    const data = await resp.json();
-    expect(data).toEqual({ error: "Error al registrar planta" });
+    expect(oracledb.getConnection).not.toHaveBeenCalled();
   });
 });

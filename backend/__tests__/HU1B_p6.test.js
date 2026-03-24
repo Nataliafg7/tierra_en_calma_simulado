@@ -1,42 +1,53 @@
+// ================= MOCKS =================
+jest.mock("oracledb", () => ({
+  getConnection: jest.fn(),
+}));
+
+jest.mock("../mqttService", () => ({}));
+jest.mock("../cuidadosService", () => ({}));
+jest.mock("../pkgCentralService", () => ({}));
+jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
+jest.mock("swagger-ui-express", () => ({
+  serve: [],
+  setup: () => (req, res, next) => next(),
+}));
+jest.mock("yamljs", () => ({ load: jest.fn() }));
+
+// ================= IMPORTS =================
 const request = require("supertest");
 const oracledb = require("oracledb");
+const { createApp } = require("../app");
 
-jest.mock("oracledb");
-
-describe("HU1 – Backend – Escenario 6 (P6) – Error al obtener conexión", () => {
+describe("HU1 - Backend - P6: Error en getConnection", () => {
   let app;
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    oracledb.getConnection.mockRejectedValue(
-      new Error("Fallo al obtener conexión")
-    );
-
-    const { createApp } = require("../app");
     app = createApp();
+
+    oracledb.getConnection.mockRejectedValue(new Error("Fallo al obtener conexión"));
   });
 
-  test("P6 – POST /api/register debe responder 500 cuando falla getConnection", async () => {
+  test("Debe responder 500 cuando falla getConnection", async () => {
     // Arrange:
-    // El mock del módulo oracledb simula fallo inmediato al intentar conectarse.
-    const payload = {
-      id_usuario: 106,
+    // Se simula un fallo al abrir la conexión con la base de datos.
+    const body = {
+      id_usuario: 6,
       nombre: "Juliana",
-      apellido: "Flórez",
-      telefono: "3001234567",
-      correo_electronico: "juliana@correo.com",
-      contrasena: "clave1234"
+      apellido: "Florez",
+      telefono: "123456",
+      correo_electronico: "test@mail.com",
+      contrasena: "12345678",
     };
 
     // Act:
-    const res = await request(app).post("/api/register").send(payload);
+    const res = await request(app).post("/api/register").send(body);
 
     // Assert:
     expect(res.status).toBe(500);
     expect(res.body).toEqual({
       error: "Error al registrar usuario",
-      detalles: "Fallo al obtener conexión"
+      detalles: "Fallo al obtener conexión",
     });
 
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);

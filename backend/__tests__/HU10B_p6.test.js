@@ -22,9 +22,10 @@ jest.mock("yamljs", () => ({
   load: jest.fn(() => ({})),
 }));
 
-describe("HU10B P1 - POST /api/registrar-planta", () => {
+describe("HU10B P6 - POST /api/registrar-planta", () => {
   let app;
   let connectionMock;
+  let errorSpy;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -34,56 +35,51 @@ describe("HU10B P1 - POST /api/registrar-planta", () => {
       execute: jest.fn(),
       close: jest.fn(),
     };
+
+    errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
-  test("debe responder 200 cuando la planta se registra correctamente", async () => {
+  afterEach(() => {
+    errorSpy.mockRestore();
+  });
+
+  test("debe responder 500 cuando falla el INSERT y además falla el cierre de la conexión", async () => {
     /*
       Objetivo:
-      Verificar el flujo exitoso del endpoint /api/registrar-planta.
+      Verificar el escenario combinado de error en execute y error en close.
 
       Mock utilizado:
-      - oracledb.getConnection: devuelve una conexión simulada.
-      - connection.execute: resuelve correctamente el INSERT.
-      - connection.close: resuelve correctamente.
+      - oracledb.getConnection: devuelve conexión simulada.
+      - connection.execute: rechaza con error simulado.
+      - connection.close: rechaza con error simulado.
 
       Qué se valida:
-      - estado HTTP 200
-      - mensaje de éxito
-      - llamada a getConnection
-      - llamada a execute con SQL, parámetros y autoCommit esperados
-      - llamada a close al finalizar
+      - estado HTTP 500
+      - mensaje del error principal
+      - intento de ejecutar INSERT
+      - intento de cerrar conexión
+      - registro de errores en consola
     */
 
     // Arrange
-    const body = {
-      id_usuario: 10,
-      id_planta: 3,
-    };
-
     oracledb.getConnection.mockResolvedValue(connectionMock);
-    connectionMock.execute.mockResolvedValue({});
-    connectionMock.close.mockResolvedValue();
+    connectionMock.execute.mockRejectedValue(new Error("Error en execute"));
+    connectionMock.close.mockRejectedValue(new Error("Error en close"));
 
     // Act
     const response = await request(app)
       .post("/api/registrar-planta")
-      .send(body);
+      .send({ id_usuario: 10, id_planta: 3 });
 
     // Assert
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(500);
     expect(response.body).toEqual({
-      message: "Planta registrada con éxito en tu jardín",
+      error: "Error al registrar planta",
     });
 
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
     expect(connectionMock.execute).toHaveBeenCalledTimes(1);
-    expect(connectionMock.execute).toHaveBeenCalledWith(
-      `INSERT INTO TIERRA_EN_CALMA.PLANTAS_USUARIO 
-       (ID_PLANTA, ID_USUARIO, ESTADO, NOMBRE_PERSONALIZADO)
-       VALUES (:id_planta, :id_usuario, 'activa', NULL)`,
-      { id_planta: 3, id_usuario: 10 },
-      { autoCommit: true }
-    );
     expect(connectionMock.close).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalled();
   });
 });

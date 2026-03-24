@@ -98,37 +98,59 @@ app.post("/api/register", async (req, res) => {
     }
   }
 });
-  // ======================= LOGIN =======================
-  app.post("/api/login", async (req, res) => {
-    const { correo_electronico, contrasena } = req.body;
+// ======================= LOGIN =======================
+app.post("/api/login", async (req, res) => {
+  const { correo_electronico, contrasena } = req.body;
 
-    try {
-      const connection = await oracledb.getConnection(dbConfig);
+  if (!correo_electronico || !contrasena) {
+    return res.status(400).send({
+      message: "El correo y la contraseña son obligatorios"
+    });
+  }
 
-      const result = await connection.execute(
-        `SELECT ID_USUARIO, NOMBRE, APELLIDO, TELEFONO, CORREO_ELECTRONICO
-         FROM TIERRA_EN_CALMA.USUARIOS
-         WHERE LOWER(CORREO_ELECTRONICO) = LOWER(:correo_electronico)
-         AND CONTRASENA = :contrasena`,
-        { correo_electronico, contrasena },
-        { outFormat: oracledb.OUT_FORMAT_OBJECT }
-      );
+  let connection;
 
-      await connection.close();
+  try {
+    connection = await oracledb.getConnection(dbConfig);
 
-      if (result.rows.length > 0) {
-        const usuario = result.rows[0];
-        const correo = (usuario.CORREO_ELECTRONICO || "").trim().toLowerCase();
-        const role = correo === "admin@tierraencalma.com" ? "admin" : "user";
+    const result = await connection.execute(
+      `SELECT ID_USUARIO, NOMBRE, APELLIDO, TELEFONO, CORREO_ELECTRONICO
+       FROM TIERRA_EN_CALMA.USUARIOS
+       WHERE LOWER(CORREO_ELECTRONICO) = LOWER(:correo_electronico)
+       AND CONTRASENA = :contrasena`,
+      { correo_electronico, contrasena },
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
 
-        res.send({ message: "Login exitoso", user: usuario, role });
-      } else {
-        res.status(401).send({ message: "Credenciales inválidas" });
-      }
-    } catch (err) {
-      res.status(500).send({ error: "Error al iniciar sesión" });
+    if (result.rows.length > 0) {
+      const usuario = result.rows[0];
+      const correo = (usuario.CORREO_ELECTRONICO || "").trim().toLowerCase();
+      const role = correo === "admin@tierraencalma.com" ? "admin" : "user";
+
+      return res.send({
+        message: "Login exitoso",
+        user: usuario,
+        role
+      });
     }
-  });
+
+    return res.status(401).send({
+      message: "Credenciales inválidas"
+    });
+  } catch (err) {
+    return res.status(500).send({
+      error: "Error al iniciar sesión"
+    });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (error) {
+        console.error("Error al cerrar la conexión en login:", error);
+      }
+    }
+  }
+});
 
 // ======================= CONTACTO (CORREO) =======================
 app.post("/api/contacto", async (req, res) => {
@@ -197,9 +219,17 @@ app.post("/api/monitorear", async (req, res) => {
 // ======================= REGISTRAR PLANTA =======================
 app.post("/api/registrar-planta", async (req, res) => {
   const { id_usuario, id_planta } = req.body;
+  let connection;
+
+  // Validación básica 
+  if (!id_usuario || !id_planta) {
+    return res.status(400).send({
+      error: "Datos incompletos para registrar la planta",
+    });
+  }
 
   try {
-    const connection = await oracledb.getConnection(dbConfig);
+    connection = await oracledb.getConnection(dbConfig);
 
     await connection.execute(
       `INSERT INTO TIERRA_EN_CALMA.PLANTAS_USUARIO 
@@ -209,39 +239,61 @@ app.post("/api/registrar-planta", async (req, res) => {
       { autoCommit: true }
     );
 
-    await connection.close();
-    res.send({ message: "Planta registrada con éxito en tu jardín" });
+    return res.send({
+      message: "Planta registrada con éxito en tu jardín",
+    });
   } catch (err) {
     console.error("Error al registrar planta:", err);
-    res.status(500).send({ error: "Error al registrar planta" });
+    return res.status(500).send({
+      error: "Error al registrar planta",
+    });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (closeError) {
+        console.error("Error al cerrar conexión en registrar planta:", closeError);
+      }
+    }
   }
-});
-
-// ======================= LISTA PLANTAS =======================
+});// ======================= LISTA PLANTAS =======================
 app.get("/api/plantas", async (req, res) => {
+  let connection;
+
   try {
-    const connection = await oracledb.getConnection(dbConfig);
+    connection = await oracledb.getConnection(dbConfig);
+
     const result = await connection.execute(
-      `SELECT ID_PLANTA, NOMBRE_COMUN 
+      `SELECT ID_PLANTA, NOMBRE_COMUN
        FROM TIERRA_EN_CALMA.BANCO_PLANTAS
        ORDER BY NOMBRE_COMUN`,
       {},
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
 
-    await connection.close();
-    res.json(result.rows);
+    return res.json(result.rows);
   } catch (err) {
     console.error("Error al obtener lista de plantas:", err);
-    res.status(500).json({ error: "Error al obtener la lista de plantas" });
+    return res.status(500).json({
+      error: "Error al obtener la lista de plantas",
+    });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (closeError) {
+        console.error("Error al cerrar conexión en lista de plantas:", closeError);
+      }
+    }
   }
 });
 // ======================= MIS PLANTAS =======================
 app.get("/api/mis-plantas", async (req, res) => {
   const raw = req.header("x-user-id");
-  const id_usuario = Number(raw);
+  const rawNormalizado = typeof raw === "string" ? raw.trim() : "";
+  const id_usuario = Number(rawNormalizado);
 
-  if (!Number.isInteger(id_usuario)) {
+  if (rawNormalizado === "" || !Number.isInteger(id_usuario)) {
     return res.status(400).json({ error: "x-user-id inválido" });
   }
 
@@ -264,21 +316,21 @@ app.get("/api/mis-plantas", async (req, res) => {
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
 
-    res.json(result.rows ?? []);
-
-} catch (err) {
-  console.error("Error al obtener las plantas del usuario:", err);
-  res.status(500).json({ error: "Error al obtener las plantas del usuario" });
-} finally {
-  if (connection) {
-    try {
-      await connection.close();
-    } catch (closeError) {
-      console.error("Error al cerrar conexión de mis plantas:", closeError);
+    return res.json(result.rows ?? []);
+  } catch (err) {
+    console.error("Error al obtener las plantas del usuario:", err);
+    return res.status(500).json({ error: "Error al obtener las plantas del usuario" });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (closeError) {
+        console.error("Error al cerrar conexión de mis plantas:", closeError);
+      }
     }
   }
-}
-});  // ======================= CUIDADOS =======================
+});
+  // ======================= CUIDADOS =======================
   app.post("/api/cuidados", async (req, res) => {
     const { id_planta_usuario, fecha, tipo, detalles } = req.body;
     if (!id_planta_usuario || !fecha || !tipo) {

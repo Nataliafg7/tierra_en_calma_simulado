@@ -1,59 +1,86 @@
-jest.mock("oracledb", () => ({
-  getConnection: jest.fn()
-}));
-
 const request = require("supertest");
 const oracledb = require("oracledb");
-const app = require("../app");
+const { createApp } = require("../app");
 
-describe("HU10B_P4 - Registrar planta (falla al cerrar conexión)", () => {
+jest.mock("oracledb", () => ({
+  getConnection: jest.fn(),
+  OUT_FORMAT_OBJECT: 1,
+}));
+
+jest.mock("../mqttService", () => ({}));
+jest.mock("../cuidadosService", () => ({ crearCuidado: jest.fn() }));
+jest.mock("../pkgCentralService", () => ({ verificarCondiciones: jest.fn() }));
+
+jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
+
+jest.mock("swagger-ui-express", () => ({
+  serve: [],
+  setup: () => (req, res, next) => next(),
+}));
+
+jest.mock("yamljs", () => ({
+  load: jest.fn(() => ({})),
+}));
+
+describe("HU10B P4 - POST /api/registrar-planta", () => {
+  let app;
+  let connectionMock;
+  let errorSpy;
 
   beforeEach(() => {
-    // Limpia los mocks antes de cada prueba para evitar interferencias
     jest.clearAllMocks();
+    app = createApp();
+
+    connectionMock = {
+      execute: jest.fn(),
+      close: jest.fn(),
+    };
+
+    errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
-  test("Debe responder 500 cuando la inserción es exitosa pero falla el cierre de la conexión", async () => {
+  afterEach(() => {
+    errorSpy.mockRestore();
+  });
 
-    // ===================== ARRANGE =====================
-    // Se crea una conexión simulada:
-    // - execute() simula que el INSERT fue exitoso
-    // - close() simula error al cerrar la conexión
-    const connectionMock = {
-      execute: jest.fn().mockResolvedValue({}),
-      close: jest.fn().mockRejectedValue(new Error("Error al cerrar conexión"))
-    };
+  test("debe responder 500 cuando falla el INSERT y luego cerrar la conexión", async () => {
+    /*
+      Objetivo:
+      Verificar el flujo donde la conexión sí se obtiene,
+      pero falla la ejecución del INSERT.
 
-    // Se configura el mock para que getConnection retorne la conexión simulada
+      Mock utilizado:
+      - oracledb.getConnection: devuelve conexión simulada.
+      - connection.execute: rechaza con error simulado.
+      - connection.close: resuelve correctamente.
+
+      Qué se valida:
+      - estado HTTP 500
+      - mensaje de error esperado
+      - llamada a execute
+      - llamada a close desde finally
+      - registro del error por consola
+    */
+
+    // Arrange
     oracledb.getConnection.mockResolvedValue(connectionMock);
+    connectionMock.execute.mockRejectedValue(new Error("Error en execute"));
+    connectionMock.close.mockResolvedValue();
 
-    // Datos de entrada de la petición
-    const body = {
-      id_usuario: 1,
-      id_planta: 2
-    };
-
-    // ===================== ACT =====================
-    // Se ejecuta la petición al endpoint que registra la planta
+    // Act
     const response = await request(app)
       .post("/api/registrar-planta")
-      .send(body);
+      .send({ id_usuario: 10, id_planta: 3 });
 
-    // ===================== ASSERT =====================
-    // Se verifica que se intentó obtener una conexión
-    expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
-
-    // Se verifica que se ejecutó la inserción
-    expect(connectionMock.execute).toHaveBeenCalledTimes(1);
-
-    // Se verifica que se intentó cerrar la conexión
-    expect(connectionMock.close).toHaveBeenCalledTimes(1);
-
-    // Se verifica la respuesta esperada ante el error
+    // Assert
     expect(response.status).toBe(500);
     expect(response.body).toEqual({
-      error: "Error al registrar planta"
+      error: "Error al registrar planta",
     });
-  });
 
+    expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
+    expect(connectionMock.execute).toHaveBeenCalledTimes(1);
+    expect(connectionMock.close).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalled();
+  });
 });

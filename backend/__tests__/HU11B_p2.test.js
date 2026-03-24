@@ -1,66 +1,82 @@
-/**
- * HU11 - Backend - GET /api/mis-plantas
- * Escenario 2 (P2): Consulta exitosa de plantas del usuario
- *
- * Se valida el flujo principal del endpoint cuando el header x-user-id
- * contiene un identificador entero válido. El sistema debe ejecutar la
- * consulta a la base de datos y retornar una lista de plantas asociadas
- * al usuario (o una lista vacía si no existen registros).
- */
+const request = require("supertest");
 
+jest.mock("oracledb", () => ({
+  getConnection: jest.fn(),
+  OUT_FORMAT_OBJECT: 1,
+}));
+
+jest.mock("../mqttService", () => ({}));
+jest.mock("../cuidadosService", () => ({ crearCuidado: jest.fn() }));
+jest.mock("../pkgCentralService", () => ({ verificarCondiciones: jest.fn() }));
+
+jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
+
+jest.mock("swagger-ui-express", () => ({
+  serve: [],
+  setup: () => (req, res, next) => next(),
+}));
+
+jest.mock("yamljs", () => ({
+  load: jest.fn(() => ({})),
+}));
+
+const oracledb = require("oracledb");
 const { createApp } = require("../app");
 
-describe("Pruebas Unitarias Backend – HU11 /api/mis-plantas – Escenario P2", () => {
+describe("HU11B_p2 - GET /api/mis-plantas exitoso con filas", () => {
+  let app;
+  let connectionMock;
 
-  let server;
-  let baseUrl;
+  beforeEach(() => {
+    jest.clearAllMocks();
+    app = createApp();
 
-  beforeAll(() => {
-    const app = createApp();
-    server = app.listen(0);
-    const port = server.address().port;
-    baseUrl = `http://localhost:${port}`;
+    connectionMock = {
+      execute: jest.fn(),
+      close: jest.fn(),
+    };
   });
 
-  afterAll(() => {
-    server.close();
+  test("debe responder 200 con las plantas del usuario y cerrar la conexión", async () => {
+    // Arrange:
+    // Se simula una consulta exitosa devolviendo plantas asociadas al usuario.
+    const filas = [
+      {
+        ID_PLANTA_USUARIO: 10,
+        ID_PLANTA: 1,
+        NOMBRE_COMUN: "Monstera",
+        NOMBRE_CIENTIFICO: "Monstera deliciosa",
+      },
+      {
+        ID_PLANTA_USUARIO: 11,
+        ID_PLANTA: 2,
+        NOMBRE_COMUN: "Potus",
+        NOMBRE_CIENTIFICO: "Epipremnum aureum",
+      },
+    ];
+
+    connectionMock.execute.mockResolvedValue({ rows: filas });
+    connectionMock.close.mockResolvedValue();
+
+    oracledb.getConnection.mockResolvedValue(connectionMock);
+
+    // Act:
+    const response = await request(app)
+      .get("/api/mis-plantas")
+      .set("x-user-id", "5");
+
+    // Assert:
+    // Se valida estado, cuerpo y uso correcto de Oracle.
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(filas);
+
+    expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
+    expect(connectionMock.execute).toHaveBeenCalledTimes(1);
+    expect(connectionMock.execute).toHaveBeenCalledWith(
+      expect.stringContaining("FROM TIERRA_EN_CALMA.PLANTAS_USUARIO pu"),
+      { id_usuario: 5 },
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    expect(connectionMock.close).toHaveBeenCalledTimes(1);
   });
-
-  test("P2-A: x-user-id válido → consulta exitosa", async () => {
-
-    const res = await fetch(`${baseUrl}/api/mis-plantas`, {
-      method: "GET",
-      headers: { "x-user-id": "42900093" }
-    });
-
-    expect(res.status).toBe(200);
-
-    const body = await res.json();
-
-    console.log("[P2-A] STATUS:", res.status);
-    console.log("[P2-A] BODY:", body);
-
-    expect(Array.isArray(body)).toBe(true);
-
-  });
-
-
-  test("P2-B: x-user-id válido pero sin plantas registradas", async () => {
-
-    const res = await fetch(`${baseUrl}/api/mis-plantas`, {
-      method: "GET",
-      headers: { "x-user-id": "9999" }
-    });
-
-    expect(res.status).toBe(200);
-
-    const body = await res.json();
-
-    console.log("[P2-B] STATUS:", res.status);
-    console.log("[P2-B] BODY:", body);
-
-    expect(Array.isArray(body)).toBe(true);
-
-  });
-
 });
