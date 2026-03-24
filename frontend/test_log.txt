@@ -1,0 +1,49 @@
+[1m[33m[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`[39m[22m
+[33m❯[39m Building...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[32m✔[39m Building...
+[1mInitial chunk files[22m       [2m | [22m[1mNames[22m                  [2m | [22m [1mRaw size[22m
+[32mchunk-SHB5AR7W.js[39m         [2m | [22m[2m-[22m                      [2m | [22m  [36m2.51 MB[39m[2m | [22m
+[32mpolyfills.js[39m              [2m | [22m[2mpolyfills[22m              [2m | [22m  [36m1.03 MB[39m[2m | [22m
+[32mspec-monstera.spec.js[39m     [2m | [22m[2mspec-monstera.spec[22m     [2m | [22m[36m612.29 kB[39m[2m | [22m
+[32mchunk-XVNG6ZCC.js[39m         [2m | [22m[2m-[22m                      [2m | [22m[36m578.93 kB[39m[2m | [22m
+[32mspec-app.spec.js[39m          [2m | [22m[2mspec-app.spec[22m          [2m | [22m[36m174.50 kB[39m[2m | [22m
+[32mjasmine-cleanup-1.js[39m      [2m | [22m[2mjasmine-cleanup-1[22m      [2m | [22m [36m67.20 kB[39m[2m | [22m
+[32mspec-public-layout.spec.js[39m[2m | [22m[2mspec-public-layout.spec[22m[2m | [22m [36m45.67 kB[39m[2m | [22m
+[32mchunk-ZEQR7ZT2.js[39m         [2m | [22m[2m-[22m                      [2m | [22m [36m20.41 kB[39m[2m | [22m
+[32mtest_main.js[39m              [2m | [22m[2mtest_main[22m              [2m | [22m  [36m4.30 kB[39m[2m | [22m
+[32mchunk-HBW54YOI.js[39m         [2m | [22m[2m-[22m                      [2m | [22m  [36m3.02 kB[39m[2m | [22m
+[32mjasmine-cleanup-0.js[39m      [2m | [22m[2mjasmine-cleanup-0[22m      [2m | [22m[36m519 bytes[39m[2m | [22m
+[32mstyles.css[39m                [2m | [22m[2mstyles[22m                 [2m | [22m[36m328 bytes[39m[2m | [22m
+
+[1m [22m                         [2m | [22m[1mInitial total[22m          [2m | [22m  [1m5.05 MB[22m
+
+Application bundle generation complete. [3.138 seconds] - 2026-03-24T01:09:16.704Z
+
+[32m23 03 2026 20:09:17.066:INFO [karma-server]: [39mKarma v6.4.4 server started at http://localhost:9876/
+[32m23 03 2026 20:09:17.067:INFO [launcher]: [39mLaunching browsers ChromeHeadlessNoSandbox with concurrency unlimited
+[32m23 03 2026 20:09:17.084:INFO [launcher]: [39mStarting browser ChromeHeadless
+[32m23 03 2026 20:09:18.263:INFO [Chrome Headless 146.0.0.0 (Windows 10)]: [39mConnected on socket txN1P-sLUS3qWrClAAAB with id 43582660
+ERROR: 'Error al enviar el formulario:', Error: NetError
+Error: NetError
+    at http://localhost:9876/base/src/app/layouts/public-layout.spec.ts:52:53
+    at _Observable.init [as _subscribe] (http://localhost:9876/base/node_modules/rxjs/src/internal/observable/throwError.ts:123:68)
+    at _Observable._trySubscribe (http://localhost:9876/base/node_modules/rxjs/src/internal/Observable.ts:235:19)
+    at http://localhost:9876/base/node_modules/rxjs/src/internal/Observable.ts:225:18
+    at errorContext (http://localhost:9876/base/node_modules/rxjs/src/internal/util/errorContext.ts:29:5)
+    at _Observable.subscribe (http://localhost:9876/base/node_modules/rxjs/src/internal/Observable.ts:211:5)
+    at PublicLayoutComponent2.enviarFormulario (http://localhost:9876/base/src/app/layouts/public-layout.ts:22:40)
+    at UserContext.<anonymous> (http://localhost:9876/base/src/app/layouts/public-layout.spec.ts:55:17)
+    at _ZoneDelegate.invoke (http://localhost:9876/base/node_modules/zone.js/fesm2015/zone.js:398:28)
+    at _ProxyZoneSpec.onInvoke (http://localhost:9876/base/node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
+TOTAL: 33 SUCCESS
+
+=============================== Coverage summary ===============================
+Statements   : 82.75% ( 144/174 )
+Branches     : 78.18% ( 43/55 )
+Functions    : 78% ( 39/50 )
+Lines        : 85.89% ( 134/156 )
+================================================================================

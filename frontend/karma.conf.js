@@ -6,14 +6,23 @@ module.exports = function (config) {
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
-      require('karma-spec-reporter'),
-      require('@angular-devkit/build-angular/plugins/karma')
+      require('karma-coverage')
     ],
     client: {
       clearContext: false
     },
 
-    reporters: ['spec', 'kjhtml'],
+    reporters: ['kjhtml', 'coverage'],
+
+    coverageReporter: {
+      dir: require('path').join(__dirname, './coverage/frontend'),
+      subdir: '.',
+      reporters: [
+        { type: 'html' },
+        { type: 'text-summary' },
+        { type: 'lcovonly', file: 'lcov.info' }
+      ]
+    },
 
     specReporter: {
       suppressPassed: false,
@@ -26,6 +35,12 @@ module.exports = function (config) {
     logLevel: config.LOG_INFO,
     autoWatch: true,
     browsers: ['Chrome'],
+    customLaunchers: {
+      ChromeHeadlessNoSandbox: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox']
+      }
+    },
     singleRun: false,
     restartOnFileChange: true
   });
