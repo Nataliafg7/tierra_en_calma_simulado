@@ -41,9 +41,9 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
   // Chart
   @ViewChild('soilChart', { static: false }) soilChartRef!: ElementRef<HTMLCanvasElement>;
   private chart?: Chart;
-  private maxDataPoints = 20;
-  private humidityData: number[] = [];
-  private tempData: number[] = [];
+  private readonly maxDataPoints = 20;
+  private readonly humidityData: number[] = [];
+  private readonly tempData: number[] = [];
 
   // Polling
   private pollHandle?: any;
@@ -52,8 +52,8 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
   private idPlantaUsuario: number | null = null;
 
   constructor(
-    private mqttService: MqttDataService,
-    private route: ActivatedRoute
+    private readonly mqttService: MqttDataService,
+    private readonly route: ActivatedRoute
   ) { }
 
 // SONAR-IGNORE-END
@@ -136,15 +136,15 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
   //  datos backend 
   private cargarDatos(): void {
     this.mqttService.getUltimoDato().subscribe(res => {
-      if (!res || !res.dato) return;
+      if (!res?.dato) return;
 
       this.realtimeData = res.dato;
       this.lastUpdate = `Última actualización: ${new Date().toLocaleTimeString()}`;
       this.isConnected = true;
 
       // parseo: T:xx.x, H:yy.y, Suelo:zz.z%
-      const tempMatch = res.dato.match(/T[:=]\s*([0-9]+(?:\.[0-9]+)?)/i);
-      const sueloMatch = res.dato.match(/H[:=]\s*([0-9]+(?:\.[0-9]+)?)/i);
+      const tempMatch = res.dato.match(/T[:=]\s*(\d+(?:\.\d+)?)/i);
+      const sueloMatch = res.dato.match(/H[:=]\s*(\d+(?:\.\d+)?)/i);
 
       this.sensorData = {
         temperatura: tempMatch ? `${tempMatch[1]} °C` : '---',
@@ -160,7 +160,7 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     this.mqttService.getHistorial().subscribe(res => {
-      if (res && res.historial) this.historial = res.historial;
+      if (res?.historial) this.historial = res.historial;
     });
   }
 // SONAR-IGNORE-START
@@ -232,10 +232,12 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
     const { fecha, tipo_cuidado, detalles } = this.nuevoCuidado;
 
     // normaliza fecha a YYYY-MM-DD
-    const fechaISO =
-      fecha && /^\d{4}-\d{2}-\d{2}$/.test(fecha)
-        ? fecha
-        : (fecha ? new Date(fecha).toISOString().slice(0, 10) : '');
+    let fechaISO = '';
+    if (fecha) {
+      fechaISO = /^\d{4}-\d{2}-\d{2}$/.test(fecha) 
+        ? fecha 
+        : new Date(fecha).toISOString().slice(0, 10);
+    }
 
     const tipoTrim = (tipo_cuidado || '').trim();
 
