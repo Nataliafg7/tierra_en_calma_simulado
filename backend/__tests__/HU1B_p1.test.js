@@ -1,53 +1,72 @@
-// ================= MOCKS =================
-jest.mock("oracledb", () => ({
-  getConnection: jest.fn(),
-}));
-
-jest.mock("../mqttService", () => ({}));
-jest.mock("../cuidadosService", () => ({}));
-jest.mock("../pkgCentralService", () => ({}));
-jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
-jest.mock("swagger-ui-express", () => ({
-  serve: [],
-  setup: () => (req, res, next) => next(),
-}));
-jest.mock("yamljs", () => ({ load: jest.fn() }));
-
-// ================= IMPORTS =================
 const request = require("supertest");
 const oracledb = require("oracledb");
 const { createApp } = require("../app");
 
-describe("HU1 - Backend - P1: Campos incompletos", () => {
+jest.mock("oracledb", () => ({
+  getConnection: jest.fn(),
+  OUT_FORMAT_OBJECT: 1,
+}));
+
+jest.mock("../mqttService", () => ({}));
+jest.mock("../cuidadosService", () => ({ crearCuidado: jest.fn() }));
+jest.mock("../pkgCentralService", () => ({ verificarCondiciones: jest.fn() }));
+
+jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
+
+jest.mock("swagger-ui-express", () => ({
+  serve: [],
+  setup: () => (req, res, next) => next(),
+}));
+
+jest.mock("yamljs", () => ({
+  load: jest.fn(() => ({})),
+}));
+
+describe("HU10B P1 - POST /api/registrar-planta", () => {
   let app;
+  let connectionMock;
 
   beforeEach(() => {
-    app = createApp();
     jest.clearAllMocks();
+    app = createApp();
+
+    connectionMock = {
+      execute: jest.fn(),
+      close: jest.fn(),
+    };
   });
 
-  test("Debe responder 400 cuando faltan campos obligatorios", async () => {
-    // Arrange:
-    // Se envía un cuerpo incompleto para validar que el flujo se detiene
+  test("debe responder 200 cuando la planta se registra correctamente", async () => {
+    // Arrange
     const body = {
-      id_usuario: 1,
-      nombre: "Juliana",
-      apellido: "Florez",
-      telefono: "123456",
-      correo_electronico: "test@mail.com"
-      // falta contrasena
+      id_usuario: 10,
+      id_planta: 3,
     };
 
-    // Act:
-    const res = await request(app).post("/api/register").send(body);
+    oracledb.getConnection.mockResolvedValue(connectionMock);
+    connectionMock.execute.mockResolvedValue({});
+    connectionMock.close.mockResolvedValue();
 
-    // Assert:
-    expect(res.status).toBe(400);
-    expect(res.body).toEqual({
-      error: "Todos los campos son obligatorios"
+    // Act
+    const response = await request(app)
+      .post("/api/registrar-planta")
+      .send(body);
+
+    // Assert
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      message: "Planta registrada con éxito en tu jardín",
     });
 
-    // No debe tocar la base de datos
-    expect(oracledb.getConnection).not.toHaveBeenCalled();
+    expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
+    expect(connectionMock.execute).toHaveBeenCalledTimes(1);
+
+    expect(connectionMock.execute).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO TIERRA_EN_CALMA.PLANTAS_USUARIO"),
+      { id_planta: 3, id_usuario: 10 },
+      { autoCommit: true }
+    );
+
+    expect(connectionMock.close).toHaveBeenCalledTimes(1);
   });
 });

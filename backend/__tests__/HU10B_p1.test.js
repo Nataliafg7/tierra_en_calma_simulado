@@ -77,13 +77,10 @@ describe("HU10B P1 - POST /api/registrar-planta", () => {
 
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
     expect(connectionMock.execute).toHaveBeenCalledTimes(1);
-    expect(connectionMock.execute).toHaveBeenCalledWith(
-      `INSERT INTO TIERRA_EN_CALMA.PLANTAS_USUARIO 
-       (ID_PLANTA, ID_USUARIO, ESTADO, NOMBRE_PERSONALIZADO)
-       VALUES (:id_planta, :id_usuario, 'activa', NULL)`,
-      { id_planta: 3, id_usuario: 10 },
-      { autoCommit: true }
-    );
-    expect(connectionMock.close).toHaveBeenCalledTimes(1);
+expect(connectionMock.execute).toHaveBeenCalledWith(
+  expect.stringContaining("INSERT INTO TIERRA_EN_CALMA.PLANTAS_USUARIO"),
+  { id_planta: 3, id_usuario: 10 },
+  { autoCommit: true }
+);    expect(connectionMock.close).toHaveBeenCalledTimes(1);
   });
 });

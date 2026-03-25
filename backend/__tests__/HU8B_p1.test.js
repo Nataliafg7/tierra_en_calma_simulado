@@ -37,23 +37,6 @@ describe("HU8B P1 - GET /api/plantas", () => {
   });
 
   test("debe responder 200 y retornar la lista de plantas cuando la consulta se ejecuta correctamente", async () => {
-    /*
-      Objetivo:
-      Verificar el flujo exitoso del endpoint /api/plantas.
-
-      Mock utilizado:
-      - oracledb.getConnection: devuelve una conexión simulada.
-      - connection.execute: devuelve filas simuladas.
-      - connection.close: resuelve correctamente.
-
-      Qué se valida:
-      - estado HTTP 200
-      - cuerpo de la respuesta con la lista de plantas
-      - llamada a getConnection
-      - llamada a execute con el SQL esperado
-      - llamada a close al finalizar
-    */
-
     // Arrange
     const plantasMock = [
       { ID_PLANTA: 1, NOMBRE_COMUN: "Aloe Vera" },
@@ -73,13 +56,13 @@ describe("HU8B P1 - GET /api/plantas", () => {
 
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
     expect(connectionMock.execute).toHaveBeenCalledTimes(1);
+
     expect(connectionMock.execute).toHaveBeenCalledWith(
-      `SELECT ID_PLANTA, NOMBRE_COMUN
-       FROM TIERRA_EN_CALMA.BANCO_PLANTAS
-       ORDER BY NOMBRE_COMUN`,
+      expect.stringContaining("SELECT ID_PLANTA, NOMBRE_COMUN"),
       {},
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
+
     expect(connectionMock.close).toHaveBeenCalledTimes(1);
   });
 });
