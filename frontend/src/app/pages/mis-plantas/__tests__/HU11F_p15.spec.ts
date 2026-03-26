@@ -1,30 +1,30 @@
 /**
  * HU11F - Visualización de plantas registradas
- * Escenario P3: Lista vacía
+ * Escenario P15: Retroceso del carrusel
  *
  * Objetivo de la prueba:
- * Verificar que el componente maneje correctamente una respuesta vacía
- * sin producir errores.
+ * Verificar que el carrusel retroceda correctamente
+ * cuando el índice actual es mayor que cero.
  *
  * Principios FIRST:
  * - Fast: no usa backend real.
  * - Independent: no depende de otras pruebas.
- * - Repeatable: usa datos controlados.
- * - Self-validating: valida resultados con expect().
- * - Timely: cubre la ausencia de plantas.
+ * - Repeatable: usa un carrusel simulado.
+ * - Self-validating: valida el resultado con expect().
+ * - Timely: cubre navegación del carrusel hacia atrás.
  *
  * Patrón AAA:
- * - Arrange: preparar sesión válida y respuesta vacía.
- * - Act: ejecutar ngOnInit().
- * - Assert: validar lista vacía.
+ * - Arrange: preparar carrusel simulado y posicionar índice en 1.
+ * - Act: ejecutar anterior().
+ * - Assert: validar retroceso y transform.
  *
  * Tipo de double usado:
- * - Stub: AuthServiceStub con lista vacía.
+ * - Stub: AuthServiceStub para aislar dependencias.
+ * - Dummy: carrusel simulado para representar el elemento visual.
  */
 
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of } from 'rxjs';
@@ -41,21 +41,15 @@ class AuthServiceStub {
   }
 }
 
-describe('HU11 Frontend - MisPlantasComponent - P3', () => {
+describe('HU11 Frontend - MisPlantasComponent - P15', () => {
   let component: MisPlantasComponent;
   let fixture: ComponentFixture<MisPlantasComponent>;
 
   beforeEach(async () => {
-    const routes: Routes = [
-      { path: 'login', component: DummyComponent },
-      { path: 'monstera', component: DummyComponent },
-      { path: 'registrar-plantas', component: DummyComponent }
-    ];
-
     await TestBed.configureTestingModule({
       imports: [
         MisPlantasComponent,
-        RouterTestingModule.withRoutes(routes),
+        RouterTestingModule,
         HttpClientTestingModule
       ],
       providers: [{ provide: AuthService, useClass: AuthServiceStub }]
@@ -63,27 +57,33 @@ describe('HU11 Frontend - MisPlantasComponent - P3', () => {
 
     fixture = TestBed.createComponent(MisPlantasComponent);
     component = fixture.componentInstance;
-
-    localStorage.clear();
   });
 
-  afterEach(() => {
-    localStorage.clear();
-  });
-
-  it('HU11F_P3 - Debe manejar correctamente una lista vacía de plantas', () => {
+  it('HU11F_P15 - Debe retroceder el carrusel cuando el índice actual es mayor que cero', () => {
     // ===================== ARRANGE =====================
-    localStorage.setItem('usuario', JSON.stringify({
-      ID_USUARIO: 1,
-      NOMBRE: 'Juliana'
-    }));
+    const items = [
+      { clientWidth: 100 },
+      { clientWidth: 100 },
+      { clientWidth: 100 },
+      { clientWidth: 100 }
+    ];
+
+    const carrusel = {
+      style: { transform: 'translateX(-130px)' },
+      querySelectorAll: () => items
+    };
+
+    (component as any).carruselRef = {
+      nativeElement: carrusel
+    };
+
+    component.indiceActual = 1;
 
     // ======================= ACT =======================
-    component.ngOnInit();
+    component.anterior();
 
     // ===================== ASSERT ======================
-    expect(component.nombreUsuario).toBe('Juliana');
-    expect(component.plantas).toEqual([]);
-    expect(component.page).toBe(1);
+    expect(component.indiceActual).toBe(0);
+    expect(carrusel.style.transform).toBe('translateX(-0px)');
   });
 });

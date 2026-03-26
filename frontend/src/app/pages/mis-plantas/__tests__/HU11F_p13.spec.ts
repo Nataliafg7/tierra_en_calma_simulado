@@ -1,30 +1,30 @@
 /**
  * HU11F - Visualización de plantas registradas
- * Escenario P3: Lista vacía
+ * Escenario P13: Navegación por tipo Dólar
  *
  * Objetivo de la prueba:
- * Verificar que el componente maneje correctamente una respuesta vacía
- * sin producir errores.
+ * Verificar que al identificar una planta tipo Dólar
+ * se invoque el método de navegación correspondiente.
  *
  * Principios FIRST:
  * - Fast: no usa backend real.
  * - Independent: no depende de otras pruebas.
- * - Repeatable: usa datos controlados.
- * - Self-validating: valida resultados con expect().
- * - Timely: cubre la ausencia de plantas.
+ * - Repeatable: usa entrada controlada.
+ * - Self-validating: valida llamada con expect().
+ * - Timely: cubre navegación por tipo de planta.
  *
  * Patrón AAA:
- * - Arrange: preparar sesión válida y respuesta vacía.
- * - Act: ejecutar ngOnInit().
- * - Assert: validar lista vacía.
+ * - Arrange: preparar planta tipo Dólar y espiar método.
+ * - Act: ejecutar irPlanta().
+ * - Assert: validar invocación de irADolar().
  *
  * Tipo de double usado:
- * - Stub: AuthServiceStub con lista vacía.
+ * - Stub: AuthServiceStub para aislar dependencias.
+ * - Spy: método irADolar para validar el flujo.
  */
 
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of } from 'rxjs';
@@ -41,21 +41,15 @@ class AuthServiceStub {
   }
 }
 
-describe('HU11 Frontend - MisPlantasComponent - P3', () => {
+describe('HU11 Frontend - MisPlantasComponent - P13', () => {
   let component: MisPlantasComponent;
   let fixture: ComponentFixture<MisPlantasComponent>;
 
   beforeEach(async () => {
-    const routes: Routes = [
-      { path: 'login', component: DummyComponent },
-      { path: 'monstera', component: DummyComponent },
-      { path: 'registrar-plantas', component: DummyComponent }
-    ];
-
     await TestBed.configureTestingModule({
       imports: [
         MisPlantasComponent,
-        RouterTestingModule.withRoutes(routes),
+        RouterTestingModule,
         HttpClientTestingModule
       ],
       providers: [{ provide: AuthService, useClass: AuthServiceStub }]
@@ -63,27 +57,21 @@ describe('HU11 Frontend - MisPlantasComponent - P3', () => {
 
     fixture = TestBed.createComponent(MisPlantasComponent);
     component = fixture.componentInstance;
-
-    localStorage.clear();
   });
 
-  afterEach(() => {
-    localStorage.clear();
-  });
-
-  it('HU11F_P3 - Debe manejar correctamente una lista vacía de plantas', () => {
+  it('HU11F_P13 - Debe invocar irADolar cuando la planta corresponde a ese tipo', () => {
     // ===================== ARRANGE =====================
-    localStorage.setItem('usuario', JSON.stringify({
-      ID_USUARIO: 1,
-      NOMBRE: 'Juliana'
-    }));
+    const irADolarSpy = spyOn(component, 'irADolar');
+    const planta = {
+      ID_PLANTA: 2,
+      NOMBRE_COMUN: 'Dólar',
+      NOMBRE_CIENTIFICO: 'Plectranthus'
+    };
 
     // ======================= ACT =======================
-    component.ngOnInit();
+    component.irPlanta(planta);
 
     // ===================== ASSERT ======================
-    expect(component.nombreUsuario).toBe('Juliana');
-    expect(component.plantas).toEqual([]);
-    expect(component.page).toBe(1);
+    expect(irADolarSpy).toHaveBeenCalled();
   });
 });

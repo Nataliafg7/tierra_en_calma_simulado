@@ -1,90 +1,98 @@
 /**
- * HU11 – Frontend – Escenario 2 (P2)
- * Flujo exitoso de carga de plantas
+ * HU11F - Visualización de plantas registradas
+ * Escenario P2: Carga exitosa
  *
-
+ * Objetivo de la prueba:
+ * Verificar que el componente cargue correctamente las plantas
+ * cuando existe una sesión válida y el servicio responde con datos.
+ *
+ * Principios FIRST:
+ * - Fast: no usa backend real.
+ * - Independent: no depende de otras pruebas.
+ * - Repeatable: usa respuesta controlada.
+ * - Self-validating: valida resultados con expect().
+ * - Timely: cubre el flujo exitoso de carga.
+ *
+ * Patrón AAA:
+ * - Arrange: preparar sesión válida y respuesta del servicio.
+ * - Act: ejecutar ngOnInit().
+ * - Assert: validar nombre, lista y página.
+ *
+ * Tipo de double usado:
+ * - Stub: AuthServiceStub con respuesta exitosa.
  */
 
-import { TestBed, waitForAsync } from '@angular/core/testing';
-import { HttpClientModule } from '@angular/common/http';
+import { Component } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router, Routes } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { of } from 'rxjs';
 
 import { MisPlantasComponent } from '../mis-plantas';
+import { AuthService } from '../../login/auth.service';
 
-describe('HU11 Front – Escenario 2 (P2) – Consulta exitosa de plantas', () => {
+@Component({ template: '<p>Dummy</p>' })
+class DummyComponent {}
 
-  beforeEach(waitForAsync(async () => {
+class AuthServiceStub {
+  getMisPlantas() {
+    return of([
+      {
+        ID_PLANTA_USUARIO: 10,
+        ID_PLANTA: 1,
+        NOMBRE_COMUN: 'Monstera',
+        NOMBRE_CIENTIFICO: 'Monstera deliciosa'
+      }
+    ]);
+  }
+}
+
+describe('HU11 Frontend - MisPlantasComponent - P2', () => {
+  let component: MisPlantasComponent;
+  let fixture: ComponentFixture<MisPlantasComponent>;
+
+  beforeEach(async () => {
+    const routes: Routes = [
+      { path: 'login', component: DummyComponent },
+      { path: 'monstera', component: DummyComponent },
+      { path: 'registrar-plantas', component: DummyComponent }
+    ];
+
     await TestBed.configureTestingModule({
       imports: [
-        HttpClientModule,
-        MisPlantasComponent
-      ]
+        MisPlantasComponent,
+        RouterTestingModule.withRoutes(routes),
+        HttpClientTestingModule
+      ],
+      providers: [{ provide: AuthService, useClass: AuthServiceStub }]
     }).compileComponents();
-  }));
 
-  afterEach(() => {
-    localStorage.removeItem('usuario');
+    fixture = TestBed.createComponent(MisPlantasComponent);
+    component = fixture.componentInstance;
+
+    localStorage.clear();
   });
 
-  /**
-   * P2-A — Usuario con plantas
-   * Usuario real: 1000410154
-   *
-   * Resultado esperado:
-   * - plantas es arreglo
-   * - plantas.length > 0
-   * - page = 1
-   */
-  it('P2-A: Debe cargar plantas cuando el usuario tiene registros', waitForAsync(async () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
 
+  it('HU11F_P2 - Debe cargar correctamente las plantas del usuario', () => {
+    // ===================== ARRANGE =====================
     localStorage.setItem('usuario', JSON.stringify({
-      id: 1000410154,
-      nombre: 'Juliana'
+      ID_USUARIO: 1,
+      NOMBRE: 'Juliana'
     }));
 
-    const fixture = TestBed.createComponent(MisPlantasComponent);
-    const component = fixture.componentInstance;
+    // ======================= ACT =======================
+    component.ngOnInit();
 
-    fixture.detectChanges(); // dispara ngOnInit()
-
-    // Espera a que Angular termine las tareas async pendientes (incluye XHR real)
-    await fixture.whenStable();
-
-    fixture.detectChanges();
-
-    expect(Array.isArray((component as any).plantas)).toBeTrue();
-    expect(((component as any).plantas).length).toBeGreaterThan(0);
-    expect((component as any).page).toBe(1);
-  }));
-
-
-  /**
-   * P2-B — Usuario sin plantas
-   * Usuario real: 42900093
-   *
-   * Resultado esperado:
-   * - plantas es arreglo
-   * - plantas.length = 0
-   * - page = 1
-   */
-  it('P2-B: Debe manejar correctamente respuesta vacía []', waitForAsync(async () => {
-
-    localStorage.setItem('usuario', JSON.stringify({
-      id: 42900093,
-      nombre: 'Juliana'
-    }));
-
-    const fixture = TestBed.createComponent(MisPlantasComponent);
-    const component = fixture.componentInstance;
-
-    fixture.detectChanges();
-
-    await fixture.whenStable();
-
-    fixture.detectChanges();
-
-    expect(Array.isArray((component as any).plantas)).toBeTrue();
-    expect(((component as any).plantas).length).toBe(0);
-    expect((component as any).page).toBe(1);
-  }));
-
+    // ===================== ASSERT ======================
+    expect(component.nombreUsuario).toBe('Juliana');
+    expect(component.plantas.length).toBe(1);
+    expect(component.plantas[0].NOMBRE_COMUN).toBe('Monstera');
+    expect(component.page).toBe(1);
+    expect(component.indiceActual).toBe(0);
+  });
 });

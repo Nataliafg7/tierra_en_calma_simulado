@@ -1,10 +1,10 @@
-const path = require('path');
+// Karma configuration
+// https://karma-runner.github.io/latest/config/configuration-file.html
 
 module.exports = function (config) {
   config.set({
     basePath: '',
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
-
     plugins: [
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
@@ -12,29 +12,25 @@ module.exports = function (config) {
       require('karma-coverage'),
       require('@angular-devkit/build-angular/plugins/karma')
     ],
-
     client: {
+      jasmine: {},
       clearContext: false
     },
-
-    reporters: ['progress', 'kjhtml', 'coverage'],
-
+    jasmineHtmlReporter: {
+      suppressAll: true
+    },
     coverageReporter: {
-      dir: path.join(__dirname, './coverage/frontend-juli'),
+      dir: require('path').join(__dirname, './coverage/frontend'),
       subdir: '.',
       reporters: [
         { type: 'html' },
         { type: 'text-summary' },
+        { type: 'json', file: 'coverage-final.json' },
         { type: 'lcovonly', file: 'lcov.info' }
       ]
     },
-
-    port: 9876,
-    colors: true,
-    logLevel: config.LOG_INFO,
-    autoWatch: false,
+    reporters: ['progress', 'kjhtml'],
     browsers: ['ChromeHeadless'],
-    singleRun: true,
-    restartOnFileChange: false
+    restartOnFileChange: true
   });
 };

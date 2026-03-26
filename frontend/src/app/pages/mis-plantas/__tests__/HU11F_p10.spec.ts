@@ -1,25 +1,27 @@
 /**
  * HU11F - Visualización de plantas registradas
- * Escenario P3: Lista vacía
+ * Escenario P9: Navegación a registrar nueva planta
  *
  * Objetivo de la prueba:
- * Verificar que el componente maneje correctamente una respuesta vacía
- * sin producir errores.
+ * Verificar que el componente navegue correctamente
+ * a la vista de registrar plantas.
  *
  * Principios FIRST:
  * - Fast: no usa backend real.
  * - Independent: no depende de otras pruebas.
- * - Repeatable: usa datos controlados.
- * - Self-validating: valida resultados con expect().
- * - Timely: cubre la ausencia de plantas.
+ * - Repeatable: usa un entorno controlado.
+ * - Self-validating: valida navegación con expect().
+ * - Timely: cubre un flujo funcional directo.
  *
  * Patrón AAA:
- * - Arrange: preparar sesión válida y respuesta vacía.
- * - Act: ejecutar ngOnInit().
- * - Assert: validar lista vacía.
+ * - Arrange: preparar spy de navegación.
+ * - Act: ejecutar registrarNuevaPlanta().
+ * - Assert: validar ruta destino.
  *
  * Tipo de double usado:
- * - Stub: AuthServiceStub con lista vacía.
+ * - Stub: AuthServiceStub para aislar dependencias.
+ * - Spy: router.navigate para validar navegación.
+ * - Dummy: DummyComponent para rutas de prueba.
  */
 
 import { Component } from '@angular/core';
@@ -41,14 +43,13 @@ class AuthServiceStub {
   }
 }
 
-describe('HU11 Frontend - MisPlantasComponent - P3', () => {
+describe('HU11 Frontend - MisPlantasComponent - P9', () => {
   let component: MisPlantasComponent;
   let fixture: ComponentFixture<MisPlantasComponent>;
+  let router: Router;
 
   beforeEach(async () => {
     const routes: Routes = [
-      { path: 'login', component: DummyComponent },
-      { path: 'monstera', component: DummyComponent },
       { path: 'registrar-plantas', component: DummyComponent }
     ];
 
@@ -63,27 +64,17 @@ describe('HU11 Frontend - MisPlantasComponent - P3', () => {
 
     fixture = TestBed.createComponent(MisPlantasComponent);
     component = fixture.componentInstance;
-
-    localStorage.clear();
+    router = TestBed.inject(Router);
   });
 
-  afterEach(() => {
-    localStorage.clear();
-  });
-
-  it('HU11F_P3 - Debe manejar correctamente una lista vacía de plantas', () => {
+  it('HU11F_P9 - Debe navegar a la vista de registrar plantas', () => {
     // ===================== ARRANGE =====================
-    localStorage.setItem('usuario', JSON.stringify({
-      ID_USUARIO: 1,
-      NOMBRE: 'Juliana'
-    }));
+    const navigateSpy = spyOn(router, 'navigate');
 
     // ======================= ACT =======================
-    component.ngOnInit();
+    component.registrarNuevaPlanta();
 
     // ===================== ASSERT ======================
-    expect(component.nombreUsuario).toBe('Juliana');
-    expect(component.plantas).toEqual([]);
-    expect(component.page).toBe(1);
+    expect(navigateSpy).toHaveBeenCalledWith(['/registrar-plantas']);
   });
 });

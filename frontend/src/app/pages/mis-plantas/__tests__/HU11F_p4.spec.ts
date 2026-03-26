@@ -1,70 +1,92 @@
 /**
- * HU11 – Frontend – Escenario 4 (P4)
- * Respuesta exitosa pero con formato inválido (rows NO es arreglo)
+ * HU11F - Visualización de plantas registradas
+ * Escenario P4: Error del servicio
  *
- * Camino esperado:
- * - id válido → se llama getMisPlantas(id)
- * - se ejecuta next(rows)
- * - rows NO es Array → this.plantas = []
- * - resetCarrusel() se ejecuta
- * - page = 1
+ * Objetivo de la prueba:
+ * Verificar que el componente muestre una alerta cuando ocurre
+ * un error al cargar las plantas.
  *
- * Justificación del mock:
- * - Es un escenario de robustez: simula un contrato roto del backend.
- * - Provocarlo con backend real no es confiable ni repetible.
- * - Se valida la lógica defensiva del componente (Array.isArray).
+ * Principios FIRST:
+ * - Fast: no usa backend real.
+ * - Independent: no depende de otras pruebas.
+ * - Repeatable: simula el error de forma controlada.
+ * - Self-validating: valida el mensaje con expect().
+ * - Timely: cubre el manejo de errores.
+ *
+ * Patrón AAA:
+ * - Arrange: preparar sesión válida y error controlado.
+ * - Act: ejecutar ngOnInit().
+ * - Assert: validar alerta.
+ *
+ * Tipo de double usado:
+ * - Stub: AuthServiceStub que dispara error.
+ * - Spy: window.alert para validar el mensaje.
  */
 
-import { TestBed, waitForAsync } from '@angular/core/testing';
-import { HttpClientModule } from '@angular/common/http';
-import { of } from 'rxjs';
+import { Component } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router, Routes } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { MisPlantasComponent } from '../mis-plantas';
 import { AuthService } from '../../login/auth.service';
 
-describe('HU11 Front – Escenario 4 (P4) – Respuesta no válida (no array)', () => {
+@Component({ template: '<p>Dummy</p>' })
+class DummyComponent {}
 
-  beforeEach(waitForAsync(async () => {
+class AuthServiceStub {
+  getMisPlantas() {
+    return {
+      subscribe: ({ error }: any) => {
+        error();
+      }
+    };
+  }
+}
+
+describe('HU11 Frontend - MisPlantasComponent - P4', () => {
+  let component: MisPlantasComponent;
+  let fixture: ComponentFixture<MisPlantasComponent>;
+
+  beforeEach(async () => {
+    const routes: Routes = [
+      { path: 'login', component: DummyComponent },
+      { path: 'monstera', component: DummyComponent },
+      { path: 'registrar-plantas', component: DummyComponent }
+    ];
+
     await TestBed.configureTestingModule({
       imports: [
-        HttpClientModule,
-        MisPlantasComponent
-      ]
+        MisPlantasComponent,
+        RouterTestingModule.withRoutes(routes),
+        HttpClientTestingModule
+      ],
+      providers: [{ provide: AuthService, useClass: AuthServiceStub }]
     }).compileComponents();
-  }));
 
-  afterEach(() => {
-    localStorage.removeItem('usuario');
+    fixture = TestBed.createComponent(MisPlantasComponent);
+    component = fixture.componentInstance;
+
+    localStorage.clear();
   });
 
-  it('P4: Debe asignar [] cuando el servicio retorna un objeto en vez de arreglo', waitForAsync(async () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
 
-    // Precondición: sesión válida
+  it('HU11F_P4 - Debe mostrar alerta si ocurre un error al cargar las plantas', () => {
+    // ===================== ARRANGE =====================
     localStorage.setItem('usuario', JSON.stringify({
-      id: 1000410154,
-      nombre: 'Juliana'
+      ID_USUARIO: 1,
+      NOMBRE: 'Juliana'
     }));
+    const alertSpy = spyOn(window, 'alert');
 
-    const authService = TestBed.inject(AuthService);
+    // ======================= ACT =======================
+    component.ngOnInit();
 
-    // Forzar next con un valor NO arreglo (objeto)
-    spyOn(authService, 'getMisPlantas').and.returnValue(
-      of({ mensaje: 'respuesta inválida' } as any)
-    );
-
-    const fixture = TestBed.createComponent(MisPlantasComponent);
-    const component = fixture.componentInstance;
-
-    fixture.detectChanges(); // ngOnInit()
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    // Validación clave P4
-    expect(Array.isArray((component as any).plantas)).toBeTrue();
-    expect(((component as any).plantas).length).toBe(0);
-
-    // Flujo de éxito debe reiniciar page
-    expect((component as any).page).toBe(1);
-  }));
-
+    // ===================== ASSERT ======================
+    expect(alertSpy).toHaveBeenCalledWith('No fue posible cargar tus plantas.');
+  });
 });

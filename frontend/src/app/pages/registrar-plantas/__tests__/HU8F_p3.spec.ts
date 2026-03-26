@@ -13,9 +13,23 @@ describe('HU8 – Frontend – Escenario 3 (P3) – Respuesta exitosa con arregl
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RegistrarPlantasComponent, HttpClientTestingModule],
+      imports: [
+        RegistrarPlantasComponent,
+        HttpClientTestingModule
+      ],
       providers: [
-        { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } }
+        /**
+         * Mock de Router.
+         * No se evalúa navegación en este escenario, pero el componente
+         * requiere la dependencia, por lo que se simula para permitir
+         * su correcta instanciación en el entorno de pruebas.
+         */
+        {
+          provide: Router,
+          useValue: {
+            navigate: jasmine.createSpy('navigate')
+          }
+        }
       ]
     }).compileComponents();
 
@@ -25,26 +39,62 @@ describe('HU8 – Frontend – Escenario 3 (P3) – Respuesta exitosa con arregl
   });
 
   afterEach(() => {
+    /**
+     * Verifica que no existan solicitudes HTTP pendientes,
+     * asegurando el aislamiento del escenario de prueba.
+     */
     httpMock.verify();
   });
 
   it('P3 – Debe manejar correctamente una respuesta exitosa con lista vacía', () => {
 
-    spyOn(console, 'log');
+    /**
+     * Objetivo:
+     * Validar que el componente maneje correctamente una respuesta exitosa
+     * del backend cuando no existen plantas disponibles (arreglo vacío).
+     *
+     * Justificación técnica:
+     * Este escenario cubre un caso límite del flujo exitoso de HU8, donde
+     * el backend responde sin datos. Se espera que el componente no falle,
+     * mantenga su estado consistente y registre correctamente el resultado.
+     */
 
+    // =========================
+    // Arrange
+    // =========================
+    const consoleLogSpy = spyOn(console, 'log');
+
+    // =========================
+    // Act
+    // =========================
+    /**
+     * Ejecuta ngOnInit() → cargarPlantas()
+     */
     fixture.detectChanges();
 
     const req = httpMock.expectOne(`${API_URL}/plantas`);
     expect(req.request.method).toBe('GET');
 
-    // simulamos respuesta exitosa sin datos
+    /**
+     * Se simula una respuesta exitosa sin datos
+     */
     req.flush([]);
 
-    expect(console.log).toHaveBeenCalledWith(
-      "Mapa de plantas cargado:",
+    // =========================
+    // Assert
+    // =========================
+    /**
+     * Se valida que el componente registre en consola
+     * un mapa vacío sin generar errores.
+     */
+    expect(consoleLogSpy).toHaveBeenCalledWith(
+      'Mapa de plantas cargado:',
       {}
     );
 
+    /**
+     * Se verifica que el componente continúa en estado válido
+     */
     expect(component).toBeTruthy();
   });
 

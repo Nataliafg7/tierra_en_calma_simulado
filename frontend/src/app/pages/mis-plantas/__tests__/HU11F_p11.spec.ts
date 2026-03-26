@@ -1,30 +1,29 @@
 /**
  * HU11F - Visualización de plantas registradas
- * Escenario P3: Lista vacía
+ * Escenario P11: Clase visual por defecto
  *
  * Objetivo de la prueba:
- * Verificar que el componente maneje correctamente una respuesta vacía
- * sin producir errores.
+ * Verificar que el componente retorne la clase por defecto
+ * cuando la planta no coincida con ningún mapeo definido.
  *
  * Principios FIRST:
  * - Fast: no usa backend real.
  * - Independent: no depende de otras pruebas.
- * - Repeatable: usa datos controlados.
- * - Self-validating: valida resultados con expect().
- * - Timely: cubre la ausencia de plantas.
+ * - Repeatable: usa entrada controlada.
+ * - Self-validating: valida el resultado con expect().
+ * - Timely: cubre el caso por defecto del mapeo.
  *
  * Patrón AAA:
- * - Arrange: preparar sesión válida y respuesta vacía.
- * - Act: ejecutar ngOnInit().
- * - Assert: validar lista vacía.
+ * - Arrange: preparar planta no mapeada.
+ * - Act: ejecutar plantClass().
+ * - Assert: validar clase por defecto.
  *
  * Tipo de double usado:
- * - Stub: AuthServiceStub con lista vacía.
+ * - Stub: AuthServiceStub para aislar dependencias.
  */
 
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of } from 'rxjs';
@@ -41,21 +40,15 @@ class AuthServiceStub {
   }
 }
 
-describe('HU11 Frontend - MisPlantasComponent - P3', () => {
+describe('HU11 Frontend - MisPlantasComponent - P11', () => {
   let component: MisPlantasComponent;
   let fixture: ComponentFixture<MisPlantasComponent>;
 
   beforeEach(async () => {
-    const routes: Routes = [
-      { path: 'login', component: DummyComponent },
-      { path: 'monstera', component: DummyComponent },
-      { path: 'registrar-plantas', component: DummyComponent }
-    ];
-
     await TestBed.configureTestingModule({
       imports: [
         MisPlantasComponent,
-        RouterTestingModule.withRoutes(routes),
+        RouterTestingModule,
         HttpClientTestingModule
       ],
       providers: [{ provide: AuthService, useClass: AuthServiceStub }]
@@ -63,27 +56,20 @@ describe('HU11 Frontend - MisPlantasComponent - P3', () => {
 
     fixture = TestBed.createComponent(MisPlantasComponent);
     component = fixture.componentInstance;
-
-    localStorage.clear();
   });
 
-  afterEach(() => {
-    localStorage.clear();
-  });
-
-  it('HU11F_P3 - Debe manejar correctamente una lista vacía de plantas', () => {
+  it('HU11F_P11 - Debe devolver la clase por defecto para una planta no mapeada', () => {
     // ===================== ARRANGE =====================
-    localStorage.setItem('usuario', JSON.stringify({
-      ID_USUARIO: 1,
-      NOMBRE: 'Juliana'
-    }));
+    const planta = {
+      ID_PLANTA: 99,
+      NOMBRE_COMUN: 'Rosa',
+      NOMBRE_CIENTIFICO: 'Rosa sp'
+    };
 
     // ======================= ACT =======================
-    component.ngOnInit();
+    const clase = component.plantClass(planta);
 
     // ===================== ASSERT ======================
-    expect(component.nombreUsuario).toBe('Juliana');
-    expect(component.plantas).toEqual([]);
-    expect(component.page).toBe(1);
+    expect(clase).toBe('ceriman-card');
   });
 });

@@ -1,32 +1,32 @@
 /**
  * HU11F - Visualización de plantas registradas
- * Escenario P3: Lista vacía
+ * Escenario P8: Error del backend en monitoreo
  *
  * Objetivo de la prueba:
- * Verificar que el componente maneje correctamente una respuesta vacía
- * sin producir errores.
+ * Verificar que si el backend falla al preparar el monitoreo,
+ * el componente muestre la alerta correspondiente.
  *
  * Principios FIRST:
- * - Fast: no usa backend real.
+ * - Fast: usa entorno controlado.
  * - Independent: no depende de otras pruebas.
- * - Repeatable: usa datos controlados.
+ * - Repeatable: reproduce el error de forma estable.
  * - Self-validating: valida resultados con expect().
- * - Timely: cubre la ausencia de plantas.
+ * - Timely: cubre manejo de errores del monitoreo.
  *
  * Patrón AAA:
- * - Arrange: preparar sesión válida y respuesta vacía.
- * - Act: ejecutar ngOnInit().
- * - Assert: validar lista vacía.
+ * - Arrange: preparar planta válida, espiar alerta y capturar petición HTTP.
+ * - Act: ejecutar monitorear() y responder con error.
+ * - Assert: validar alerta.
  *
  * Tipo de double usado:
- * - Stub: AuthServiceStub con lista vacía.
+ * - Stub: AuthServiceStub para aislar dependencias.
+ * - Spy: window.alert para validar el mensaje.
  */
 
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { of } from 'rxjs';
 
 import { MisPlantasComponent } from '../mis-plantas';
@@ -41,21 +41,16 @@ class AuthServiceStub {
   }
 }
 
-describe('HU11 Frontend - MisPlantasComponent - P3', () => {
+describe('HU11 Frontend - MisPlantasComponent - P8', () => {
   let component: MisPlantasComponent;
   let fixture: ComponentFixture<MisPlantasComponent>;
+  let httpMock: HttpTestingController;
 
   beforeEach(async () => {
-    const routes: Routes = [
-      { path: 'login', component: DummyComponent },
-      { path: 'monstera', component: DummyComponent },
-      { path: 'registrar-plantas', component: DummyComponent }
-    ];
-
     await TestBed.configureTestingModule({
       imports: [
         MisPlantasComponent,
-        RouterTestingModule.withRoutes(routes),
+        RouterTestingModule,
         HttpClientTestingModule
       ],
       providers: [{ provide: AuthService, useClass: AuthServiceStub }]
@@ -63,27 +58,33 @@ describe('HU11 Frontend - MisPlantasComponent - P3', () => {
 
     fixture = TestBed.createComponent(MisPlantasComponent);
     component = fixture.componentInstance;
+    httpMock = TestBed.inject(HttpTestingController);
 
     localStorage.clear();
   });
 
   afterEach(() => {
+    httpMock.verify();
     localStorage.clear();
   });
 
-  it('HU11F_P3 - Debe manejar correctamente una lista vacía de plantas', () => {
+  it('HU11F_P8 - Debe mostrar alerta si el backend falla al preparar el monitoreo', () => {
     // ===================== ARRANGE =====================
-    localStorage.setItem('usuario', JSON.stringify({
-      ID_USUARIO: 1,
-      NOMBRE: 'Juliana'
-    }));
+    const alertSpy = spyOn(window, 'alert');
+    const planta = {
+      ID_PLANTA_USUARIO: 25,
+      ID_PLANTA: 1,
+      NOMBRE_COMUN: 'Monstera',
+      NOMBRE_CIENTIFICO: 'Monstera deliciosa'
+    };
 
     // ======================= ACT =======================
-    component.ngOnInit();
+    component.monitorear(planta);
+
+    const req = httpMock.expectOne('http://localhost:3000/api/monitorear');
+    req.flush('Error', { status: 500, statusText: 'Server Error' });
 
     // ===================== ASSERT ======================
-    expect(component.nombreUsuario).toBe('Juliana');
-    expect(component.plantas).toEqual([]);
-    expect(component.page).toBe(1);
+    expect(alertSpy).toHaveBeenCalledWith('No se pudo preparar el monitoreo.');
   });
 });

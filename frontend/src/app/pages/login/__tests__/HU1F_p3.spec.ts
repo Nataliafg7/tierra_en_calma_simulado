@@ -1,20 +1,32 @@
 /**
- * HU1F - Registro (Frontend Angular)
- * Escenario P3: Error por duplicado (mismos datos de entrada dos veces)
+ * HU1F - Registro de usuario (Frontend Angular)
+ * Escenario P3: Error del backend al registrar
  *
- * Estrategia:
- * - Se ejecuta onRegisterSubmit() 2 veces con el MISMO id_usuario y correo.
- * - La primera debería registrar exitoso.
- * - La segunda debe fallar por duplicado y entrar a la rama error.
+ * Objetivo de la prueba:
+ * Verificar que onRegisterSubmit() maneje correctamente la rama error
+ * cuando el backend falla, mostrando el mensaje de error y manteniendo
+ * al usuario en la vista de registro.
  *
- * Restricción:
- * - Sin mocks
- * - Sin spies
- * - Solo assertions (expect)
+ * Principios FIRST:
+ * - Fast: no depende del backend real.
+ * - Independent: no depende de base de datos ni de otras pruebas.
+ * - Repeatable: siempre se ejecuta en condiciones controladas.
+ * - Self-validating: usa expect() para validar el resultado.
+ * - Timely: se enfoca en una sola rama del método.
+ *
+ * Patrón AAA:
+ * - Arrange: preparar datos válidos, vista de registro y evento.
+ * - Act: ejecutar onRegisterSubmit() y simular error HTTP.
+ * - Assert: comprobar alerta, request enviada y permanencia en registro.
+ *
+ * Tipo de double usado:
+ * - Spy: sobre window.alert para verificar el mensaje mostrado.
+ * - Stub de infraestructura HTTP: HttpTestingController para simular
+ *   el error del backend sin hacer llamadas reales.
  */
 
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
@@ -22,68 +34,86 @@ import { of } from 'rxjs';
 import { LoginComponent } from '../login';
 import { AuthService } from '../auth.service';
 
-function delay(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
-describe('HU1F - Registro Frontend (P3 duplicado real)', () => {
+describe('HU1F - Registro Frontend (P3)', () => {
   let fixture: ComponentFixture<LoginComponent>;
   let component: LoginComponent;
+  let httpMock: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LoginComponent, HttpClientModule, RouterTestingModule],
+      imports: [LoginComponent, HttpClientTestingModule, RouterTestingModule],
       providers: [
         AuthService,
-        { provide: ActivatedRoute, useValue: { snapshot: { data: {} }, queryParams: of({}) } }
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { data: {} },
+            queryParams: of({})
+          }
+        }
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
-  it('HU1F_P3 - Debe fallar el segundo registro por duplicado y NO ejecutar showLogin()', async () => {
-    // 1) Datos únicos para que el primer registro casi seguro no exista
-    const unico = Date.now();
-    const idRepetido = `${unico}`;
-    const correoRepetido = `p3_${unico}@mail.com`;
+  afterEach(() => {
+    httpMock.verify();
+  });
 
-    // 2) Dejamos el componente en vista registro
+  it('HU1F_P3 - Debe mostrar error y mantenerse en registro cuando falla el backend', () => {
+    // ===================== ARRANGE =====================
     component.isContainerActive = true;
+    component.isTransitioning = false;
 
-    // 3) Cargamos inputs (los mismos para ambos submits)
-    component.regIdUsuario = idRepetido;
-    component.regNombre = 'Prueba';
-    component.regApellido = 'Duplicado';
+    component.regIdUsuario = '12345';
+    component.regNombre = 'Juliana';
+    component.regApellido = 'Casas';
     component.regTelefono = '3000000000';
-    component.regCorreo = correoRepetido;
+    component.regCorreo = 'juliana@mail.com';
     component.regContrasena = '1234';
 
-    // 4) Evento submit sin spy
+    const alertSpy = spyOn(window, 'alert');
+
     let preventDefaultEjecutado = false;
     const event = {
-      preventDefault: () => { preventDefaultEjecutado = true; }
+      preventDefault: () => {
+        preventDefaultEjecutado = true;
+      }
     } as unknown as Event;
 
-    // ===== Submit #1 (debería ser éxito) =====
+    // ======================= ACT =======================
     component.onRegisterSubmit(event);
+
+    const req = httpMock.expectOne(r =>
+      r.method === 'POST' && r.url.endsWith('/register')
+    );
+
+    req.flush(
+      { message: 'Error interno' },
+      { status: 500, statusText: 'Internal Server Error' }
+    );
+
+    // ===================== ASSERT ======================
     expect(preventDefaultEjecutado).toBeTrue();
+    expect(req.request.method).toBe('POST');
 
-    // Espera para que el backend procese y haga commit
-    await delay(700);
+    expect(req.request.body).toEqual({
+      id_usuario: '12345',
+      nombre: 'Juliana',
+      apellido: 'Casas',
+      telefono: '3000000000',
+      correo_electronico: 'juliana@mail.com',
+      contrasena: '1234'
+    });
 
-    // ===== Submit #2 (mismos datos => duplicado real => error) =====
-    component.onRegisterSubmit(event);
+    expect(alertSpy).toHaveBeenCalledWith(
+      'No se pudo registrar el usuario. Revisa los datos o intenta más tarde.'
+    );
 
-    // Espera a que llegue la respuesta de error
-    await delay(700);
-
-    // 5) Assertions clave:
-    // Si fue error, NO debe ejecutar showLogin() => se queda en registro
     expect(component.isContainerActive).toBeTrue();
-
-    // showLogin() activa transición; en error debería quedarse false
     expect(component.isTransitioning).toBeFalse();
   });
 });

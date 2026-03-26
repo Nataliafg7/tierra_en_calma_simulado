@@ -1,25 +1,25 @@
 /**
  * HU11F - Visualización de plantas registradas
- * Escenario P3: Lista vacía
+ * Escenario P5: Formato inesperado
  *
  * Objetivo de la prueba:
- * Verificar que el componente maneje correctamente una respuesta vacía
- * sin producir errores.
+ * Verificar que el componente asigne una lista vacía cuando la respuesta
+ * del servicio no sea un arreglo.
  *
  * Principios FIRST:
  * - Fast: no usa backend real.
  * - Independent: no depende de otras pruebas.
- * - Repeatable: usa datos controlados.
+ * - Repeatable: usa una respuesta controlada.
  * - Self-validating: valida resultados con expect().
- * - Timely: cubre la ausencia de plantas.
+ * - Timely: cubre el manejo de formatos inesperados.
  *
  * Patrón AAA:
- * - Arrange: preparar sesión válida y respuesta vacía.
+ * - Arrange: preparar sesión válida y respuesta inválida.
  * - Act: ejecutar ngOnInit().
  * - Assert: validar lista vacía.
  *
  * Tipo de double usado:
- * - Stub: AuthServiceStub con lista vacía.
+ * - Stub: AuthServiceStub con respuesta inesperada.
  */
 
 import { Component } from '@angular/core';
@@ -37,11 +37,11 @@ class DummyComponent {}
 
 class AuthServiceStub {
   getMisPlantas() {
-    return of([]);
+    return of(null as any);
   }
 }
 
-describe('HU11 Frontend - MisPlantasComponent - P3', () => {
+describe('HU11 Frontend - MisPlantasComponent - P5', () => {
   let component: MisPlantasComponent;
   let fixture: ComponentFixture<MisPlantasComponent>;
 
@@ -71,7 +71,7 @@ describe('HU11 Frontend - MisPlantasComponent - P3', () => {
     localStorage.clear();
   });
 
-  it('HU11F_P3 - Debe manejar correctamente una lista vacía de plantas', () => {
+  it('HU11F_P5 - Debe asignar lista vacía si la respuesta no es un arreglo', () => {
     // ===================== ARRANGE =====================
     localStorage.setItem('usuario', JSON.stringify({
       ID_USUARIO: 1,
@@ -82,7 +82,6 @@ describe('HU11 Frontend - MisPlantasComponent - P3', () => {
     component.ngOnInit();
 
     // ===================== ASSERT ======================
-    expect(component.nombreUsuario).toBe('Juliana');
     expect(component.plantas).toEqual([]);
     expect(component.page).toBe(1);
   });

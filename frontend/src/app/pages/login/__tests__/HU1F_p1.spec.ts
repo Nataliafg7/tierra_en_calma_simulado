@@ -2,18 +2,27 @@
  * HU1F - Registro de usuario (Frontend Angular)
  * Escenario P1: Campos obligatorios vacíos
  *
- * ¿Qué se está probando?
- * Este test valida el comportamiento del método onRegisterSubmit() cuando el usuario
- * intenta registrarse SIN completar los campos mínimos (id_usuario, nombre, correo y contraseña).
+ * Objetivo de la prueba:
+ * Verificar que el método onRegisterSubmit() detenga el flujo cuando
+ * faltan campos obligatorios, evitando la petición HTTP y mostrando el mensaje correspondiente.
  *
- * Comportamiento esperado (según el código del componente):
- * 1) Se llama event.preventDefault() para evitar el envío normal del formulario.
- * 2) Se construye el objeto newUser haciendo trim() a los inputs.
- * 3) El if de campos obligatorios se cumple (porque vienen vacíos).
- * 4) Se muestra un alert y el método termina con return.
- * 5) Al terminar con return, NO se debe ejecutar authService.register(...)
- *    y por lo tanto NO debe salir ninguna petición HTTP.
- * */
+ * Principios FIRST:
+ * - Fast: no depende de backend real.
+ * - Independent: no depende de otras pruebas.
+ * - Repeatable: siempre produce el mismo resultado.
+ * - Self-validating: valida con expect().
+ * - Timely: prueba directamente una unidad concreta del componente.
+ *
+ * Patrón AAA:
+ * - Arrange: preparar datos vacíos y evento.
+ * - Act: ejecutar onRegisterSubmit().
+ * - Assert: comprobar preventDefault, alerta y ausencia de request.
+ *
+ * Tipo de double usado:
+ * - Spy: sobre window.alert para verificar el mensaje mostrado.
+ * - Stub de infraestructura HTTP: HttpTestingController para comprobar
+ *   que no se emite ninguna solicitud al backend.
+ */
 
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
@@ -30,13 +39,6 @@ describe('HU1F - Registro Frontend (P1)', () => {
   let httpMock: HttpTestingController;
 
   beforeEach(async () => {
-    /**
-     * 1) Configuración del entorno de pruebas:
-     * - LoginComponent es standalone, por eso se agrega en imports.
-     * - HttpClientTestingModule permite interceptar requests HTTP.
-     * - RouterTestingModule y ActivatedRoute se incluyen para que el constructor del componente
-     *   pueda inyectar Router/ActivatedRoute sin fallar.
-     */
     await TestBed.configureTestingModule({
       imports: [LoginComponent, HttpClientTestingModule, RouterTestingModule],
       providers: [
@@ -51,44 +53,26 @@ describe('HU1F - Registro Frontend (P1)', () => {
       ]
     }).compileComponents();
 
-    /**
-     * 2) Se crea el componente real tal cual lo haría Angular.
-     *    NO se llama detectChanges() porque no necesitamos ejecutar ngOnInit para esta prueba.
-     */
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
-
-    /**
-     * 3) Se obtiene el controlador de HTTP para poder validar si salieron requests.
-     */
     httpMock = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => {
-    /**
-     * 4) Verificación final:
-     * Si quedó alguna petición HTTP sin controlar, el test debe fallar.
-     * En P1 lo esperado es que no exista ninguna.
-     */
     httpMock.verify();
   });
 
-  it('HU1F_P1 - No debe registrar si faltan campos obligatorios (0 requests HTTP)', () => {
-    /**
-     * 1) Preparamos inputs vacíos para forzar el escenario P1.
-     *    Con esto el if de obligatorios debe cumplirse y el método debe hacer return.
-     */
-    component.regIdUsuario = '';
-    component.regNombre = '';
+  it('HU1F_P1 - No debe registrar si faltan campos obligatorios', () => {
+    // ===================== ARRANGE =====================
+    component.regIdUsuario = '   ';
+    component.regNombre = '   ';
     component.regApellido = '';
     component.regTelefono = '';
-    component.regCorreo = '';
-    component.regContrasena = '';
+    component.regCorreo = '   ';
+    component.regContrasena = '   ';
 
-    /**
-     * 2) Evento de submit sin spy:
-     *    Para verificar que preventDefault() se ejecutó, usamos una bandera booleana.
-     */
+    const alertSpy = spyOn(window, 'alert');
+
     let preventDefaultEjecutado = false;
     const event = {
       preventDefault: () => {
@@ -96,22 +80,13 @@ describe('HU1F - Registro Frontend (P1)', () => {
       }
     } as unknown as Event;
 
-    /**
-     * 3) Ejecutamos el método real del componente.
-     */
+    // ======================= ACT =======================
     component.onRegisterSubmit(event);
 
-    /**
-     * 4) Assertions:
-     * - Debe haber ejecutado preventDefault()
-     */
+    // ===================== ASSERT ======================
     expect(preventDefaultEjecutado).toBeTrue();
+    expect(alertSpy).toHaveBeenCalledWith('Todos los campos son obligatorios.');
 
-    /**
-     * 5) Assertion principal del escenario:
-     * Como el método hace return antes de authService.register(...),
-     * NO debe existir ninguna request HTTP.
-     */
     const requests = httpMock.match(() => true);
     expect(requests.length).toBe(0);
   });

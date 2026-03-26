@@ -1,8 +1,37 @@
+/**
+ * HU3F - Inicio de sesión (Frontend Angular)
+ * Escenario P1: Campos obligatorios vacíos
+ *
+ * Objetivo de la prueba:
+ * Verificar que el método onLoginSubmit() detenga el flujo cuando
+ * el correo o la contraseña están vacíos después de aplicar trim(),
+ * evitando el inicio de sesión, la navegación y el almacenamiento de sesión.
+ *
+ * Principios FIRST:
+ * - Fast: no depende de backend real.
+ * - Independent: no depende de otras pruebas.
+ * - Repeatable: siempre produce el mismo resultado.
+ * - Self-validating: valida el resultado con expect().
+ * - Timely: prueba directamente una unidad concreta del componente.
+ *
+ * Patrón AAA:
+ * - Arrange: preparar inputs vacíos y el evento submit.
+ * - Act: ejecutar onLoginSubmit().
+ * - Assert: validar alerta, corte del flujo y ausencia de navegación.
+ *
+ * Tipo de double usado:
+ * - Stub: AuthServiceP1Stub. Se usa para garantizar que login() no debe ejecutarse.
+ * - Spy: sobre window.alert para verificar el mensaje mostrado.
+ * - Spy: sobre router.navigate para comprobar que no hubo navegación.
+ * - Dummy: DummyComponent para definir rutas de prueba.
+ */
+
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 import { LoginComponent } from '../login';
 import { AuthService } from '../auth.service';
@@ -10,25 +39,21 @@ import { AuthService } from '../auth.service';
 @Component({ template: '<p>Dummy</p>' })
 class DummyComponent {}
 
-/**
- * AuthServiceGuard:
- * No es spy, no es mock de Jasmine.
- * Sirve como "barrera": si el flujo P1 está bien, NO se debe invocar login().
- * Si se invoca, lanzamos error para evidenciar que el componente NO cortó el flujo.
- */
-class AuthServiceGuard {
-  login(): any {
-    throw new Error('P1 no debe llamar authService.login(): el flujo debe cortar por campos vacíos.');
+class AuthServiceP1Stub {
+  login() {
+    throw new Error('En P1 no se debe invocar login() porque el flujo debe cortar por validación.');
   }
-  register(): any {
-    throw new Error('No aplica en P1.');
+
+  register() {
+    return of({});
   }
-  recuperarContrasena(): any {
-    throw new Error('No aplica en P1.');
+
+  recuperarContrasena() {
+    return of({});
   }
 }
 
-describe('HU3 Frontend - LoginComponent - P1 (Campos vacíos)', () => {
+describe('HU3 Frontend - LoginComponent - P1', () => {
   let fixture: ComponentFixture<LoginComponent>;
   let component: LoginComponent;
   let router: Router;
@@ -40,25 +65,14 @@ describe('HU3 Frontend - LoginComponent - P1 (Campos vacíos)', () => {
     ];
 
     await TestBed.configureTestingModule({
-      // LoginComponent es standalone: se importa directamente
       imports: [LoginComponent, RouterTestingModule.withRoutes(routes)],
       providers: [
-        { provide: AuthService, useClass: AuthServiceGuard },
-
-        /**
-         * ActivatedRoute mínimo para que ngOnInit no falle al leer snapshot/queryParams.
-         * No se espía nada, solo se cumple la inyección.
-         */
+        { provide: AuthService, useClass: AuthServiceP1Stub },
         {
           provide: ActivatedRoute,
           useValue: {
             snapshot: { data: {} },
-            queryParams: {
-              subscribe: (fn: any) => {
-                fn({}); // emite params vacíos
-                return { unsubscribe: () => {} };
-              }
-            }
+            queryParams: of({})
           }
         }
       ]
@@ -68,45 +82,36 @@ describe('HU3 Frontend - LoginComponent - P1 (Campos vacíos)', () => {
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
 
-    // Estabiliza el router para poder comparar URL antes/después
     await router.navigateByUrl('/');
     fixture.detectChanges();
   });
 
   afterEach(() => {
-    // Limpieza: evita que una ejecución afecte otra
     localStorage.clear();
   });
 
-  it('P1: debe mostrar alerta y cortar si correo o contraseña están vacíos (tras trim), sin navegar ni guardar usuario', () => {
-
-    // Entrada: espacios => trim() => ''
+  it('HU3F_P1 - Debe mostrar alerta y cortar el flujo si correo o contraseña están vacíos', () => {
+    // ===================== ARRANGE =====================
     component.loginCorreo = '   ';
     component.loginContrasena = '   ';
 
-    // Captura de alert SIN spyOn: reemplazo temporal controlado
-    const originalAlert = window.alert;
-    let alertCapturado = '';
-    window.alert = (msg: any) => { alertCapturado = String(msg); };
+    const alertSpy = spyOn(window, 'alert');
+    const navigateSpy = spyOn(router, 'navigate');
 
-    // Evento submit realista
-    let preventDefaultLlamado = false;
-    const fakeEvent = { preventDefault: () => { preventDefaultLlamado = true; } } as unknown as Event;
+    let preventDefaultEjecutado = false;
+    const event = {
+      preventDefault: () => {
+        preventDefaultEjecutado = true;
+      }
+    } as unknown as Event;
 
-    // Estado antes de ejecutar
-    const urlAntes = router.url;
+    // ======================= ACT =======================
+    component.onLoginSubmit(event);
 
-    // Ejecución real del método
-    component.onLoginSubmit(fakeEvent);
-    fixture.detectChanges();
-
-    // Assertions (expect)
-    expect(preventDefaultLlamado).toBeTrue();
-    expect(alertCapturado).toBe('Ingresa tu correo y contraseña.');
-    expect(router.url).toBe(urlAntes);
+    // ===================== ASSERT ======================
+    expect(preventDefaultEjecutado).toBeTrue();
+    expect(alertSpy).toHaveBeenCalledWith('Ingresa tu correo y contraseña.');
+    expect(navigateSpy).not.toHaveBeenCalled();
     expect(localStorage.getItem('usuario')).toBeNull();
-
-    // Restaurar alert para no afectar otras pruebas
-    window.alert = originalAlert;
   });
 });

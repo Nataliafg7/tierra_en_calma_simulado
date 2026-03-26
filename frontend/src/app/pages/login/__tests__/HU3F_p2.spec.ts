@@ -1,9 +1,37 @@
+/**
+ * HU3F - Inicio de sesión (Frontend Angular)
+ * Escenario P2: Inicio de sesión exitoso como administrador
+ *
+ * Objetivo de la prueba:
+ * Verificar que onLoginSubmit() procese correctamente una respuesta exitosa,
+ * guarde el usuario en localStorage, muestre el mensaje de bienvenida
+ * y navegue a la ruta /admin cuando el correo corresponde al administrador.
+ *
+ * Principios FIRST:
+ * - Fast: no usa backend real.
+ * - Independent: no depende de otras pruebas.
+ * - Repeatable: trabaja con respuesta controlada.
+ * - Self-validating: usa expect() para validar resultados.
+ * - Timely: cubre el camino exitoso del login administrador.
+ *
+ * Patrón AAA:
+ * - Arrange: preparar credenciales válidas, spies y entorno.
+ * - Act: ejecutar onLoginSubmit().
+ * - Assert: validar alerta, almacenamiento y navegación.
+ *
+ * Tipo de double usado:
+ * - Stub: AuthServiceP2Stub, devuelve una respuesta exitosa controlada.
+ * - Spy: sobre window.alert para validar el mensaje.
+ * - Spy: sobre router.navigate para validar navegación.
+ * - Spy: sobre localStorage.setItem para verificar persistencia.
+ * - Dummy: DummyComponent para las rutas de prueba.
+ */
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ActivatedRoute } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+import { of } from 'rxjs';
 
 import { LoginComponent } from '../login';
 import { AuthService } from '../auth.service';
@@ -11,7 +39,22 @@ import { AuthService } from '../auth.service';
 @Component({ template: '<p>Dummy</p>' })
 class DummyComponent {}
 
-describe('HU3 Frontend - LoginComponent - P2 (Login admin exitoso)', () => {
+class AuthServiceP2Stub {
+  login() {
+    return of({
+      user: {
+        ID_USUARIO: 1,
+        NOMBRE: 'Administrador',
+        CORREO_ELECTRONICO: 'admin@tierraencalma.com'
+      }
+    });
+  }
+
+  register() { return of({}); }
+  recuperarContrasena() { return of({}); }
+}
+
+describe('HU3 Frontend - LoginComponent - P2', () => {
   let fixture: ComponentFixture<LoginComponent>;
   let component: LoginComponent;
   let router: Router;
@@ -23,25 +66,14 @@ describe('HU3 Frontend - LoginComponent - P2 (Login admin exitoso)', () => {
     ];
 
     await TestBed.configureTestingModule({
-      /**
-       * Importante:
-       * - HttpClientModule => permite que AuthService haga la petición REAL al backend.
-       * - NO usamos HttpClientTestingModule (eso sería mock).
-       * - NO usamos spyOn.
-       */
-      imports: [LoginComponent, HttpClientModule, RouterTestingModule.withRoutes(routes)],
+      imports: [LoginComponent, RouterTestingModule.withRoutes(routes)],
       providers: [
-        AuthService,
+        { provide: AuthService, useClass: AuthServiceP2Stub },
         {
           provide: ActivatedRoute,
           useValue: {
             snapshot: { data: {} },
-            queryParams: {
-              subscribe: (fn: any) => {
-                fn({});
-                return { unsubscribe: () => {} };
-              }
-            }
+            queryParams: of({})
           }
         }
       ]
@@ -59,62 +91,30 @@ describe('HU3 Frontend - LoginComponent - P2 (Login admin exitoso)', () => {
     localStorage.clear();
   });
 
-  it('P2: debe guardar usuario, mostrar bienvenida y navegar a /admin cuando el correo es admin@tierraencalma.com', (done) => {
-    /**
-     * CASO P2 (Camino C2):
-     * 1) Inputs válidos => pasa validación (NO entra al alert de campos vacíos)
-     * 2) authService.login(credentials) responde por next con res.user válido
-     * 3) usuario tiene NOMBRE o nombre => guarda en localStorage y alerta bienvenida
-     * 4) correo === 'admin@tierraencalma.com' => navega a /admin
-     *
-     * Verificamos efectos reales (sin spyOn):
-     * - localStorage['usuario'] existe y es JSON válido
-     * - alerta contiene "Bienvenid@" + nombre
-     * - router.url cambia a /admin
-     */
+  it('HU3F_P2 - Debe guardar usuario, mostrar bienvenida y navegar a /admin', () => {
+    // ===================== ARRANGE =====================
+    component.loginCorreo = ' admin@tierraencalma.com ';
+    component.loginContrasena = ' admin123 ';
 
-  
-    component.loginCorreo = 'admin@tierraencalma.com';
-    component.loginContrasena = 'admin123';
+    const alertSpy = spyOn(window, 'alert');
+    const navigateSpy = spyOn(router, 'navigate');
+    spyOn(localStorage, 'setItem').and.callThrough();
 
-    // Captura controlada de alert SIN spyOn
-    const originalAlert = window.alert;
-    let alertCapturado = '';
-    window.alert = (msg: any) => { alertCapturado = String(msg); };
+    let preventDefaultEjecutado = false;
+    const event = {
+      preventDefault: () => preventDefaultEjecutado = true
+    } as unknown as Event;
 
-    // Evento submit realista
-    const fakeEvent = { preventDefault: () => {} } as unknown as Event;
+    // ======================= ACT =======================
+    component.onLoginSubmit(event);
 
-    // Ejecutamos el método real (dispara HTTP real por AuthService)
-    component.onLoginSubmit(fakeEvent);
-    fixture.detectChanges();
+    // ===================== ASSERT ======================
+    expect(preventDefaultEjecutado).toBeTrue();
+    expect(alertSpy).toHaveBeenCalledWith('Bienvenid@ Administrador');
+    expect(navigateSpy).toHaveBeenCalledWith(['/admin']);
 
-    /**
-     * Como la respuesta llega async (HTTP real), esperamos un tiempo corto y validamos.
-     * Si tu backend tarda más, puedes aumentar el timeout o este setTimeout.
-     */
-    setTimeout(() => {
-      try {
-        // Debe existir usuario en localStorage
-        const raw = localStorage.getItem('usuario');
-        expect(raw).not.toBeNull();
-
-        // Debe ser JSON válido
-        const usuario = raw ? JSON.parse(raw) : null;
-        expect(usuario).toBeTruthy();
-
-        // Debe haber mostrado bienvenida si el usuario trae NOMBRE o nombre
-
-        expect(alertCapturado.startsWith('Bienvenid@ ')).toBeTrue();
-
-        // Debe navegar a /admin
-        expect(router.url).toBe('/admin');
-
-      } finally {
-        // Restaurar alert para no afectar otras pruebas
-        window.alert = originalAlert;
-        done();
-      }
-    }, 800);
+    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+    expect(usuario.NOMBRE).toBe('Administrador');
+    expect(usuario.CORREO_ELECTRONICO).toBe('admin@tierraencalma.com');
   });
 });

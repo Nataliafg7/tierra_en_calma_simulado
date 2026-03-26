@@ -1,28 +1,31 @@
 /**
  * HU3F - Inicio de sesión (Frontend Angular)
- * Escenario P4: Respuesta exitosa pero usuario inválido
+ * Escenario P8: Respuesta exitosa con user como arreglo
  *
  * Objetivo de la prueba:
- * Verificar que onLoginSubmit() maneje correctamente una respuesta
- * donde el backend devuelve un objeto user sin NOMBRE ni nombre,
- * mostrando mensaje de credenciales inválidas y evitando guardar sesión o navegar.
+ * Verificar que onLoginSubmit() procese correctamente el caso en que
+ * el backend devuelve res.user como un arreglo y no como un objeto directo.
+ *
+ * Este escenario ayuda a cubrir la expresión:
+ * const usuario = res.user?.[0] || res.user;
  *
  * Principios FIRST:
- * - Fast: usa datos simulados.
- * - Independent: no depende de backend ni de otras pruebas.
- * - Repeatable: el resultado siempre es el mismo.
- * - Self-validating: se valida con expect().
- * - Timely: cubre la rama del usuario inválido.
+ * - Fast: no usa backend real.
+ * - Independent: no depende de otras pruebas.
+ * - Repeatable: usa una respuesta fija.
+ * - Self-validating: comprueba resultados con expect().
+ * - Timely: cubre un camino interno adicional del método.
  *
  * Patrón AAA:
- * - Arrange: preparar credenciales, stub y spies.
+ * - Arrange: preparar stub, credenciales y spies.
  * - Act: ejecutar onLoginSubmit().
- * - Assert: validar alerta, ausencia de sesión y no navegación.
+ * - Assert: validar que toma el primer elemento del arreglo, guarda sesión y navega.
  *
  * Tipo de double usado:
- * - Stub: AuthServiceP4Stub.
+ * - Stub: AuthServiceP8Stub.
  * - Spy: sobre window.alert.
  * - Spy: sobre router.navigate.
+ * - Spy: sobre localStorage.setItem.
  * - Dummy: DummyComponent.
  */
 
@@ -39,25 +42,24 @@ import { AuthService } from '../auth.service';
 @Component({ template: '<p>Dummy</p>' })
 class DummyComponent {}
 
-class AuthServiceP4Stub {
+class AuthServiceP8Stub {
   login() {
     return of({
-      user: {
-        CORREO_ELECTRONICO: 'usuario@correo.com'
-      }
+      user: [
+        {
+          ID_USUARIO: 3,
+          nombre: 'Juliana',
+          correo_electronico: 'juliana@gmail.com'
+        }
+      ]
     });
   }
 
-  register() {
-    return of({});
-  }
-
-  recuperarContrasena() {
-    return of({});
-  }
+  register() { return of({}); }
+  recuperarContrasena() { return of({}); }
 }
 
-describe('HU3 Frontend - LoginComponent - P4', () => {
+describe('HU3 Frontend - LoginComponent - P8', () => {
   let fixture: ComponentFixture<LoginComponent>;
   let component: LoginComponent;
   let router: Router;
@@ -71,7 +73,7 @@ describe('HU3 Frontend - LoginComponent - P4', () => {
     await TestBed.configureTestingModule({
       imports: [LoginComponent, RouterTestingModule.withRoutes(routes)],
       providers: [
-        { provide: AuthService, useClass: AuthServiceP4Stub },
+        { provide: AuthService, useClass: AuthServiceP8Stub },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -94,19 +96,18 @@ describe('HU3 Frontend - LoginComponent - P4', () => {
     localStorage.clear();
   });
 
-  it('HU3F_P4 - Debe mostrar alerta de credenciales inválidas y no guardar sesión', () => {
+  it('HU3F_P8 - Debe tomar el primer usuario del arreglo y navegar a /mis-plantas', () => {
     // ===================== ARRANGE =====================
-    component.loginCorreo = 'usuario@correo.com';
-    component.loginContrasena = '123456';
+    component.loginCorreo = ' juliana@gmail.com ';
+    component.loginContrasena = ' 1234 ';
 
     const alertSpy = spyOn(window, 'alert');
     const navigateSpy = spyOn(router, 'navigate');
+    spyOn(localStorage, 'setItem').and.callThrough();
 
     let preventDefaultEjecutado = false;
     const event = {
-      preventDefault: () => {
-        preventDefaultEjecutado = true;
-      }
+      preventDefault: () => preventDefaultEjecutado = true
     } as unknown as Event;
 
     // ======================= ACT =======================
@@ -114,8 +115,11 @@ describe('HU3 Frontend - LoginComponent - P4', () => {
 
     // ===================== ASSERT ======================
     expect(preventDefaultEjecutado).toBeTrue();
-    expect(alertSpy).toHaveBeenCalledWith('Credenciales inválidas. Verifica tu correo o contraseña.');
-    expect(localStorage.getItem('usuario')).toBeNull();
-    expect(navigateSpy).not.toHaveBeenCalled();
+    expect(alertSpy).toHaveBeenCalledWith('Bienvenid@ Juliana');
+    expect(navigateSpy).toHaveBeenCalledWith(['/mis-plantas']);
+
+    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+    expect(usuario.nombre).toBe('Juliana');
+    expect(usuario.correo_electronico).toBe('juliana@gmail.com');
   });
 });

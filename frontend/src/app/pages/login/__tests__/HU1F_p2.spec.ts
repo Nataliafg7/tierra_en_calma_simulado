@@ -1,15 +1,27 @@
 /**
- * HU1F - Registro (Frontend Angular)
- * Escenario P2: Registro exitoso (camino feliz)
+ * HU1F - Registro de usuario (Frontend Angular)
+ * Escenario P2: Registro exitoso
  *
- * Nota importante:
- * Para que la prueba NO falle al ejecutarla varias veces, se generan
- * id_usuario y correo únicos en cada corrida.
+ * Objetivo de la prueba:
+ * Verificar que onRegisterSubmit() construya correctamente el objeto newUser,
+ * envíe la petición POST al backend, procese la respuesta exitosa y ejecute
+ * la transición hacia la vista de login mediante showLogin().
  *
- * Restricción:
- * - Sin mocks
- * - Sin spies
- * - Solo assertions (expect)
+ * Principios FIRST:
+ * - Fast: usa infraestructura HTTP simulada.
+ * - Independent: no depende de backend real ni de otras pruebas.
+ * - Repeatable: usa datos controlados.
+ * - Self-validating: se comprueba todo con expect().
+ * - Timely: prueba el flujo exitoso exacto del método.
+ *
+ * Patrón AAA:
+ * - Arrange: preparar estado del componente, datos y evento.
+ * - Act: ejecutar onRegisterSubmit() y simular respuesta exitosa.
+ * - Assert: validar request, body y cambio de estado.
+ *
+ * Tipo de double usado:
+ * - Stub de infraestructura HTTP: HttpTestingController para interceptar
+ *   la solicitud POST y responderla sin usar el backend real.
  */
 
 import { TestBed, ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
@@ -31,13 +43,18 @@ describe('HU1F - Registro Frontend (P2)', () => {
       imports: [LoginComponent, HttpClientTestingModule, RouterTestingModule],
       providers: [
         AuthService,
-        { provide: ActivatedRoute, useValue: { snapshot: { data: {} }, queryParams: of({}) } }
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { data: {} },
+            queryParams: of({})
+          }
+        }
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
-
     httpMock = TestBed.inject(HttpTestingController);
   });
 
@@ -45,57 +62,53 @@ describe('HU1F - Registro Frontend (P2)', () => {
     httpMock.verify();
   });
 
-  it('HU1F_P2 - Debe registrar correctamente y ejecutar showLogin()', fakeAsync(() => {
-    // 1) Generamos datos únicos para que la prueba sea repetible
-    const unico = Date.now(); // cambia en cada corrida
-    const idUnico = `${unico}`; // id como string (tu componente lo maneja como string)
-    const correoUnico = `p2_${unico}@mail.com`;
-
-    // 2) Simulamos que estamos en la vista de registro
+  it('HU1F_P2 - Debe registrar correctamente y volver a la vista de login', fakeAsync(() => {
+    // ===================== ARRANGE =====================
     component.isContainerActive = true;
+    component.isTransitioning = false;
 
-    // 3) Llenamos campos (una sola vez, con valores únicos)
-    component.regIdUsuario = ` ${idUnico} `;
+    component.regIdUsuario = ' 12345 ';
     component.regNombre = ' Juliana ';
     component.regApellido = ' Casas ';
     component.regTelefono = ' 3000000000 ';
-    component.regCorreo = ` ${correoUnico} `;
+    component.regCorreo = ' juliana@mail.com ';
     component.regContrasena = ' 1234 ';
 
-    // 4) Evento sin spy: bandera
+    const alertSpy = spyOn(window, 'alert');
+
     let preventDefaultEjecutado = false;
     const event = {
-      preventDefault: () => { preventDefaultEjecutado = true; }
+      preventDefault: () => {
+        preventDefaultEjecutado = true;
+      }
     } as unknown as Event;
 
-    // 5) Ejecutamos
+    // ======================= ACT =======================
     component.onRegisterSubmit(event);
 
-    // 6) Assertions
-    expect(preventDefaultEjecutado).toBeTrue();
-
-    // 7) Debe salir una petición POST a /register
     const req = httpMock.expectOne(r =>
       r.method === 'POST' && r.url.endsWith('/register')
     );
 
+    req.flush({ message: 'Usuario registrado con éxito.' });
+
+    // ===================== ASSERT ======================
+    expect(preventDefaultEjecutado).toBeTrue();
     expect(req.request.method).toBe('POST');
 
-    // 8) Body esperado (ya con trim aplicado)
     expect(req.request.body).toEqual({
-      id_usuario: idUnico,
+      id_usuario: '12345',
       nombre: 'Juliana',
       apellido: 'Casas',
       telefono: '3000000000',
-      correo_electronico: correoUnico,
+      correo_electronico: 'juliana@mail.com',
       contrasena: '1234'
     });
 
-    // 9) Simulamos éxito (rama next)
-    req.flush({ message: 'Usuario registrado con éxito.' });
+    expect(alertSpy).toHaveBeenCalledWith('Usuario registrado con éxito.');
 
-    // 10) showLogin() activa transición y luego cambia estados a los 150ms
     expect(component.isTransitioning).toBeTrue();
+
     tick(150);
 
     expect(component.isContainerActive).toBeFalse();

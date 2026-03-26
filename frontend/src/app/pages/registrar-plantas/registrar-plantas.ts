@@ -13,25 +13,26 @@ const API_URL = 'http://localhost:3000/api';
   styleUrls: ['./registrar-plantas.scss']
 })
 export class RegistrarPlantasComponent implements OnInit {
-
   private plantaIds: { [key: string]: number } = {};
 
-  constructor(private router: Router, private http: HttpClient) {}
-  
+  constructor(
+    private readonly router: Router,
+    private readonly http: HttpClient
+  ) {}
+
   ngOnInit(): void {
     this.cargarPlantas();
   }
-
   cargarPlantas(): void {
       this.http.get<any[]>(`${API_URL}/plantas`).subscribe({
         next: (plantas) => {
           plantas.forEach(p => {
-            const key = p.NOMBRE_COMUN
-              .toLowerCase()
-              .normalize("NFD")              
-              .replace(/[\u0300-\u036f]/g, "")
-              .replace(/\s+/g, '-')          
-              .trim();
+          const key = p.NOMBRE_COMUN
+            .toLowerCase()
+            .normalize("NFD")
+            .replaceAll(/[\u0300-\u036f]/g, "")
+            .replaceAll(/\s+/g, '-')
+            .trim();
             this.plantaIds[key] = p.ID_PLANTA;
           });
           console.log("Mapa de plantas cargado:", this.plantaIds);

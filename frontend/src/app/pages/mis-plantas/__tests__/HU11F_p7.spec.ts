@@ -1,30 +1,30 @@
 /**
  * HU11F - Visualización de plantas registradas
- * Escenario P3: Lista vacía
+ * Escenario P7: Planta inválida en monitoreo
  *
  * Objetivo de la prueba:
- * Verificar que el componente maneje correctamente una respuesta vacía
- * sin producir errores.
+ * Verificar que si la planta no tiene un ID_PLANTA_USUARIO válido,
+ * el componente muestre una alerta y no continúe el flujo.
  *
  * Principios FIRST:
  * - Fast: no usa backend real.
  * - Independent: no depende de otras pruebas.
  * - Repeatable: usa datos controlados.
  * - Self-validating: valida resultados con expect().
- * - Timely: cubre la ausencia de plantas.
+ * - Timely: cubre validación de entrada del monitoreo.
  *
  * Patrón AAA:
- * - Arrange: preparar sesión válida y respuesta vacía.
- * - Act: ejecutar ngOnInit().
- * - Assert: validar lista vacía.
+ * - Arrange: preparar planta inválida y espiar alerta.
+ * - Act: ejecutar monitorear().
+ * - Assert: validar mensaje.
  *
  * Tipo de double usado:
- * - Stub: AuthServiceStub con lista vacía.
+ * - Stub: AuthServiceStub para aislar dependencias.
+ * - Spy: window.alert para validar el mensaje.
  */
 
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of } from 'rxjs';
@@ -41,21 +41,15 @@ class AuthServiceStub {
   }
 }
 
-describe('HU11 Frontend - MisPlantasComponent - P3', () => {
+describe('HU11 Frontend - MisPlantasComponent - P7', () => {
   let component: MisPlantasComponent;
   let fixture: ComponentFixture<MisPlantasComponent>;
 
   beforeEach(async () => {
-    const routes: Routes = [
-      { path: 'login', component: DummyComponent },
-      { path: 'monstera', component: DummyComponent },
-      { path: 'registrar-plantas', component: DummyComponent }
-    ];
-
     await TestBed.configureTestingModule({
       imports: [
         MisPlantasComponent,
-        RouterTestingModule.withRoutes(routes),
+        RouterTestingModule,
         HttpClientTestingModule
       ],
       providers: [{ provide: AuthService, useClass: AuthServiceStub }]
@@ -63,27 +57,22 @@ describe('HU11 Frontend - MisPlantasComponent - P3', () => {
 
     fixture = TestBed.createComponent(MisPlantasComponent);
     component = fixture.componentInstance;
-
-    localStorage.clear();
   });
 
-  afterEach(() => {
-    localStorage.clear();
-  });
-
-  it('HU11F_P3 - Debe manejar correctamente una lista vacía de plantas', () => {
+  it('HU11F_P7 - Debe mostrar alerta si la planta es inválida', () => {
     // ===================== ARRANGE =====================
-    localStorage.setItem('usuario', JSON.stringify({
-      ID_USUARIO: 1,
-      NOMBRE: 'Juliana'
-    }));
+    const alertSpy = spyOn(window, 'alert');
+    const planta = {
+      ID_PLANTA_USUARIO: 0,
+      ID_PLANTA: 1,
+      NOMBRE_COMUN: 'Monstera',
+      NOMBRE_CIENTIFICO: 'Monstera deliciosa'
+    };
 
     // ======================= ACT =======================
-    component.ngOnInit();
+    component.monitorear(planta);
 
     // ===================== ASSERT ======================
-    expect(component.nombreUsuario).toBe('Juliana');
-    expect(component.plantas).toEqual([]);
-    expect(component.page).toBe(1);
+    expect(alertSpy).toHaveBeenCalledWith('Planta inválida (falta ID_PLANTA_USUARIO)');
   });
 });
