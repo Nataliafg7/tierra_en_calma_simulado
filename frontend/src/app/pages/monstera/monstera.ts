@@ -20,7 +20,7 @@ interface RiegoHistorial {
   styleUrls: ['./monstera.scss']
 })
 export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
-// SONAR-IGNORE-START
+  // SONAR-IGNORE-START
   // UI
   isConnected = false;
   realtimeData = 'Cargando...';
@@ -33,11 +33,11 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
   // Cuidados
   nuevoCuidado = { fecha: '', tipo_cuidado: '', detalles: '' };
 
-// SONAR-IGNORE-END
+  // SONAR-IGNORE-END
   // Datos sensor
   sensorData = { temperatura: '---', humedadSuelo: '---' };
 
-// SONAR-IGNORE-START
+  // SONAR-IGNORE-START
   // Chart
   @ViewChild('soilChart', { static: false }) soilChartRef!: ElementRef<HTMLCanvasElement>;
   private chart?: Chart;
@@ -56,12 +56,12 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
     private readonly route: ActivatedRoute
   ) { }
 
-// SONAR-IGNORE-END
+  // SONAR-IGNORE-END
   ngOnInit(): void {
     const qp = Number(this.route.snapshot.queryParamMap.get('pu'));
     if (Number.isInteger(qp)) {
       this.idPlantaUsuario = qp;
-      localStorage.setItem('planta_usuario_id', String(qp)); 
+      localStorage.setItem('planta_usuario_id', String(qp));
     } else {
       // 2) fallback a localStorage
       this.idPlantaUsuario = this.leerPlantaUsuarioId();
@@ -75,7 +75,7 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
     this.pollHandle = setInterval(() => this.cargarDatos(), 2000);
     this.cargarDatos();
   }
-// SONAR-IGNORE-START
+  // SONAR-IGNORE-START
 
   ngAfterViewInit(): void { this.ensureChart(); }
 
@@ -104,7 +104,7 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
   }
-// SONAR-IGNORE-END
+
   verificarCondiciones(): void {
     if (!this.idPlantaUsuario) return alert('Falta ID de planta');
     fetch('http://localhost:3000/api/verificar-condiciones', {
@@ -112,16 +112,16 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id_planta_usuario: this.idPlantaUsuario })
     })
-    .then(r => r.json())
-    .then(result => {
-      alert(result.mensaje || 'Verificación completada');
-    })
-    .catch(err => {
-      console.error('[VERIFICAR_CONDICIONES] error', err);
-      alert('Error al verificar las condiciones');
-    });
+      .then(r => r.json())
+      .then(result => {
+        alert(result.mensaje || 'Verificación completada');
+      })
+      .catch(err => {
+        console.error('[VERIFICAR_CONDICIONES] error', err);
+        alert('Error al verificar las condiciones');
+      });
   }
-// SONAR-IGNORE-START
+  // SONAR-IGNORE-START
 
   private activarRiegoAutomatico(): void {
     this.agregarHistorial('automático', 'Riego automático ejecutado');
@@ -132,7 +132,7 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.historialRiego.length > 10) this.historialRiego.pop();
   }
 
-// SONAR-IGNORE-END
+  // SONAR-IGNORE-END
   //  datos backend 
   private cargarDatos(): void {
     this.mqttService.getUltimoDato().subscribe(res => {
@@ -163,7 +163,7 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
       if (res?.historial) this.historial = res.historial;
     });
   }
-// SONAR-IGNORE-START
+  // SONAR-IGNORE-START
 
   //  chart 
   private ensureChart(): void {
@@ -234,8 +234,8 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
     // normaliza fecha a YYYY-MM-DD
     let fechaISO = '';
     if (fecha) {
-      fechaISO = /^\d{4}-\d{2}-\d{2}$/.test(fecha) 
-        ? fecha 
+      fechaISO = /^\d{4}-\d{2}-\d{2}$/.test(fecha)
+        ? fecha
         : new Date(fecha).toISOString().slice(0, 10);
     }
 
@@ -260,8 +260,8 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const body = {
       id_planta_usuario: idPU,
-      fecha: fechaISO,        
-      tipo: tipoTrim,         
+      fecha: fechaISO,
+      tipo: tipoTrim,
       detalles: detalles?.trim() || null,
     };
 

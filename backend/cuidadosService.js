@@ -1,13 +1,13 @@
 const oracledb = require("oracledb");
+
 const dbConfig = {
   user: process.env.ORACLE_USER,
   password: process.env.ORACLE_PASS,
   connectString: process.env.ORACLE_CONN,
 };
 
-/** Obtienemos el último ID_RIEGO asociado a la última lectura del sensor de la planta */
+// Obtiene el último ID_RIEGO asociado a la última lectura del sensor de la planta
 async function getUltimoIdRiegoPorPlantaUsuario(conn, idPlantaUsuario) {
-  // 1) Sensor de la planta
   const s = await conn.execute(
     `SELECT ID_SENSOR
        FROM TIERRA_EN_CALMA.SENSORES
@@ -16,10 +16,13 @@ async function getUltimoIdRiegoPorPlantaUsuario(conn, idPlantaUsuario) {
     { id_pu: idPlantaUsuario },
     { outFormat: oracledb.OUT_FORMAT_OBJECT }
   );
-  if (!s.rows.length) return null;
+
+  if (!s.rows.length) {
+    return null;
+  }
+
   const idSensor = s.rows[0].ID_SENSOR;
 
-  // 2) Última lectura del sensor
   const l = await conn.execute(
     `SELECT ID_LECTURA
        FROM TIERRA_EN_CALMA.LECTURA_SENSORES
@@ -29,10 +32,13 @@ async function getUltimoIdRiegoPorPlantaUsuario(conn, idPlantaUsuario) {
     { id_sensor: idSensor },
     { outFormat: oracledb.OUT_FORMAT_OBJECT }
   );
-  if (!l.rows.length) return null;
+
+  if (!l.rows.length) {
+    return null;
+  }
+
   const idLectura = l.rows[0].ID_LECTURA;
 
-  // 3) Riego asociado a esa lectura, si existe
   const r = await conn.execute(
     `SELECT ID_RIEGO
        FROM TIERRA_EN_CALMA.RIEGO
@@ -42,32 +48,35 @@ async function getUltimoIdRiegoPorPlantaUsuario(conn, idPlantaUsuario) {
     { id_lectura: idLectura },
     { outFormat: oracledb.OUT_FORMAT_OBJECT }
   );
-  return r.rows.length ? r.rows[0].ID_RIEGO : null;
+
+  if (!r.rows.length) {
+    return null;
+  }
+
+  return r.rows[0].ID_RIEGO;
 }
 
 async function crearCuidado({ id_planta_usuario, fecha, tipo_cuidado, detalle }) {
   let conn;
+
   try {
     conn = await oracledb.getConnection(dbConfig);
 
-    // último riego de esa planta, si existe
     const idRiego = await getUltimoIdRiegoPorPlantaUsuario(conn, id_planta_usuario);
 
     const result = await conn.execute(
-      `
-      INSERT INTO TIERRA_EN_CALMA.HISTORIAL_CUIDADOS
-        (ID_PLANTA_USUARIO, ID_RIEGO, FECHA, TIPO_CUIDADO, DETALLE)
-      VALUES
-        (:id_pu, :id_riego, TO_DATE(:fecha,'YYYY-MM-DD'), :tipo_cuidado, :detalle)
-      RETURNING ID_CUIDADO INTO :id_out
-      `,
+      `INSERT INTO TIERRA_EN_CALMA.HISTORIAL_CUIDADOS
+         (ID_PLANTA_USUARIO, ID_RIEGO, FECHA, TIPO_CUIDADO, DETALLE)
+       VALUES
+         (:id_pu, :id_riego, TO_DATE(:fecha,'YYYY-MM-DD'), :tipo_cuidado, :detalle)
+       RETURNING ID_CUIDADO INTO :id_out`,
       {
         id_pu: id_planta_usuario,
-        id_riego: idRiego,                
-        fecha,                              
-        tipo_cuidado: tipo_cuidado,                
+        id_riego: idRiego,
+        fecha,
+        tipo_cuidado,
         detalle: detalle || null,
-        id_out: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+        id_out: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
       },
       { autoCommit: true }
     );
@@ -75,17 +84,19 @@ async function crearCuidado({ id_planta_usuario, fecha, tipo_cuidado, detalle })
     const out = result.outBinds?.id_out;
     const id_cuidado = Array.isArray(out) ? out[0] : out;
 
-    console.log('[CUIDADOS][OK]', {
+    console.log("[CUIDADOS][OK]", {
       id_cuidado,
       id_planta_usuario,
       id_riego: idRiego,
-      fecha, 
-      rowsAffected: result.rowsAffected,
+      fecha,
+      rowsAffected: result.rowsAffected
     });
 
     return { id_cuidado, id_riego: idRiego };
   } finally {
-    if (conn) await conn.close().catch(() => { });
+    if (conn) {
+      await conn.close().catch(() => {});
+    }
   }
 }
 

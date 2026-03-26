@@ -21,16 +21,19 @@ function startSimulator({ everyMs = 10000, onDato = null } = {}) {
     console.log(`[SIM] Dato generado: ${dato}`);
 
     if (procesarDatoCallback) {
-      Promise.resolve(procesarDatoCallback(dato)).catch(err => {
+      Promise.resolve(procesarDatoCallback(dato)).catch((err) => {
         console.error("[SIM] Error procesando dato:", err.message);
       });
     }
-
   }, everyMs);
 }
 
 function stopSimulator() {
-  if (interval) clearInterval(interval);
+  if (interval) {
+    clearInterval(interval);
+    interval = null;
+  }
+
   console.log("[SIM] Detenido");
 }
 
