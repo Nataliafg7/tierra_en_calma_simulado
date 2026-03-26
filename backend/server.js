@@ -189,6 +189,7 @@ app.post("/api/regar", (req, res) => {
   else res.status(500).json({ error: "No se pudo enviar el comando" });
 });
 
+<<<<<<< Updated upstream
 app.post('/api/monitorear', async (req, res) => {
   const idPlantaUsuario = Number(req.body?.id_planta_usuario);
   if (!Number.isInteger(idPlantaUsuario)) {
@@ -202,6 +203,9 @@ app.post('/api/monitorear', async (req, res) => {
     return res.status(500).json({ ok: false, error: 'No se pudo preparar el monitoreo' });
   }
 });
+=======
+app.testOracleConnection = testOracleConnection;
+>>>>>>> Stashed changes
 
 // ======================= PLANTAS =======================
 app.post("/api/regar", (req, res) => {
