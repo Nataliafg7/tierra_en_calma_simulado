@@ -1,6 +1,0 @@
-projectKey=tierra-front-juli-refactorizado
-serverUrl=http://localhost:9000
-serverVersion=26.3.0.120487
-dashboardUrl=http://localhost:9000/dashboard?id=tierra-front-juli-refactorizado
-ceTaskId=e2721675-e45a-4049-90b8-18235488b268
-ceTaskUrl=http://localhost:9000/api/ce/task?id=e2721675-e45a-4049-90b8-18235488b268
