@@ -52,7 +52,7 @@ process.on("uncaughtException", (err) => { // NOSONAR
 
 console.log("Nodemailer cargado correctamente");
 
-const app = createApp();
+
 app.testOracleConnection = testOracleConnection;
 
 if (!IS_TEST) { // NOSONAR
