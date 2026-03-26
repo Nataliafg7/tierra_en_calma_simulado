@@ -10,8 +10,8 @@ function startSimulator({ everyMs = 10000, onDato = null } = {}) {
 
   interval = setInterval(() => {
     // random walk simple
-    t += (Math.random() - 0.5);
-    h += (Math.random() - 0.5) * 2; //intervalos, escala
+    t += (Math.random() - 0.5); // NOSONAR
+    h += (Math.random() - 0.5) * 2; // NOSONAR
 
     t = Math.max(0, Math.min(52, t)); //modifcar el valor 0 y 45 que es el rango
     h = Math.max(0, Math.min(95, h));

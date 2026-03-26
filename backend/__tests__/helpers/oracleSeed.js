@@ -68,3 +68,49 @@ async function insertLectura({ idSensor, temperatura, humedad }) {
 }
 
 module.exports = { ensureSensor, insertLectura };
+
+// ======================= TESTS DEL HELPER =======================
+// Jest por defecto busca tests en todos los archivos de la carpeta __tests__
+// Aprovechamos para probar nuestros propios helpers.
+jest.mock("oracledb", () => ({
+  getConnection: jest.fn(),
+  OUT_FORMAT_OBJECT: 4002,
+  BIND_OUT: 3003,
+  NUMBER: 2002,
+}));
+
+describe("Helpers de DB: oracleSeed", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("ensureSensor: debería retornar el ID_SENSOR si ya existe para la planta", async () => {
+    const connectionMock = {
+      execute: jest.fn().mockResolvedValue({
+        rows: [{ ID_SENSOR: 99 }]
+      }),
+      close: jest.fn().mockResolvedValue(true)
+    };
+    const oracledbMock = require("oracledb");
+    oracledbMock.getConnection.mockResolvedValue(connectionMock);
+
+    const id = await ensureSensor(1);
+    expect(id).toBe(99);
+    expect(connectionMock.close).toHaveBeenCalledTimes(1);
+  });
+
+  test("insertLectura: debería insertar una lectura simulada y retornar su ID", async () => {
+    const connectionMock = {
+      execute: jest.fn().mockResolvedValue({
+        outBinds: { out_id: [1234] }
+      }),
+      close: jest.fn().mockResolvedValue(true)
+    };
+    const oracledbMock = require("oracledb");
+    oracledbMock.getConnection.mockResolvedValue(connectionMock);
+
+    const id = await insertLectura({ idSensor: 1, temperatura: 25, humedad: 60 });
+    expect(id).toBe(1234);
+    expect(connectionMock.close).toHaveBeenCalledTimes(1);
+  });
+});
