@@ -2,5 +2,5 @@ projectKey=tierra-en-calma-backend
 serverUrl=http://localhost:9000
 serverVersion=26.3.0.120487
 dashboardUrl=http://localhost:9000/dashboard?id=tierra-en-calma-backend
-ceTaskId=c9bd7738-1b3f-4d2f-a1f3-896eb186dac0
-ceTaskUrl=http://localhost:9000/api/ce/task?id=c9bd7738-1b3f-4d2f-a1f3-896eb186dac0
+ceTaskId=ba676926-c266-49a1-9e61-5602fd2d0d6f
+ceTaskUrl=http://localhost:9000/api/ce/task?id=ba676926-c266-49a1-9e61-5602fd2d0d6f

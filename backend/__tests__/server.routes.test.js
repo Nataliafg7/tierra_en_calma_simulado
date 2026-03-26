@@ -58,11 +58,11 @@ describe('Rutas Server (server.js)', () => {
     });
 
     test('POST /api/login - Exito Admin 200', async () => {
-      const connectionMock = { 
+      const connectionMock = {
         execute: jest.fn().mockResolvedValue({
           rows: [{ ID_USUARIO: 1, CORREO_ELECTRONICO: 'admin@tierraencalma.com' }]
-        }), 
-        close: jest.fn() 
+        }),
+        close: jest.fn()
       };
       oracledb.getConnection.mockResolvedValue(connectionMock);
 
@@ -72,9 +72,9 @@ describe('Rutas Server (server.js)', () => {
     });
 
     test('POST /api/login - Credenciales invalidas 401', async () => {
-      const connectionMock = { 
-        execute: jest.fn().mockResolvedValue({ rows: [] }), 
-        close: jest.fn() 
+      const connectionMock = {
+        execute: jest.fn().mockResolvedValue({ rows: [] }),
+        close: jest.fn()
       };
       oracledb.getConnection.mockResolvedValue(connectionMock);
 
@@ -207,7 +207,7 @@ describe('Rutas Server (server.js)', () => {
     });
 
     test('Server Boot - testOracleConnection Exito', async () => {
-      const connMock = { execute: jest.fn().mockResolvedValue({rows:[['OK']]}), close: jest.fn() };
+      const connMock = { execute: jest.fn().mockResolvedValue({ rows: [['OK']] }), close: jest.fn() };
       oracledb.getConnection.mockResolvedValueOnce(connMock);
       await app.testOracleConnection();
       expect(connMock.close).toHaveBeenCalled();
@@ -215,13 +215,13 @@ describe('Rutas Server (server.js)', () => {
 
     test('Server Boot - testOracleConnection Falla', async () => {
       oracledb.getConnection.mockRejectedValueOnce(new Error('Boot Error'));
-      const logSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const logSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
       await app.testOracleConnection();
       logSpy.mockRestore();
     });
 
     test('Server Boot - Eventos de proceso', () => {
-      const logSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const logSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
       process.emit('uncaughtException', new Error('Test Error'));
       process.emit('unhandledRejection', new Error('Test Rejection'), Promise.resolve());
       logSpy.mockRestore();
