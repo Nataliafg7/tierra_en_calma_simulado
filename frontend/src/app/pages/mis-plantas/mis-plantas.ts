@@ -30,11 +30,11 @@ export class MisPlantasComponent implements OnInit {
   pageSize = 6;
   Math = Math;
 
-  constructor(
-    private router: Router,
-    private authService: AuthService,
-    private http: HttpClient                     // para /api/monitorear
-  ) { }
+ constructor(
+  private readonly router: Router,
+  private readonly authService: AuthService,
+  private readonly http: HttpClient
+) { }
 
   ngOnInit(): void {
     const u = safeParse(localStorage.getItem('usuario'));

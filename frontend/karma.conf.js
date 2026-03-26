@@ -1,3 +1,6 @@
+// Karma configuration
+// https://karma-runner.github.io/latest/config/configuration-file.html
+
 module.exports = function (config) {
   config.set({
     basePath: '',
@@ -9,6 +12,7 @@ module.exports = function (config) {
       require('karma-coverage')
     ],
     client: {
+      jasmine: {},
       clearContext: false
     },
 

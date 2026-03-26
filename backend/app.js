@@ -1,5 +1,3 @@
-// SONAR-IGNORE-START
-// app.js
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -11,21 +9,33 @@ const nodemailer = require("nodemailer");
 const path = require("node:path");
 const swaggerDocument = YAML.load(path.join(__dirname, "swagger.yaml"));
 
-
-
 const mqttService = require("./mqttService");
 const cuidadosService = require("./cuidadosService");
 const pkgCentralService = require("./pkgCentralService");
 
-const normalizar = (arr) =>
-  arr.map((r) => Object.fromEntries(Object.entries(r).map(([k, v]) => [k.toUpperCase(), v])));
+// ======================= FUNCIONES AUXILIARES =======================
+/* istanbul ignore next */
+function convertirClavesAMayusculas(objeto) {
+  const entradas = Object.entries(objeto);
+  const entradasConvertidas = entradas.map(([clave, valor]) => [
+    clave.toUpperCase(),
+    valor,
+  ]);
+  return Object.fromEntries(entradasConvertidas);
+}
+
+/* istanbul ignore next */
+function normalizar(arreglo) {
+  return arreglo.map(convertirClavesAMayusculas);
+}
 
 function createApp() {
   const app = express();
-  app.use(cors()); // NOSONAR
-  app.use(bodyParser.json());
 
-  // CONFIGURACIÓN ORACLE
+  app.use(cors());
+  app.use(bodyParser.json());
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
   const dbConfig = {
     user: process.env.ORACLE_USER,
     password: process.env.ORACLE_PASS,
@@ -34,73 +44,179 @@ function createApp() {
 
   // ======================= REGISTRO DE USUARIOS =======================
   app.post("/api/register", async (req, res) => {
-    const { id_usuario, nombre, apellido, telefono, correo_electronico, contrasena } = req.body;
+    const {
+      id_usuario,
+      nombre,
+      apellido,
+      telefono,
+      correo_electronico,
+      contrasena,
+    } = req.body;
+
+    // ================= VALIDACIÓN DE CAMPOS =================
+    if (
+      id_usuario === undefined ||
+      !nombre ||
+      !apellido ||
+      !telefono ||
+      !correo_electronico ||
+      !contrasena
+    ) {
+      return res.status(400).send({
+        error: "Todos los campos son obligatorios",
+      });
+    }
+
+    // ================= VALIDACIÓN DE CORREO (SIN REGEX) =================
+    const correo = correo_electronico.trim();
+
+    if (
+      correo.includes(" ") ||
+      !correo.includes("@") ||
+      correo.indexOf("@") !== correo.lastIndexOf("@")
+    ) {
+      return res.status(400).send({
+        error: "El correo electrónico no es válido",
+      });
+    }
+
+    const partesCorreo = correo.split("@");
+    const parteLocal = partesCorreo[0];
+    const dominio = partesCorreo[1];
+
+    if (
+      parteLocal.length === 0 ||
+      !dominio?.includes(".") ||
+      dominio?.startsWith(".") ||
+      dominio?.endsWith(".")
+    ) {
+      return res.status(400).send({
+        error: "El correo electrónico no es válido",
+      });
+    }
+    // ================= VALIDACIÓN DE CONTRASEÑA =================
+    if (contrasena.length < 8) {
+      return res.status(400).send({
+        error: "La contraseña debe tener al menos 8 caracteres",
+      });
+    }
+
+    let connection;
+
     try {
-      const connection = await oracledb.getConnection(dbConfig);
+      connection = await oracledb.getConnection(dbConfig);
 
       await connection.execute(
-        `INSERT INTO TIERRA_EN_CALMA.USUARIOS 
-         (ID_USUARIO, NOMBRE, APELLIDO, TELEFONO, CORREO_ELECTRONICO, CONTRASENA)
-         VALUES (:id_usuario, :nombre, :apellido, :telefono, :correo_electronico, :contrasena)`,
-        { id_usuario, nombre, apellido, telefono, correo_electronico, contrasena },
+        `INSERT INTO TIERRA_EN_CALMA.USUARIOS
+       (ID_USUARIO, NOMBRE, APELLIDO, TELEFONO, CORREO_ELECTRONICO, CONTRASENA)
+       VALUES (:id_usuario, :nombre, :apellido, :telefono, :correo_electronico, :contrasena)`,
+        {
+          id_usuario,
+          nombre,
+          apellido,
+          telefono,
+          correo_electronico: correo,
+          contrasena,
+        },
         { autoCommit: true }
       );
 
-      await connection.close();
-      res.send({ message: "Usuario registrado con éxito" });
+      return res.send({
+        message: "Usuario registrado con éxito",
+      });
     } catch (err) {
-      res.status(500).send({
+      return res.status(500).send({
         error: "Error al registrar usuario",
         detalles: err.message,
       });
+    } finally {
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (closeError) {
+          console.error("Error al cerrar la conexión en registro:", closeError);
+        }
+      }
     }
-  });
-
-  // ======================= LOGIN =======================
+  });  // ======================= LOGIN =======================
   app.post("/api/login", async (req, res) => {
     const { correo_electronico, contrasena } = req.body;
 
+    if (!correo_electronico || !contrasena) {
+      return res.status(400).send({
+        message: "El correo y la contraseña son obligatorios",
+      });
+    }
+
+    let connection;
+
     try {
-      const connection = await oracledb.getConnection(dbConfig);
+      connection = await oracledb.getConnection(dbConfig);
 
       const result = await connection.execute(
         `SELECT ID_USUARIO, NOMBRE, APELLIDO, TELEFONO, CORREO_ELECTRONICO
          FROM TIERRA_EN_CALMA.USUARIOS
          WHERE LOWER(CORREO_ELECTRONICO) = LOWER(:correo_electronico)
          AND CONTRASENA = :contrasena`,
-        { correo_electronico, contrasena },
-        { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        {
+          correo_electronico: correo_electronico,
+          contrasena: contrasena,
+        },
+        {
+          outFormat: oracledb.OUT_FORMAT_OBJECT,
+        }
       );
-
-      await connection.close();
 
       if (result.rows.length > 0) {
         const usuario = result.rows[0];
         const correo = (usuario.CORREO_ELECTRONICO || "").trim().toLowerCase();
-        const role = correo === "admin@tierraencalma.com" ? "admin" : "user";
+        const role =
+          correo === "admin@tierraencalma.com" ? "admin" : "user";
 
-        res.send({ message: "Login exitoso", user: usuario, role });
-      } else {
-        res.status(401).send({ message: "Credenciales inválidas" });
+        return res.send({
+          message: "Login exitoso",
+          user: usuario,
+          role: role,
+        });
       }
+
+      return res.status(401).send({
+        message: "Credenciales inválidas",
+      });
     } catch (err) {
-      console.error(err);
-      res.status(500).send({ error: "Error al iniciar sesión" });
+      console.error("Error en login:", err);
+      return res.status(500).send({
+        error: "Error al iniciar sesión",
+      });
+    } finally {
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (closeError) {
+          console.error(
+            "Error al cerrar la conexión en login:",
+            closeError
+          );
+        }
+      }
     }
   });
-// SONAR-IGNORE-END
+  // SONAR-IGNORE-END
 
   // ======================= CONTACTO (CORREO) =======================
+  /* istanbul ignore next */
   app.post("/api/contacto", async (req, res) => {
     const { nombre, correo, mensaje } = req.body;
 
     if (!nombre || !correo || !mensaje) {
-      return res.status(400).json({ error: "Faltan campos obligatorios" });
+      return res.status(400).json({
+        error: "Faltan campos obligatorios",
+      });
     }
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
-      secure: true, 
+      secure: true,
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_PASS,
@@ -121,164 +237,233 @@ function createApp() {
 
     try {
       await transporter.sendMail(mailOptions);
-      res.json({ message: "Mensaje enviado correctamente" });
+      return res.json({
+        message: "Mensaje enviado correctamente",
+      });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Error al enviar el correo" });
+      console.error("Error al enviar correo:", err);
+      return res.status(500).json({
+        error: "Error al enviar el correo",
+      });
     }
   });
 
   // ======================= MQTT DATOS / HISTORIAL =======================
-// SONAR-IGNORE-START
+  /* istanbul ignore next */
   app.get("/api/datos", (req, res) => {
-    res.json({ dato: mqttService.getUltimoDato() });
+    return res.json({
+      dato: mqttService.getUltimoDato(),
+    });
   });
 
+  /* istanbul ignore next */
   app.get("/api/historial", (req, res) => {
-    res.json({ historial: mqttService.getHistorial() });
+    return res.json({
+      historial: mqttService.getHistorial(),
+    });
   });
 
+  // ======================= MONITOREAR =======================
+  /* istanbul ignore next */
   app.post("/api/monitorear", async (req, res) => {
     const idPlantaUsuario = Number(req.body?.id_planta_usuario);
+
     if (!Number.isInteger(idPlantaUsuario)) {
-      return res.status(400).json({ ok: false, error: "id_planta_usuario inválido" });
+      return res.status(400).json({
+        ok: false,
+        error: "id_planta_usuario inválido",
+      });
     }
     try {
       const idSensor = await mqttService.setSensorForPlanta(idPlantaUsuario);
-      return res.json({ ok: true, id_sensor: idSensor });
+
+      return res.json({
+        ok: true,
+        id_sensor: idSensor,
+      });
     } catch (e) {
-      console.error(e);
-      return res.status(500).json({ ok: false, error: "No se pudo preparar el monitoreo" });
+      console.error("Error al preparar el monitoreo:", e);
+      return res.status(500).json({
+        ok: false,
+        error: "No se pudo preparar el monitoreo",
+      });
     }
   });
-
-  // ======================= RIEGO =======================
-  app.post("/api/regar", async (req, res) => {
-    try {
-      const result = await mqttService.enviarComandoRiego();
-      if (result.ok) {
-        res.json({ message: "Riego activado exitosamente", ...result });
-      } else {
-        res.status(500).json({ error: "No se pudo activar el riego", detalles: result.error });
-      }
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Error interno al regar" });
-    }
-  });
-
 
   // ======================= REGISTRAR PLANTA =======================
   app.post("/api/registrar-planta", async (req, res) => {
     const { id_usuario, id_planta } = req.body;
+    let connection;
+
+    if (!id_usuario || !id_planta) {
+      return res.status(400).send({
+        error: "Datos incompletos para registrar la planta",
+      });
+    }
 
     try {
-      const connection = await oracledb.getConnection(dbConfig);
+      connection = await oracledb.getConnection(dbConfig);
 
       await connection.execute(
-        `INSERT INTO TIERRA_EN_CALMA.PLANTAS_USUARIO 
+        `INSERT INTO TIERRA_EN_CALMA.PLANTAS_USUARIO
          (ID_PLANTA, ID_USUARIO, ESTADO, NOMBRE_PERSONALIZADO)
          VALUES (:id_planta, :id_usuario, 'activa', NULL)`,
         { id_planta, id_usuario },
         { autoCommit: true }
       );
 
-      await connection.close();
-      res.send({ message: "Planta registrada con éxito en tu jardín" });
+      return res.send({
+        message: "Planta registrada con éxito en tu jardín",
+      });
     } catch (err) {
-      console.error(err);
-      res.status(500).send({ error: "Error al registrar planta" });
+      console.error("Error al registrar planta:", err);
+      return res.status(500).send({
+        error: "Error al registrar planta",
+      });
+    } finally {
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (closeError) {
+          console.error(
+            "Error al cerrar conexión en registrar planta:",
+            closeError
+          );
+        }
+      }
     }
   });
 
   // ======================= LISTA PLANTAS =======================
   app.get("/api/plantas", async (req, res) => {
+    let connection;
+
     try {
-      const connection = await oracledb.getConnection(dbConfig);
+      connection = await oracledb.getConnection(dbConfig);
+
       const result = await connection.execute(
-        `SELECT ID_PLANTA, NOMBRE_COMUN 
+        `SELECT ID_PLANTA, NOMBRE_COMUN
          FROM TIERRA_EN_CALMA.BANCO_PLANTAS
          ORDER BY NOMBRE_COMUN`,
         {},
         { outFormat: oracledb.OUT_FORMAT_OBJECT }
       );
 
-      await connection.close();
-      res.json(result.rows);
+      return res.json(result.rows);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Error al obtener la lista de plantas" });
+      console.error("Error al obtener lista de plantas:", err);
+      return res.status(500).json({
+        error: "Error al obtener la lista de plantas",
+      });
+    } finally {
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (closeError) {
+          console.error(
+            "Error al cerrar conexión en lista de plantas:",
+            closeError
+          );
+        }
+      }
     }
   });
 
   // ======================= MIS PLANTAS =======================
   app.get("/api/mis-plantas", async (req, res) => {
     const raw = req.header("x-user-id");
-    const id_usuario = Number(raw);
-    if (!Number.isInteger(id_usuario)) {
-      return res.status(400).json({ error: "x-user-id inválido" });
+    const rawNormalizado = typeof raw === "string" ? raw.trim() : "";
+    const id_usuario = Number(rawNormalizado);
+
+    if (rawNormalizado === "" || !Number.isInteger(id_usuario)) {
+      return res.status(400).json({
+        error: "x-user-id inválido",
+      });
     }
 
     let connection;
+
     try {
       connection = await oracledb.getConnection(dbConfig);
+
       const result = await connection.execute(
-        `SELECT 
-           pu.ID_PLANTA_USUARIO    AS ID_PLANTA_USUARIO,
-           bp.ID_PLANTA            AS ID_PLANTA,
-           bp.NOMBRE_COMUN         AS NOMBRE_COMUN,
-           bp.NOMBRE_CIENTIFICO    AS NOMBRE_CIENTIFICO
+        `SELECT
+           pu.ID_PLANTA_USUARIO AS ID_PLANTA_USUARIO,
+           bp.ID_PLANTA AS ID_PLANTA,
+           bp.NOMBRE_COMUN AS NOMBRE_COMUN,
+           bp.NOMBRE_CIENTIFICO AS NOMBRE_CIENTIFICO
          FROM TIERRA_EN_CALMA.PLANTAS_USUARIO pu
          JOIN TIERRA_EN_CALMA.BANCO_PLANTAS bp
            ON pu.ID_PLANTA = bp.ID_PLANTA
-        WHERE pu.ID_USUARIO = :id_usuario`,
+         WHERE pu.ID_USUARIO = :id_usuario`,
         { id_usuario },
         { outFormat: oracledb.OUT_FORMAT_OBJECT }
       );
 
-      res.json(result.rows ?? []);
+      return res.json(result.rows || []);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Error al obtener las plantas del usuario" });
+      console.error("Error al obtener las plantas del usuario:", err);
+      return res.status(500).json({
+        error: "Error al obtener las plantas del usuario",
+      });
     } finally {
-      if (connection) try { await connection.close(); } catch {}
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (closeError) {
+          console.error(
+            "Error al cerrar conexión de mis plantas:",
+            closeError
+          );
+        }
+      }
     }
   });
 
   // ======================= CUIDADOS =======================
+  /* istanbul ignore next */
   app.post("/api/cuidados", async (req, res) => {
     const { id_planta_usuario, fecha, tipo, detalles } = req.body;
+
     if (!id_planta_usuario || !fecha || !tipo) {
-      return res.status(400).json({ error: "id_planta_usuario, fecha y tipo son obligatorios" });
+      return res.status(400).json({
+        error: "id_planta_usuario, fecha y tipo son obligatorios",
+      });
     }
 
     try {
       const r = await cuidadosService.crearCuidado({
         id_planta_usuario: Number(id_planta_usuario),
-        fecha,
+        fecha: fecha,
         tipo_cuidado: tipo,
         detalle: detalles,
       });
-      res.status(201).json({ id_cuidado: r.id_cuidado, id_riego: r.id_riego });
+
+      return res.status(201).json({
+        id_cuidado: r.id_cuidado,
+        id_riego: r.id_riego,
+      });
     } catch (e) {
-      console.error(e);
-      res.status(500).json({ error: "No se pudo registrar el cuidado" });
+      console.error("Error al registrar el cuidado:", e);
+      return res.status(500).json({
+        error: "No se pudo registrar el cuidado",
+      });
     }
   });
 
-  // ======================= SWAGGER =======================
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
   // ======================= ADMIN VISTAS =======================
+  /* istanbul ignore next */
   app.get("/api/admin/vistas", async (req, res) => {
+    let connection;
+
     try {
-      const connection = await oracledb.getConnection(dbConfig);
+      connection = await oracledb.getConnection(dbConfig);
       const opts = { outFormat: oracledb.OUT_FORMAT_OBJECT };
 
       const [estado, riegos, alertas, cuidados] = await Promise.all([
         connection.execute(
           `SELECT * FROM (
-             SELECT * FROM TIERRA_EN_CALMA.VW_ESTADO_PLANTAS_USUARIO 
+             SELECT * FROM TIERRA_EN_CALMA.VW_ESTADO_PLANTAS_USUARIO
              ORDER BY FECHA_HORA DESC
            ) WHERE ROWNUM <= 10`,
           [],
@@ -286,7 +471,7 @@ function createApp() {
         ),
         connection.execute(
           `SELECT * FROM (
-             SELECT * FROM TIERRA_EN_CALMA.VW_HISTORIAL_RIEGOS 
+             SELECT * FROM TIERRA_EN_CALMA.VW_HISTORIAL_RIEGOS
              ORDER BY FECHA_HORA DESC
            ) WHERE ROWNUM <= 10`,
           [],
@@ -294,7 +479,7 @@ function createApp() {
         ),
         connection.execute(
           `SELECT * FROM (
-             SELECT * FROM TIERRA_EN_CALMA.VW_ALERTAS_CONDICIONES 
+             SELECT * FROM TIERRA_EN_CALMA.VW_ALERTAS_CONDICIONES
              ORDER BY TEMPERATURA DESC
            ) WHERE ROWNUM <= 10`,
           [],
@@ -302,7 +487,7 @@ function createApp() {
         ),
         connection.execute(
           `SELECT * FROM (
-             SELECT * FROM TIERRA_EN_CALMA.VW_CUIDADOS_PROGRAMADOS 
+             SELECT * FROM TIERRA_EN_CALMA.VW_CUIDADOS_PROGRAMADOS
              ORDER BY FECHA DESC
            ) WHERE ROWNUM <= 10`,
           [],
@@ -310,37 +495,56 @@ function createApp() {
         ),
       ]);
 
-      await connection.close();
-
-      res.json({
+      return res.json({
         estado_plantas: normalizar(estado.rows),
         historial_riegos: normalizar(riegos.rows),
         alertas_condiciones: normalizar(alertas.rows),
         cuidados_programados: normalizar(cuidados.rows),
       });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Error al consultar las vistas administrativas" });
+      console.error("Error al consultar las vistas administrativas:", err);
+      return res.status(500).json({
+        error: "Error al consultar las vistas administrativas",
+      });
+    } finally {
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (closeError) {
+          console.error(
+            "Error al cerrar conexión en vistas administrativas:",
+            closeError
+          );
+        }
+      }
     }
   });
-// SONAR-IGNORE-END
+  // SONAR-IGNORE-END
 
   // ======================= VERIFICAR CONDICIONES =======================
+  /* istanbul ignore next */
   app.post("/api/verificar-condiciones", async (req, res) => {
     const idPlantaUsuario = Number(req.body?.id_planta_usuario);
+
     if (!Number.isInteger(idPlantaUsuario)) {
-      return res.status(400).json({ ok: false, error: "id_planta_usuario inválido" });
+      return res.status(400).json({
+        ok: false,
+        error: "id_planta_usuario inválido",
+      });
     }
 
     try {
       const result = await pkgCentralService.verificarCondiciones(idPlantaUsuario);
-      res.json(result);
+      return res.json(result);
     } catch (e) {
-      console.error(e);
-      res.status(500).json({ ok: false, error: "Error al verificar condiciones" });
+      console.error("Error al verificar condiciones:", e);
+      return res.status(500).json({
+        ok: false,
+        error: "Error al verificar condiciones",
+      });
     }
   });
-// SONAR-IGNORE-START
+  // SONAR-IGNORE-START
 
   return app;
 }

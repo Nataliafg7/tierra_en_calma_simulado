@@ -47,3 +47,19 @@ Thumbs.db
 # SonarQube
 .scannerwork/
 .sonar/
+
+backend/coverage    
+frontend/coverage
+backend/.scannerwork
+frontend/.scannerwork
+.scannerwork
+
+# SonarQube
+.scannerwork/
+.sonar/
+
+backend/coverage    
+frontend/coverage
+backend/.scannerwork
+frontend/.scannerwork
+.scannerwork

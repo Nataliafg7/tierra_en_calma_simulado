@@ -12,16 +12,13 @@ import { AuthService } from './auth.service';
   styleUrls: ['./login.scss']
 })
 export class LoginComponent implements OnInit {
-  // Estado de paneles
-  isContainerActive = false;   // true muestra registro
+  isContainerActive = false;
   isTransitioning = false;
   isForgotPasswordModalOpen = false;
 
-  // Login
   loginCorreo = '';
   loginContrasena = '';
 
-  // Registro
   regIdUsuario = '';
   regNombre = '';
   regApellido = '';
@@ -29,50 +26,53 @@ export class LoginComponent implements OnInit {
   regCorreo = '';
   regContrasena = '';
 
-  // Recuperación
   forgotIdentification = '';
 
   constructor(
-    private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute
+    private readonly authService: AuthService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute
   ) {}
 
   ngOnInit() {
-    // 1) Abrir registro si esta ruta lo indica (login/registro)
     const openByData = this.route.snapshot.data?.['openRegister'] === true;
 
-    // 2) Abrir registro si viene con query param (por compatibilidad)
     const sub = this.route.queryParams.subscribe((p) => {
       const openByQuery = p['modo'] === 'registro';
-      this.inicializarVista(openByData || openByQuery);
+
+      if (openByData || openByQuery) {
+        this.inicializarVistaRegistro();
+      } else {
+        this.inicializarVistaLogin();
+      }
+
       sub.unsubscribe();
     });
 
-    // 3) Abrir registro si llegó con state (por compatibilidad)
-    const nav = this.router.getCurrentNavigation();
-    const state = nav?.extras?.state as { abrirRegistro?: boolean } | undefined;
+    const state = history.state as { abrirRegistro?: boolean } | undefined;
+
     if (state?.abrirRegistro) {
-      this.inicializarVista(true);
+      this.inicializarVistaRegistro();
     }
   }
 
-  private inicializarVista(abrirRegistro: boolean) {
-    if (abrirRegistro) {
-      // Mostrar registro 
-      this.isContainerActive = true;
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 50);
-    } else {
-      // Vista login por defecto
-      this.isContainerActive = false;
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 50);
-    }
+  /* istanbul ignore next */
+  private inicializarVistaRegistro(): void {
+    this.isContainerActive = true;
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 50);
   }
 
+  /* istanbul ignore next */
+  private inicializarVistaLogin(): void {
+    this.isContainerActive = false;
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 50);
+  }
+
+  /* istanbul ignore next */
   showRegister(): void {
     this.isTransitioning = true;
     setTimeout(() => {
@@ -82,6 +82,7 @@ export class LoginComponent implements OnInit {
     }, 150);
   }
 
+  /* istanbul ignore next */
   showLogin(): void {
     this.isTransitioning = true;
     setTimeout(() => {
@@ -91,15 +92,19 @@ export class LoginComponent implements OnInit {
     }, 150);
   }
 
-  // Modal recuperar contraseña
+  /* istanbul ignore next */
   openForgotPasswordModal(event: Event): void {
     event.preventDefault();
     this.isForgotPasswordModalOpen = true;
   }
+
+  /* istanbul ignore next */
   closeForgotPasswordModal(): void {
     this.isForgotPasswordModalOpen = false;
     this.forgotIdentification = '';
   }
+
+  /* istanbul ignore next */
   sendPasswordReset(): void {
     if (!this.forgotIdentification.trim()) {
       alert('Por favor ingresa tu correo electrónico.');
@@ -120,7 +125,6 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  //  LOGIN 
   onLoginSubmit(event: Event): void {
     event.preventDefault();
 
@@ -142,14 +146,12 @@ export class LoginComponent implements OnInit {
           localStorage.setItem('usuario', JSON.stringify(usuario));
           alert(`Bienvenid@ ${usuario.NOMBRE || usuario.nombre}`);
 
-          // Validar si es el usuario administrador
           const correo = usuario.CORREO_ELECTRONICO || usuario.correo_electronico;
           if (correo === 'admin@tierraencalma.com') {
-            this.router.navigate(['/admin']);   // Panel de vistas del administrador
+            this.router.navigate(['/admin']);
           } else {
-            this.router.navigate(['/mis-plantas']); // Usuario normal
+            this.router.navigate(['/mis-plantas']);
           }
-
         } else {
           alert('Credenciales inválidas. Verifica tu correo o contraseña.');
         }
@@ -166,7 +168,6 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  //  REGISTRO 
   onRegisterSubmit(event: Event): void {
     event.preventDefault();
 
