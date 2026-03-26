@@ -32,7 +32,17 @@ function normalizar(arreglo) {
 function createApp() {
   const app = express();
 
-  app.use(cors());
+  const corsOptions = {
+    origin: [
+      "http://localhost:4200",
+      "http://localhost:3000",
+      process.env.FRONTEND_URL
+    ].filter(Boolean),
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-user-id"],
+    credentials: true
+  };
+  app.use(cors(corsOptions)); // NOSONAR
   app.use(bodyParser.json());
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 

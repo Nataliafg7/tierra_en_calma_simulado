@@ -202,11 +202,6 @@ async function procesarDatoMQTT(dato) {
 function getUltimoDato() { return ultimoDato; }
 function getHistorial() { return historial; }
 
-// HDU25
-function getHistorial() {
-  return historial;
-}
-
 // HDU19 / HDU20
 async function enviarComandoRiego(topic = "plantas/regar") {
   if (!client?.connected) { // NOSONAR
@@ -280,7 +275,7 @@ async function enviarComandoFisicoRiego() {
 
 
 module.exports = {
-  initMQTTClient,
+  initMQTTBroker,
   initMQTTSimulator,
   getUltimoDato,
   getHistorial,

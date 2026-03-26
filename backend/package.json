@@ -25,6 +25,14 @@
   "jest": {
     "collectCoverage": true,
     "coverageDirectory": "coverage",
-    "coverageReporters": ["lcov", "text"]
+    "coverageReporters": ["lcov", "text"],
+    "collectCoverageFrom": [
+      "app.js",
+      "server.js",
+      "SimuladorSensor.js",
+      "mqttService.js",
+      "pkgCentralService.js",
+      "cuidadosService.js"
+    ]
   }
 }
