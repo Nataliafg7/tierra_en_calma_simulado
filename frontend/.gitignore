@@ -40,3 +40,9 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+backend/coverage    
+frontend/coverage
+backend/.scannerwork
+frontend/.scannerwork
+.scannerwork
