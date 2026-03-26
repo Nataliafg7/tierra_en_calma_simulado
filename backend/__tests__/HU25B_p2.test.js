@@ -1,24 +1,37 @@
-// backend/__tests__/HU25B_p2.test.js
+// __tests__/HU25B_p2.test.js
+// HU25 - Escenario P2: consulta exitosa del historial
+
 const request = require("supertest");
 
-describe("HU25 – Backend – Escenario 2 (P1) – Consulta exitosa del historial", () => {
-  test("P1 – GET /api/historial debe responder 200 y traer { historial: <array> }", async () => {
-    process.env.NODE_ENV = "test";
+jest.mock("../mqttService", () => ({
+  getHistorial: jest.fn()
+}));
 
-    const app = require("../server");
-    const mqttService = require("../mqttService");
+const mqttService = require("../mqttService");
+const app = require("../server");
 
-    const esperado = mqttService.getHistorial();
+describe("HU25 – Backend – Escenario P2 – Consulta exitosa del historial", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
+  test("Escenario P2 – GET /api/historial responde 200 y retorna el historial esperado", async () => {
+    // Arrange
+    const historialEsperado = [
+      "Temperatura: 25°C, Humedad: 60%",
+      "Temperatura: 26°C, Humedad: 58%"
+    ];
+
+    mqttService.getHistorial.mockReturnValue(historialEsperado);
+
+    // Act
     const res = await request(app).get("/api/historial");
 
+    // Assert
+    expect(mqttService.getHistorial).toHaveBeenCalledTimes(1);
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("historial");
-
-    // Debe ser un arreglo (vacío o con elementos)
     expect(Array.isArray(res.body.historial)).toBe(true);
-
-    // Debe coincidir con lo que retorna el servicio en memoria
-    expect(res.body.historial).toEqual(esperado);
+    expect(res.body.historial).toEqual(historialEsperado);
   });
 });

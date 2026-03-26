@@ -1,32 +1,46 @@
-// backend/__tests__/HU23B_p2.test.js
 const request = require("supertest");
 
-function loadApp() {
-  try { return require("../server"); } catch (e1) {}
-  try { return require("../app"); } catch (e2) {}
-  throw new Error("No se pudo cargar el app. Exporta el Express app en server.js o app.js (module.exports = app).");
-}
+jest.mock("../cuidadosService", () => ({
+  crearCuidado: jest.fn()
+}));
 
-describe("HU23 – Backend – Escenario 2 (P2) – Registro exitoso del cuidado", () => {
-  test("P2 – Debe responder 201 y retornar id_cuidado e id_riego", async () => {
-    const app = loadApp();
+const cuidadosService = require("../cuidadosService");
+const app = require("../server");
 
+describe("HU23 – Backend – Escenario P2 – Registro exitoso del cuidado", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("Escenario P2 – Debe responder 201 y retornar id_cuidado e id_riego", async () => {
+    // Arrange
     const payload = {
-      id_planta_usuario: 1,           // usa un ID real existente en tu BD si quieres que pase
-      fecha: "2026-03-04",            // formato esperado YYYY-MM-DD
-      tipo: "fertilizacion",          // según tu endpoint (en service se llama tipo_cuidado)
-      detalle: "Aplicación de abono"
+      id_planta_usuario: 1,
+      fecha: "2026-03-04",
+      tipo: "fertilizacion",
+      detalles: "Aplicación de abono"
     };
 
+    cuidadosService.crearCuidado.mockResolvedValue({
+      id_cuidado: 101,
+      id_riego: 202
+    });
+
+    // Act
     const res = await request(app)
-      .post("/api/cuidados") // ajusta si tu ruta real es otra
+      .post("/api/cuidados")
       .send(payload);
 
-    // Si aquí te falla con 500, esa evidencia sirve para mostrar dependencia del entorno/BD
+    // Assert
+    expect(cuidadosService.crearCuidado).toHaveBeenCalledTimes(1);
+    expect(cuidadosService.crearCuidado).toHaveBeenCalledWith({
+      id_planta_usuario: 1,
+      fecha: "2026-03-04",
+      tipo_cuidado: "fertilizacion",
+      detalle: "Aplicación de abono"
+    });
     expect(res.status).toBe(201);
-
-    // Debe retornar llaves esperadas
-    expect(res.body).toHaveProperty("id_cuidado");
-    expect(res.body).toHaveProperty("id_riego");
+    expect(res.body).toHaveProperty("id_cuidado", 101);
+    expect(res.body).toHaveProperty("id_riego", 202);
   });
 });

@@ -6,9 +6,9 @@ import { Observable } from 'rxjs';
   providedIn: 'root'})
 
 export class MqttDataService {
-  private apiUrl = 'http://localhost:3000/api';
+  private readonly apiUrl = 'http://localhost:3000/api';
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   getUltimoDato(): Observable<any> {
     return this.http.get(`${this.apiUrl}/datos`);

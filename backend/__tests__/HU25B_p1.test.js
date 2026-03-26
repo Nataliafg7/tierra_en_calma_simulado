@@ -1,22 +1,32 @@
-// backend/__tests__/HU25B_p1.test.js
+// __tests__/HU25B_p1.test.js
+// HU25 - Escenario P1: consulta exitosa del último dato
+
 const request = require("supertest");
 
-describe("HU25 – Backend – Escenario 1 (P1) – Consulta exitosa del último dato", () => {
-  test("P1 – GET /api/datos debe responder 200 y traer { dato: <string> }", async () => {
-    process.env.NODE_ENV = "test";
+jest.mock("../mqttService", () => ({
+  getUltimoDato: jest.fn()
+}));
 
-    // Cargar app real
-    const app = require("../server");
-    const mqttService = require("../mqttService");
+const mqttService = require("../mqttService");
+const app = require("../server");
 
-    const esperado = mqttService.getUltimoDato();
+describe("HU25  Backend  Escenario P1  Consulta exitosa del último dato", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
+  test("Escenario P1  GET /api/datos responde 200 y retorna el último dato", async () => {
+    // Arrange
+    const datoEsperado = "Temperatura: 25°C, Humedad: 60%";
+    mqttService.getUltimoDato.mockReturnValue(datoEsperado);
+
+    // Act
     const res = await request(app).get("/api/datos");
 
+    // Assert
+    expect(mqttService.getUltimoDato).toHaveBeenCalledTimes(1);
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("dato");
-
-    // Como no hay validaciones, normalmente será "Esperando datos..." si no se actualizó
-    expect(res.body.dato).toBe(esperado);
+    expect(res.body.dato).toBe(datoEsperado);
   });
 });

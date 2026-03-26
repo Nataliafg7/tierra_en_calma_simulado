@@ -1,23 +1,25 @@
 // __tests__/HU20B_p4.test.js
+// HU20 - Escenario P4: el flujo no alcanza la base de datos porque MQTT no está conectado
+
 process.env.NODE_ENV = "test";
 
 const mqttService = require("../mqttService");
 
-describe("HU20 Backend - P4 - Error en conexión a Oracle (NO alcanzable sin broker)", () => {
+describe("HU20 Backend – Escenario P4 – Flujo detenido antes de Oracle", () => {
   afterAll(() => {
     mqttService.stopSimulator();
   });
 
-  test("Debe retornar { ok:false } antes de llegar a BD porque no hay MQTT conectado", async () => {
-    // ARRANGE: modo simulador (sin broker)
-    mqttService.initMQTT(null, { everyMs: 2000 }, null, true);
+  test("Escenario P4 – Retorna { ok:false } antes de llegar a BD porque no hay MQTT conectado", async () => {
+    // Arrange
+    mqttService.initMQTTSimulator({ everyMs: 2000 });
 
-    // ACT
+    // Act
     const r = await mqttService.enviarComandoRiego("plantas/regar");
 
-    // ASSERT: el flujo se corta en la validación MQTT, no llega a Oracle
+    // Assert
     expect(r).toBeDefined();
     expect(r).toHaveProperty("ok", false);
-    expect(r).not.toHaveProperty("error"); // no hay error de Oracle porque NO entró al try
+    expect(r).not.toHaveProperty("error");
   });
 });

@@ -1,27 +1,30 @@
 // __tests__/HU20B_p5.test.js
+// HU20 - Escenario P5: éxito completo NO alcanzable sin MQTT
+
 process.env.NODE_ENV = "test";
 
 const mqttService = require("../mqttService");
 
-describe("HU20 Backend - P5 - Éxito completo SELECT+INSERT (NO alcanzable sin broker)", () => {
+describe("HU20 Backend – Escenario P5 – Flujo exitoso no alcanzable sin MQTT", () => {
+
   afterAll(() => {
-    // Asegura detener cualquier simulador/timer
+    // Detener simulador para evitar timers activos
     mqttService.stopSimulator();
   });
 
-  test("Debe retornar { ok:false } porque no hay MQTT conectado, por lo tanto NO se ejecuta SELECT/INSERT", async () => {
-    // ARRANGE: modo simulador (no crea client MQTT)
-    mqttService.initMQTT(null, { everyMs: 2000 }, null, true);
+  test("Escenario P5 – Retorna { ok:false } porque no hay MQTT conectado y no se ejecuta SELECT/INSERT", async () => {
+    // Arrange
+    mqttService.initMQTTSimulator({ everyMs: 2000 });
 
-    // ACT
+    // Act
     const r = await mqttService.enviarComandoRiego("plantas/regar");
 
-    // ASSERT
+    // Assert
     expect(r).toBeDefined();
     expect(r).toHaveProperty("ok", false);
 
-    // Si el flujo hubiera entrado a BD, normalmente existiría 'error' solo en catch.
-    // Aquí debe cortar antes, sin 'error'.
+    // El flujo NO debe llegar a BD, por eso no hay 'error'
     expect(r).not.toHaveProperty("error");
   });
+
 });

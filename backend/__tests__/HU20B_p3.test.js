@@ -1,22 +1,24 @@
 // __tests__/HU20B_p3.test.js
+// HU20 - Escenario P3: modo simulador sin broker MQTT
+
 process.env.NODE_ENV = "test";
 
 const mqttService = require("../mqttService");
 
-describe("HU20 Backend - Escenario 3 (P3) - Modo simulador (sin broker)", () => {
+describe("HU20 Backend – Escenario P3 – Modo simulador", () => {
   afterAll(() => {
-    // Detener el intervalo del simulador para que Jest no quede con logs/timers activos
+    // Detener el simulador para evitar intervalos activos en Jest
     mqttService.stopSimulator();
   });
 
-  test("Debe retornar { ok:false } porque no hay cliente MQTT conectado en modo simulador", async () => {
-    // ARRANGE: activar modo simulador (no crea client MQTT)
-    mqttService.initMQTT(null, { everyMs: 2000 }, null, true);
+  test("Escenario P3 – Retorna { ok:false } porque no hay cliente MQTT conectado en modo simulador", async () => {
+    // Arrange
+    mqttService.initMQTTSimulator({ everyMs: 2000 });
 
-    // ACT
+    // Act
     const r = await mqttService.enviarComandoRiego("plantas/regar");
 
-    // ASSERT
+    // Assert
     expect(r).toBeDefined();
     expect(r).toHaveProperty("ok", false);
   });

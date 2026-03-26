@@ -38,9 +38,9 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
   // Chart
   @ViewChild('soilChart', { static: false }) soilChartRef!: ElementRef<HTMLCanvasElement>;
   private chart?: Chart;
-  private maxDataPoints = 20;
-  private humidityData: number[] = [];
-  private tempData: number[] = [];
+  private readonly maxDataPoints = 20;
+  private readonly humidityData: number[] = [];
+  private readonly tempData: number[] = [];
 
   // Polling
   private pollHandle?: any;
@@ -49,8 +49,8 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
   private idPlantaUsuario: number | null = null;
 
   constructor(
-    private mqttService: MqttDataService,
-    private route: ActivatedRoute
+    private readonly mqttService: MqttDataService,
+    private readonly route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
@@ -82,7 +82,7 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
   //  helpers 
   private leerPlantaUsuarioId(): number | null {
     const raw = localStorage.getItem('planta_usuario_id');
-    const n = raw ? Number(raw) : NaN;
+    const n = raw ? Number(raw) : Number.NaN;
     return Number.isInteger(n) ? n : null;
   }
 
@@ -130,31 +130,31 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
   //  datos backend 
   private cargarDatos(): void {
     this.mqttService.getUltimoDato().subscribe(res => {
-      if (!res || !res.dato) return;
+      if (!res?.dato) return;
 
       this.realtimeData = res.dato;
       this.lastUpdate = `Última actualización: ${new Date().toLocaleTimeString()}`;
       this.isConnected = true;
 
       // parseo: T:xx.x, H:yy.y, Suelo:zz.z%
-      const tempMatch = res.dato.match(/T[:=]\s*([0-9]+(?:\.[0-9]+)?)/i);
-      const sueloMatch = res.dato.match(/H[:=]\s*([0-9]+(?:\.[0-9]+)?)/i);
+      const tempMatch = res.dato.match(/T[:=]\s*(\d+(?:\.\d+)?)/i);
+      const sueloMatch = res.dato.match(/H[:=]\s*(\d+(?:\.\d+)?)/i);
 
       this.sensorData = {
         temperatura: tempMatch ? `${tempMatch[1]} °C` : '---',
         humedadSuelo: sueloMatch ? `${sueloMatch[1]}%` : '---'
       };
 
-      if (tempMatch) this.pushPoint('temp', parseFloat(tempMatch[1]));
+      if (tempMatch) this.pushPoint('temp', Number.parseFloat(tempMatch[1]));
       if (sueloMatch) {
-        const h = parseFloat(sueloMatch[1]);
+        const h = Number.parseFloat(sueloMatch[1]);
         this.pushPoint('humidity', h);
         if (!Number.isNaN(h) && h < 30) this.activarRiegoAutomatico();
       }
     });
 
     this.mqttService.getHistorial().subscribe(res => {
-      if (res && res.historial) this.historial = res.historial;
+      if (res?.historial) this.historial = res.historial;
     });
   }
 
@@ -167,7 +167,7 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
     this.chart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: Array(this.maxDataPoints).fill(''),
+        labels: new Array(this.maxDataPoints).fill(''),
         datasets: [
           {
             label: 'Humedad (%)',
@@ -225,10 +225,12 @@ export class MonsteraComponent implements OnInit, OnDestroy, AfterViewInit {
     const { fecha, tipo_cuidado, detalles } = this.nuevoCuidado;
 
     // normaliza fecha a YYYY-MM-DD
-    const fechaISO =
-      fecha && /^\d{4}-\d{2}-\d{2}$/.test(fecha)
-        ? fecha
-        : (fecha ? new Date(fecha).toISOString().slice(0, 10) : '');
+    let fechaISO = '';
+      if (fecha && /^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+        fechaISO = fecha;
+      } else if (fecha) {
+        fechaISO = new Date(fecha).toISOString().slice(0, 10);
+      }
 
     const tipoTrim = (tipo_cuidado || '').trim();
 

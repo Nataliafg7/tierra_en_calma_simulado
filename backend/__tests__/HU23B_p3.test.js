@@ -1,29 +1,43 @@
-// backend/__tests__/HU23B_p3.test.js
 const request = require("supertest");
 
-function loadApp() {
-  try { return require("../server"); } catch (e1) {}
-  try { return require("../app"); } catch (e2) {}
-  throw new Error("No se pudo cargar el app. Exporta el Express app en server.js o app.js (module.exports = app).");
-}
+jest.mock("../cuidadosService", () => ({
+  crearCuidado: jest.fn()
+}));
 
-describe("HU23 – Backend – Escenario 3 (P3) – Error interno durante el registro", () => {
-  test("P3 – Debe responder 500 cuando la BD/servicio falla", async () => {
-    const app = loadApp();
+const cuidadosService = require("../cuidadosService");
+const app = require("../server");
 
-    const detalleLargo = "X".repeat(5000); // fuerza posible ORA-12899 u otro error real
+describe("HU23 – Backend – Escenario P3 – Error interno durante el registro", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
+  test("Escenario P3 – Debe responder 500 cuando el servicio de cuidados falla", async () => {
+    // Arrange
     const payload = {
       id_planta_usuario: 1,
       fecha: "2026-03-04",
       tipo: "riego",
-      detalle: detalleLargo
+      detalles: "Detalle de prueba"
     };
 
+    cuidadosService.crearCuidado.mockRejectedValue(
+      new Error("Fallo simulado en crearCuidado")
+    );
+
+    // Act
     const res = await request(app)
-      .post("/api/cuidados") // ajusta si tu ruta real es otra
+      .post("/api/cuidados")
       .send(payload);
 
+    // Assert
+    expect(cuidadosService.crearCuidado).toHaveBeenCalledTimes(1);
+    expect(cuidadosService.crearCuidado).toHaveBeenCalledWith({
+      id_planta_usuario: 1,
+      fecha: "2026-03-04",
+      tipo_cuidado: "riego",
+      detalle: "Detalle de prueba"
+    });
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ error: "No se pudo registrar el cuidado" });
   });
