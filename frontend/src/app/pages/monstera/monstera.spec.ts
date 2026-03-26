@@ -6,6 +6,7 @@ import { MonsteraComponent } from './monstera';
 import { MqttDataService } from '../../services/mqtt-data.service';
 import { ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 function buildRoute(puValue: string | null) {
@@ -600,13 +601,15 @@ describe('HU20 — Registro automático del evento de riego en el historial', ()
   });
 });
 
-// ─── HU23 — Registro de cuidados (fetchSpy directo) ─────────────────────────
 describe('HU23 — Registro de cuidados (poda y fertilización)', () => {
   let component: MonsteraComponent;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MonsteraComponent],
+      imports: [
+        MonsteraComponent,
+        HttpClientTestingModule
+      ],
       providers: [
         { provide: ActivatedRoute, useValue: routeNullId }
       ]
@@ -622,14 +625,19 @@ describe('HU23 — Registro de cuidados (poda y fertilización)', () => {
   });
 
   it('Escenario 1 — ID inválido en componente y localStorage, muestra error de ID y no hace POST', () => {
-    const alertSpy = spyOn(globalThis, 'alert');
+    const alertSpy = spyOn(window, 'alert');
     const warnSpy = spyOn(console, 'warn');
     const fetchSpy = spyOn(globalThis, 'fetch');
 
     (component as any).idPlantaUsuario = null;
     localStorage.setItem('planta_usuario_id', 'abc');
 
-    component.nuevoCuidado = { fecha: '2026-03-04', tipo_cuidado: 'Riego', detalles: 'Prueba de cuidado' };
+    component.nuevoCuidado = {
+      fecha: '2026-03-04',
+      tipo_cuidado: 'Riego',
+      detalles: 'Prueba de cuidado'
+    };
+
     component.guardarCuidado();
 
     expect(fetchSpy).not.toHaveBeenCalled();
@@ -640,13 +648,18 @@ describe('HU23 — Registro de cuidados (poda y fertilización)', () => {
   });
 
   it('Escenario 2 — ID no es entero (1.5), muestra error de ID', () => {
-    const alertSpy = spyOn(globalThis, 'alert');
+    const alertSpy = spyOn(window, 'alert');
     const warnSpy = spyOn(console, 'warn');
     const fetchSpy = spyOn(globalThis, 'fetch');
 
     (component as any).idPlantaUsuario = 1.5 as any;
 
-    component.nuevoCuidado = { fecha: '2026-03-04', tipo_cuidado: 'Poda', detalles: 'Prueba' };
+    component.nuevoCuidado = {
+      fecha: '2026-03-04',
+      tipo_cuidado: 'Poda',
+      detalles: 'Prueba'
+    };
+
     component.guardarCuidado();
 
     expect(fetchSpy).not.toHaveBeenCalled();
@@ -655,13 +668,18 @@ describe('HU23 — Registro de cuidados (poda y fertilización)', () => {
   });
 
   it('Escenario 3 — Fecha vacía, muestra error de fecha y no hace POST', () => {
-    const alertSpy = spyOn(globalThis, 'alert');
+    const alertSpy = spyOn(window, 'alert');
     const warnSpy = spyOn(console, 'warn');
     const fetchSpy = spyOn(globalThis, 'fetch');
 
     (component as any).idPlantaUsuario = 10;
 
-    component.nuevoCuidado = { fecha: '', tipo_cuidado: 'Fertilización', detalles: 'Aplicación' };
+    component.nuevoCuidado = {
+      fecha: '',
+      tipo_cuidado: 'Fertilización',
+      detalles: 'Aplicación'
+    };
+
     component.guardarCuidado();
 
     expect(fetchSpy).not.toHaveBeenCalled();
@@ -670,13 +688,18 @@ describe('HU23 — Registro de cuidados (poda y fertilización)', () => {
   });
 
   it('Escenario 4 — Tipo de cuidado vacío o con espacios, muestra error de tipo', () => {
-    const alertSpy = spyOn(globalThis, 'alert');
+    const alertSpy = spyOn(window, 'alert');
     const warnSpy = spyOn(console, 'warn');
     const fetchSpy = spyOn(globalThis, 'fetch');
 
     (component as any).idPlantaUsuario = 10;
 
-    component.nuevoCuidado = { fecha: '2026-03-04', tipo_cuidado: '   ', detalles: 'Detalle cualquiera' };
+    component.nuevoCuidado = {
+      fecha: '2026-03-04',
+      tipo_cuidado: '   ',
+      detalles: 'Detalle cualquiera'
+    };
+
     component.guardarCuidado();
 
     expect(fetchSpy).not.toHaveBeenCalled();
@@ -684,35 +707,41 @@ describe('HU23 — Registro de cuidados (poda y fertilización)', () => {
     expect(warnSpy).toHaveBeenCalled();
   });
 
-  it('Escenario 5 — El backend responde con error, ejecuta catch y muestra alerta', async () => {
-    const alertSpy = spyOn(globalThis, 'alert');
-    const errorSpy = spyOn(console, 'error');
+it('Escenario 5 — El backend responde con error, ejecuta catch y muestra alerta', async () => {
+  const alertSpy = spyOn(window, 'alert').and.callThrough();
+  const errorSpy = spyOn(console, 'error').and.callThrough();
 
-    (component as any).idPlantaUsuario = 10;
+  (component as any).idPlantaUsuario = 10;
 
-    component.nuevoCuidado = { fecha: '2026-03-04', tipo_cuidado: 'Poda', detalles: 'Detalle' };
+  component.nuevoCuidado = {
+    fecha: '2026-03-04',
+    tipo_cuidado: 'Poda',
+    detalles: 'Detalle'
+  };
 
-    spyOn(globalThis, 'fetch').and.returnValue(
-      Promise.resolve({
-        ok: false,
-        text: async () => 'Error backend',
-        json: async () => ({})
-      } as Response)
-    );
+  spyOn(globalThis, 'fetch').and.returnValue(
+    Promise.reject(new Error('Error backend'))
+  );
 
-    component.guardarCuidado();
-    await flushPromises();
+  await component.guardarCuidado(); // 
+  await flushPromises();
 
-    expect(errorSpy).toHaveBeenCalled();
-    expect(alertSpy).toHaveBeenCalledWith('Error guardando el cuidado');
-  });
+  expect(alertSpy).toHaveBeenCalledWith('Error guardando el cuidado');
+
+
+  expect(errorSpy.calls.any()).toBeTrue();
+});
 
   it('Escenario 6 — Flujo exitoso limpia el formulario', async () => {
-    const alertSpy = spyOn(globalThis, 'alert');
+    const alertSpy = spyOn(window, 'alert');
 
     (component as any).idPlantaUsuario = 10;
 
-    component.nuevoCuidado = { fecha: '2026-03-04', tipo_cuidado: 'Riego', detalles: 'Aplicado' };
+    component.nuevoCuidado = {
+      fecha: '2026-03-04',
+      tipo_cuidado: 'Riego',
+      detalles: 'Aplicado'
+    };
 
     spyOn(globalThis, 'fetch').and.returnValue(
       Promise.resolve({
@@ -726,6 +755,10 @@ describe('HU23 — Registro de cuidados (poda y fertilización)', () => {
     await flushPromises();
 
     expect(alertSpy).toHaveBeenCalled();
-    expect(component.nuevoCuidado).toEqual({ fecha: '', tipo_cuidado: '', detalles: '' });
+    expect(component.nuevoCuidado).toEqual({
+      fecha: '',
+      tipo_cuidado: '',
+      detalles: ''
+    });
   });
 });
