@@ -2,6 +2,7 @@
 // HU25 - Escenario P2: consulta exitosa del historial
 
 const request = require("supertest");
+const { expect: expectFluent } = require("chai");
 
 jest.mock("../mqttService", () => ({
   getHistorial: jest.fn()
@@ -27,11 +28,17 @@ describe("HU25 – Backend – Escenario P2 – Consulta exitosa del historial",
     // Act
     const res = await request(app).get("/api/historial");
 
-    // Assert
+    // Assert (mock)
     expect(mqttService.getHistorial).toHaveBeenCalledTimes(1);
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("historial");
-    expect(Array.isArray(res.body.historial)).toBe(true);
-    expect(res.body.historial).toEqual(historialEsperado);
+
+    // Assert (fluent)
+    expectFluent(res.status).to.equal(200);
+
+    expectFluent(res.body)
+      .to.be.an("object")
+      .and.to.have.property("historial")
+      .that.is.an("array");
+
+    expectFluent(res.body.historial).to.deep.equal(historialEsperado);
   });
 });

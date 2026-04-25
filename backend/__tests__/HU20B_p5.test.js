@@ -3,12 +3,12 @@
 
 process.env.NODE_ENV = "test";
 
+const { expect: expectFluent } = require("chai");
 const mqttService = require("../mqttService");
 
 describe("HU20 Backend – Escenario P5 – Flujo exitoso no alcanzable sin MQTT", () => {
 
   afterAll(() => {
-    // Detener simulador para evitar timers activos
     mqttService.stopSimulator();
   });
 
@@ -20,11 +20,8 @@ describe("HU20 Backend – Escenario P5 – Flujo exitoso no alcanzable sin MQTT
     const r = await mqttService.enviarComandoRiego("plantas/regar");
 
     // Assert
-    expect(r).toBeDefined();
-    expect(r).toHaveProperty("ok", false);
-
-    // El flujo NO debe llegar a BD, por eso no hay 'error'
-    expect(r).not.toHaveProperty("error");
+    expectFluent(r).to.deep.include({ ok: false });
+    expectFluent(r).to.not.have.property("error");
   });
 
 });

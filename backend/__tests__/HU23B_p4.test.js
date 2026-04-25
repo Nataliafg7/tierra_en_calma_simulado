@@ -1,6 +1,7 @@
 // Nueva
 
 const request = require("supertest");
+const { expect: expectFluent } = require("chai");
 const app = require("../server");
 
 describe("HU23 – Backend – Escenario adicional – Todos los campos obligatorios faltan", () => {
@@ -14,8 +15,9 @@ describe("HU23 – Backend – Escenario adicional – Todos los campos obligato
       .send(payload);
 
     // Assert
-    expect(res.status).toBe(400);
-    expect(res.body).toEqual({
+    expectFluent(res.status).to.equal(400);
+
+    expectFluent(res.body).to.deep.equal({
       error: "id_planta_usuario, fecha y tipo son obligatorios"
     });
   });

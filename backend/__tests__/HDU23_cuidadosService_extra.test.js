@@ -1,5 +1,7 @@
 // Nueva
 
+const { expect: expectFluent } = require("chai");
+
 jest.mock("oracledb", () => ({
   getConnection: jest.fn(),
   OUT_FORMAT_OBJECT: "OUT_FORMAT_OBJECT",
@@ -16,7 +18,6 @@ describe("HDU23 - cuidadosService.crearCuidado", () => {
   });
 
   test("P1 - Debe registrar el cuidado con id_riego null cuando no existe sensor", async () => {
-    // Arrange
     const fakeConnection = {
       execute: jest.fn(),
       close: jest.fn().mockResolvedValue(),
@@ -38,19 +39,17 @@ describe("HDU23 - cuidadosService.crearCuidado", () => {
       detalle: "Aplicación de fertilizante",
     };
 
-    // Act
     const resultado = await crearCuidado(datos);
 
-    // Assert
-    expect(resultado).toEqual({
+    expectFluent(resultado).to.deep.equal({
       id_cuidado: 900,
       id_riego: null,
     });
+
     expect(fakeConnection.close).toHaveBeenCalledTimes(1);
   });
 
   test("P2 - Debe registrar el cuidado con id_riego null cuando existe sensor pero no lectura", async () => {
-    // Arrange
     const fakeConnection = {
       execute: jest.fn(),
       close: jest.fn().mockResolvedValue(),
@@ -73,19 +72,17 @@ describe("HDU23 - cuidadosService.crearCuidado", () => {
       detalle: "Poda ligera",
     };
 
-    // Act
     const resultado = await crearCuidado(datos);
 
-    // Assert
-    expect(resultado).toEqual({
+    expectFluent(resultado).to.deep.equal({
       id_cuidado: 901,
       id_riego: null,
     });
+
     expect(fakeConnection.close).toHaveBeenCalledTimes(1);
   });
 
   test("P3 - Debe registrar el cuidado con id_riego null cuando existe lectura pero no riego", async () => {
-    // Arrange
     const fakeConnection = {
       execute: jest.fn(),
       close: jest.fn().mockResolvedValue(),
@@ -109,19 +106,17 @@ describe("HDU23 - cuidadosService.crearCuidado", () => {
       detalle: "Preventiva",
     };
 
-    // Act
     const resultado = await crearCuidado(datos);
 
-    // Assert
-    expect(resultado).toEqual({
+    expectFluent(resultado).to.deep.equal({
       id_cuidado: 902,
       id_riego: null,
     });
+
     expect(fakeConnection.close).toHaveBeenCalledTimes(1);
   });
 
   test("P4 - Debe registrar el cuidado con el id_riego encontrado", async () => {
-    // Arrange
     const fakeConnection = {
       execute: jest.fn(),
       close: jest.fn().mockResolvedValue(),
@@ -145,19 +140,17 @@ describe("HDU23 - cuidadosService.crearCuidado", () => {
       detalle: "Después del monitoreo",
     };
 
-    // Act
     const resultado = await crearCuidado(datos);
 
-    // Assert
-    expect(resultado).toEqual({
+    expectFluent(resultado).to.deep.equal({
       id_cuidado: 903,
       id_riego: 44,
     });
+
     expect(fakeConnection.close).toHaveBeenCalledTimes(1);
   });
 
   test("P5 - Debe convertir detalle vacío en null", async () => {
-    // Arrange
     const fakeConnection = {
       execute: jest.fn(),
       close: jest.fn().mockResolvedValue(),
@@ -179,17 +172,15 @@ describe("HDU23 - cuidadosService.crearCuidado", () => {
       detalle: "",
     };
 
-    // Act
     await crearCuidado(datos);
 
-    // Assert
     const parametrosDelInsert = fakeConnection.execute.mock.calls[1][1];
-    expect(parametrosDelInsert.detalle).toBeNull();
+
+    expectFluent(parametrosDelInsert.detalle).to.equal(null);
     expect(fakeConnection.close).toHaveBeenCalledTimes(1);
   });
 
   test("P6 - Debe cerrar conexión aunque ocurra un error", async () => {
-    // Arrange
     const fakeConnection = {
       execute: jest.fn().mockRejectedValue(new Error("Fallo de Oracle")),
       close: jest.fn().mockResolvedValue(),
@@ -204,7 +195,6 @@ describe("HDU23 - cuidadosService.crearCuidado", () => {
       detalle: "Observación general",
     };
 
-    // Act + Assert
     await expect(crearCuidado(datos)).rejects.toThrow("Fallo de Oracle");
     expect(fakeConnection.close).toHaveBeenCalledTimes(1);
   });

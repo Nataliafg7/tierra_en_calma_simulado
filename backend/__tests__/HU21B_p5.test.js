@@ -1,5 +1,7 @@
 // Nueva
 
+const { expect: expectFluent } = require("chai");
+
 describe("HU21  Backend  Escenario adicional  Callback síncrono ejecutado múltiples veces", () => {
   test("Debe ejecutar el callback varias veces mientras el simulador está activo", () => {
     // Arrange
@@ -20,6 +22,6 @@ describe("HU21  Backend  Escenario adicional  Callback síncrono ejecutado múlt
     jest.useRealTimers();
 
     // Assert
-    expect(llamadas).toBeGreaterThanOrEqual(4);
+    expectFluent(llamadas).to.be.at.least(4);
   });
 });

@@ -1,4 +1,5 @@
 const request = require("supertest");
+const { expect: expectFluent } = require("chai");
 
 jest.mock("../cuidadosService", () => ({
   crearCuidado: jest.fn()
@@ -31,7 +32,7 @@ describe("HU23 – Backend – Escenario P2 – Registro exitoso del cuidado", (
       .post("/api/cuidados")
       .send(payload);
 
-    // Assert
+    // Assert (Jest para mocks)
     expect(cuidadosService.crearCuidado).toHaveBeenCalledTimes(1);
     expect(cuidadosService.crearCuidado).toHaveBeenCalledWith({
       id_planta_usuario: 1,
@@ -39,8 +40,13 @@ describe("HU23 – Backend – Escenario P2 – Registro exitoso del cuidado", (
       tipo_cuidado: "fertilizacion",
       detalle: "Aplicación de abono"
     });
-    expect(res.status).toBe(201);
-    expect(res.body).toHaveProperty("id_cuidado", 101);
-    expect(res.body).toHaveProperty("id_riego", 202);
+
+    // Assert (Fluent)
+    expectFluent(res.status).to.equal(201);
+
+    expectFluent(res.body).to.deep.include({
+      id_cuidado: 101,
+      id_riego: 202
+    });
   });
 });

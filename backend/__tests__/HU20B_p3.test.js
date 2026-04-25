@@ -3,11 +3,11 @@
 
 process.env.NODE_ENV = "test";
 
+const { expect: expectFluent } = require("chai");
 const mqttService = require("../mqttService");
 
 describe("HU20 Backend – Escenario P3 – Modo simulador", () => {
   afterAll(() => {
-    // Detener el simulador para evitar intervalos activos en Jest
     mqttService.stopSimulator();
   });
 
@@ -19,7 +19,10 @@ describe("HU20 Backend – Escenario P3 – Modo simulador", () => {
     const r = await mqttService.enviarComandoRiego("plantas/regar");
 
     // Assert
-    expect(r).toBeDefined();
-    expect(r).toHaveProperty("ok", false);
+    expectFluent(r)
+      .to.exist
+      .and.to.be.an("object")
+      .and.to.have.property("ok")
+      .that.equals(false);
   });
 });

@@ -1,6 +1,8 @@
 // __tests__/HU21B_p2.test.js
 // HU21 - Escenario P2: existe callback y sí actualiza memoria
 
+const { expect: expectFluent } = require("chai");
+
 describe("HU21 Backend Escenario P2 Existe callback y actualiza memoria", () => {
   test("Escenario P2 En modo simulador, actualiza ultimoDato e incrementa historial", () => {
     // Arrange
@@ -22,8 +24,10 @@ describe("HU21 Backend Escenario P2 Existe callback y actualiza memoria", () => 
     const historialDespues = mqttService.getHistorial();
 
     // Assert
-    expect(historialDespues.length).toBeGreaterThan(longitudAntes);
-    expect(ultimoDespues).not.toBe(ultimoAntes);
-    expect(ultimoDespues).toBe(historialDespues.at(-1));
+    expectFluent(historialDespues.length).to.be.greaterThan(longitudAntes);
+
+    expectFluent(ultimoDespues).to.not.equal(ultimoAntes);
+
+    expectFluent(ultimoDespues).to.equal(historialDespues.at(-1));
   });
 });

@@ -4,6 +4,9 @@
 
 process.env.NODE_ENV = "test";
 
+const request = require("supertest");
+const { expect: expectFluent } = require("chai");
+
 jest.mock("../mqttService", () => ({
   initMQTTBroker: jest.fn(),
   initMQTTSimulator: jest.fn(),
@@ -17,13 +20,14 @@ jest.mock("../mqttService", () => ({
 }));
 
 const mqttService = require("../mqttService");
-const request = require("supertest");
-const app = require("../server");
+const { createApp } = require("../app");
 
 describe("HU20 Backend – POST /api/regar", () => {
+  let app;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    app = createApp();
   });
 
   test("Escenario P1 – Retorna 500 cuando enviarComandoRiego falla", async () => {
@@ -31,12 +35,18 @@ describe("HU20 Backend – POST /api/regar", () => {
     mqttService.enviarComandoRiego.mockResolvedValue({ ok: false });
 
     // Act
-    const res = await request(app).post("/api/regar").send({});
+    const res = await request(app)
+      .post("/api/regar")
+      .send({});
 
     // Assert
     expect(mqttService.enviarComandoRiego).toHaveBeenCalledTimes(1);
-    expect(res.status).toBe(500);
-    expect(res.body).toHaveProperty("error");
-    expect(res.body.error).toBe("No se pudo enviar el comando");
+
+    expectFluent(res.status).to.equal(500);
+
+    expectFluent(res.body)
+      .to.be.an("object")
+      .and.to.have.property("error")
+      .that.equals("No se pudo enviar el comando");
   });
 });

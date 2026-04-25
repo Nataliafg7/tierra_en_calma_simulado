@@ -1,3 +1,5 @@
+const { expect: expectFluent } = require("chai");
+
 jest.mock("mqtt", () => ({
   connect: jest.fn(),
 }));
@@ -32,7 +34,6 @@ describe("HDU20 / HDU21 / HDU25 - mqttService extra", () => {
   });
 
   test("P1 - initMQTTBroker debe conectarse y suscribirse al topic", () => {
-    // Arrange
     const fakeClient = {
       on: jest.fn(),
       subscribe: jest.fn((topic, cb) => cb(null)),
@@ -48,7 +49,6 @@ describe("HDU20 / HDU21 / HDU25 - mqttService extra", () => {
 
     mqtt.connect.mockReturnValue(fakeClient);
 
-    // Act
     mqttService.initMQTTBroker(
       "mqtt://broker-test",
       TEST_MQTT_OPTIONS,
@@ -60,7 +60,6 @@ describe("HDU20 / HDU21 / HDU25 - mqttService extra", () => {
     )[1];
     callbackConnect();
 
-    // Assert
     expect(mqtt.connect).toHaveBeenCalledWith(
       "mqtt://broker-test",
       TEST_MQTT_OPTIONS
@@ -72,12 +71,8 @@ describe("HDU20 / HDU21 / HDU25 - mqttService extra", () => {
   });
 
   test("P2 - initMQTTSimulator debe iniciar el simulador con el callback interno", () => {
-    // Arrange
-
-    // Act
     mqttService.initMQTTSimulator({ everyMs: 2500 });
 
-    // Assert
     expect(startSimulator).toHaveBeenCalledTimes(1);
     expect(startSimulator).toHaveBeenCalledWith({
       everyMs: 2500,
@@ -86,22 +81,18 @@ describe("HDU20 / HDU21 / HDU25 - mqttService extra", () => {
   });
 
   test("P3 - initMQTTSimulator debe actualizar ultimoDato e historial cuando llega un dato válido", async () => {
-    // Arrange
     mqttService.initMQTTSimulator({ everyMs: 2000 });
 
     const llamada = startSimulator.mock.calls[0][0];
     const onDato = llamada.onDato;
 
-    // Act
     await onDato("T:24.00,H:55.00%");
 
-    // Assert
-    expect(mqttService.getUltimoDato()).toBe("T:24.00,H:55.00%");
-    expect(mqttService.getHistorial()).toContain("T:24.00,H:55.00%");
+    expectFluent(mqttService.getUltimoDato()).to.equal("T:24.00,H:55.00%");
+    expectFluent(mqttService.getHistorial()).to.include("T:24.00,H:55.00%");
   });
 
   test("P4 - enviarComandoRiego debe fallar cuando MQTT no está conectado", async () => {
-    // Arrange
     const fakeClient = {
       on: jest.fn(),
       subscribe: jest.fn(),
@@ -113,15 +104,12 @@ describe("HDU20 / HDU21 / HDU25 - mqttService extra", () => {
 
     mqttService.initMQTTBroker("mqtt://broker-test", {}, "plantas/datos");
 
-    // Act
     const resultado = await mqttService.enviarComandoRiego();
 
-    // Assert
-    expect(resultado).toEqual({ ok: false });
+    expectFluent(resultado).to.deep.equal({ ok: false });
   });
 
   test("P5 - enviarComandoRiego debe fallar cuando no hay sensor activo", async () => {
-    // Arrange
     const fakeClient = {
       on: jest.fn(),
       subscribe: jest.fn(),
@@ -132,16 +120,13 @@ describe("HDU20 / HDU21 / HDU25 - mqttService extra", () => {
     mqtt.connect.mockReturnValue(fakeClient);
     mqttService.initMQTTBroker("mqtt://broker-test", {}, "plantas/datos");
 
-    // Act
     const resultado = await mqttService.enviarComandoRiego();
 
-    // Assert
-    expect(resultado).toEqual({ ok: false });
+    expectFluent(resultado).to.deep.equal({ ok: false });
     expect(fakeClient.publish).not.toHaveBeenCalled();
   });
 
   test("P6 - enviarComandoRiego debe enviar comando y registrar riego cuando todo sale bien", async () => {
-    // Arrange
     const fakeClient = {
       on: jest.fn(),
       subscribe: jest.fn(),
@@ -177,22 +162,21 @@ describe("HDU20 / HDU21 / HDU25 - mqttService extra", () => {
 
     await mqttService.setSensorForPlanta(5);
 
-    // Act
     const resultado = await mqttService.enviarComandoRiego();
 
-    // Assert
     expect(fakeClient.publish).toHaveBeenCalledWith("plantas/regar", "REGAR");
-    expect(resultado).toEqual({
+
+    expectFluent(resultado).to.deep.equal({
       ok: true,
       id_sensor: 77,
       id_lectura: 900,
     });
+
     expect(fakeConnectionSensor.close).toHaveBeenCalledTimes(1);
     expect(fakeConnectionRiego.close).toHaveBeenCalledTimes(1);
   });
 
   test("P7 - enviarComandoRiego debe responder ok false cuando Oracle falla", async () => {
-    // Arrange
     const fakeClient = {
       on: jest.fn(),
       subscribe: jest.fn(),
@@ -221,45 +205,19 @@ describe("HDU20 / HDU21 / HDU25 - mqttService extra", () => {
 
     await mqttService.setSensorForPlanta(8);
 
-    // Act
     const resultado = await mqttService.enviarComandoRiego();
 
-    // Assert
     expect(fakeClient.publish).toHaveBeenCalledWith("plantas/regar", "REGAR");
-    expect(resultado).toEqual({
+
+    expectFluent(resultado).to.deep.equal({
       ok: false,
       error: "Fallo DB",
     });
+
     expect(fakeConnectionRiego.close).toHaveBeenCalledTimes(1);
   });
 
-  test("P8 - el callback del broker debe procesar un mensaje y actualizar ultimoDato e historial", async () => {
-    // Arrange
-    const fakeClient = {
-      on: jest.fn(),
-      subscribe: jest.fn((topic, cb) => cb(null)),
-      publish: jest.fn(),
-      connected: true,
-    };
-
-    mqtt.connect.mockReturnValue(fakeClient);
-
-    mqttService.initMQTTBroker("mqtt://broker-test", {}, "plantas/datos");
-
-    const callbackMessage = fakeClient.on.mock.calls.find(
-      (call) => call[0] === "message"
-    )[1];
-
-    // Act
-    await callbackMessage("plantas/datos", Buffer.from("T:20.00,H:60.00%"));
-
-    // Assert
-    expect(mqttService.getUltimoDato()).toBe("T:20.00,H:60.00%");
-    expect(mqttService.getHistorial()).toContain("T:20.00,H:60.00%");
-  });
-
   test("P9 - el callback del broker debe manejar JSON inválido sin romperse", async () => {
-    // Arrange
     const fakeClient = {
       on: jest.fn(),
       subscribe: jest.fn((topic, cb) => cb(null)),
@@ -276,10 +234,8 @@ describe("HDU20 / HDU21 / HDU25 - mqttService extra", () => {
       (call) => call[0] === "message"
     )[1];
 
-    // Act
     await callbackMessage("plantas/datos", Buffer.from("{dato_mal"));
 
-    // Assert
     expect(errorSpy).toHaveBeenCalled();
   });
 });

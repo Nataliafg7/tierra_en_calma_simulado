@@ -1,6 +1,8 @@
 // __tests__/HU21B_p1.test.js
 // HU21 - Escenario P1: no existe callback, por lo tanto no se actualiza mqttService
 
+const { expect: expectFluent } = require("chai");
+
 describe("HU21 – Backend – Escenario P1 – No existe callback", () => {
   test("Escenario P1 – Genera datos, pero no actualiza ultimoDato ni historial de mqttService", () => {
     // Arrange
@@ -21,7 +23,7 @@ describe("HU21 – Backend – Escenario P1 – No existe callback", () => {
     jest.useRealTimers();
 
     // Assert
-    expect(mqttService.getUltimoDato()).toBe(ultimoAntes);
-    expect(mqttService.getHistorial().length).toBe(longitudAntes);
+    expectFluent(mqttService.getUltimoDato()).to.equal(ultimoAntes);
+    expectFluent(mqttService.getHistorial().length).to.equal(longitudAntes);
   });
 });

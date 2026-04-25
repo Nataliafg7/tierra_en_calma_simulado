@@ -1,4 +1,5 @@
 const request = require("supertest");
+const { expect: expectFluent } = require("chai");
 
 jest.mock("../mqttService", () => ({
   getUltimoDato: jest.fn()
@@ -14,13 +15,17 @@ describe("HU25 – Backend – Escenario adicional – Último dato actualizado"
 
   test("GET /api/datos debe responder con un dato actualizado", async () => {
     // Arrange
-    mqttService.getUltimoDato.mockReturnValue("T:24.50,H:61.20%");
+    const dato = "T:24.50,H:61.20%";
+    mqttService.getUltimoDato.mockReturnValue(dato);
 
     // Act
     const res = await request(app).get("/api/datos");
 
     // Assert
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual({ dato: "T:24.50,H:61.20%" });
+    expectFluent(res.status).to.equal(200);
+
+    expectFluent(res.body).to.deep.equal({
+      dato: dato
+    });
   });
 });
