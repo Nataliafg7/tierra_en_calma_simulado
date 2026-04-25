@@ -9,26 +9,31 @@ describe('Servicio SimuladorSensor', () => {
     jest.useRealTimers();
   });
 
+  // ─── Generación periódica de datos (Funcionalidad crítica) ────────────────────
   test('startSimulator y stopSimulator: Debería generar periódicamente datos en formato correcto (T:valor,H:valor%)', () => {
     // Arrange
     const callbackMock = jest.fn();
 
     // Act
     SimuladorSensor.startSimulator({ everyMs: 1000, onDato: callbackMock });
-    jest.advanceTimersByTime(1100); 
+    jest.advanceTimersByTime(1100);
 
-    // Assert
+    // Assert (Fluent)
+    // El callback debe haberse llamado exactamente una vez en el intervalo
     expect(callbackMock).toHaveBeenCalledTimes(1);
-    const datoGenerado = callbackMock.mock.calls[0][0]; 
 
-    expect(typeof datoGenerado).toBe('string');
-    expect(datoGenerado).toMatch(/^T:\d+\.?\d*,H:\d+\.?\d*%$/); 
+    const datoGenerado = callbackMock.mock.calls[0][0];
+
+    // El dato generado debe ser un string con el formato T:valor,H:valor%
+    expect(datoGenerado)
+      .toBeString()
+      .toMatch(/^T:\d+\.?\d*,H:\d+\.?\d*%$/);
 
     // Cleanup
     SimuladorSensor.stopSimulator();
   });
 
-  // Simulamos un callback que rompa para que cubra la línea 24-26 "Error procesando dato:"
+  // ─── Registro periódico de lecturas: manejo de errores en el callback ─────────
   test('startSimulator: Debería atrapar errores si onDato lanza una excepción', async () => {
     // Arrange
     const errorSut = new Error("SUT Error");
@@ -38,13 +43,18 @@ describe('Servicio SimuladorSensor', () => {
     // Act
     SimuladorSensor.startSimulator({ everyMs: 100, onDato: callbackMock });
     jest.advanceTimersByTime(110);
-    
-    // Necesitamos que se resuelva la microtarea del Promise.resolve(procesarDatoCallback(dato)).catch()
-    await Promise.resolve(); 
 
-    // Assert
+    // Necesitamos que se resuelva la microtarea del Promise.resolve(procesarDatoCallback(dato)).catch()
+    await Promise.resolve();
+
+    // Assert (Fluent)
+    // El callback debe haberse ejecutado exactamente una vez a pesar del error
     expect(callbackMock).toHaveBeenCalledTimes(1);
-    expect(logSpy).toHaveBeenCalledWith("[SIM] Error procesando dato:", errorSut.message);
+
+    // El error debe haberse registrado con el mensaje correcto
+    expect(logSpy)
+      .toHaveBeenCalled()
+      .toHaveBeenCalledWith("[SIM] Error procesando dato:", errorSut.message);
 
     // Cleanup
     logSpy.mockRestore();
