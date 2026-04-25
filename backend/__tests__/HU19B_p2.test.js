@@ -1,5 +1,7 @@
-// Pruebas Unitarias Backend – HU19 Simulación de riego manual
+// Pruebas Unitarias Backend – HU19 Simulación de riego manual 
 // Escenario P2: Fallo en el envío del comando (HTTP 500)
+
+const { expect: expectFluent } = require("chai");
 
 jest.mock("../mqttService", () => ({
   initMQTTBroker: jest.fn(),
@@ -48,8 +50,12 @@ describe("Pruebas Unitarias Backend – HU19 (POST /api/regar)", () => {
 
     // Assert
     expect(mqttService.enviarComandoRiego).toHaveBeenCalledTimes(1);
-    expect(resp.status).toBe(500);
-    expect(body).toHaveProperty("error");
-    expect(body.error).toBe("No se pudo enviar el comando");
+
+    expectFluent(resp.status).to.equal(500);
+
+    expectFluent(body)
+      .to.be.an("object")
+      .and.to.have.property("error")
+      .that.equals("No se pudo enviar el comando");
   });
 });

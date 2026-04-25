@@ -3,6 +3,7 @@
 
 process.env.NODE_ENV = "test";
 
+const { expect: expectFluent } = require("chai");
 const mqttService = require("../mqttService");
 
 describe("HU20 Backend – Escenario P4 – Flujo detenido antes de Oracle", () => {
@@ -18,8 +19,12 @@ describe("HU20 Backend – Escenario P4 – Flujo detenido antes de Oracle", () 
     const r = await mqttService.enviarComandoRiego("plantas/regar");
 
     // Assert
-    expect(r).toBeDefined();
-    expect(r).toHaveProperty("ok", false);
-    expect(r).not.toHaveProperty("error");
+    expectFluent(r)
+      .to.exist
+      .and.to.be.an("object")
+      .and.to.have.property("ok")
+      .that.equals(false);
+
+    expectFluent(r).to.not.have.property("error");
   });
 });

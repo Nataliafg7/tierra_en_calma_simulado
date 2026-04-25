@@ -2,6 +2,7 @@
 
 process.env.NODE_ENV = "test";
 
+const { expect: expectFluent } = require("chai");
 const mqttService = require("../mqttService");
 
 describe("HU20 Backend Escenario adicional enviarComandoFisicoRiego sin conexión MQTT", () => {
@@ -13,7 +14,6 @@ describe("HU20 Backend Escenario adicional enviarComandoFisicoRiego sin conexió
     const r = await mqttService.enviarComandoFisicoRiego();
 
     // Assert
-    expect(r).toBeDefined();
-    expect(r).toHaveProperty("ok", false);
+    expectFluent(r).to.deep.include({ ok: false });
   });
 });

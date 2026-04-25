@@ -1,17 +1,14 @@
 const request = require("supertest");
+const { expect: expectFluent } = require("chai");
 
 function loadApp() {
   try {
     return require("../server");
-  } catch {
-    // continuar con el siguiente intento
-  }
+  } catch {}
 
   try {
     return require("../app");
-  } catch {
-    // continuar con el siguiente intento
-  }
+  } catch {}
 
   throw new Error(
     "No se pudo cargar el app. Exporta el Express app en server.js o app.js (module.exports = app)."
@@ -35,8 +32,9 @@ describe("HU23 – Backend – Escenario P1 – Campos obligatorios faltantes", 
       .send(payload);
 
     // Assert
-    expect(res.status).toBe(400);
-    expect(res.body).toEqual({
+    expectFluent(res.status).to.equal(400);
+
+    expectFluent(res.body).to.deep.equal({
       error: "id_planta_usuario, fecha y tipo son obligatorios"
     });
   });

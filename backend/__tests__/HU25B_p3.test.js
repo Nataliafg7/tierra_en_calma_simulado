@@ -1,6 +1,7 @@
 // Nueva
 
 const request = require("supertest");
+const { expect: expectFluent } = require("chai");
 
 jest.mock("../mqttService", () => ({
   getHistorial: jest.fn()
@@ -22,7 +23,10 @@ describe("HU25 – Backend – Escenario adicional – Historial vacío", () => 
     const res = await request(app).get("/api/historial");
 
     // Assert
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual({ historial: [] });
+    expectFluent(res.status).to.equal(200);
+
+    expectFluent(res.body).to.deep.equal({
+      historial: []
+    });
   });
 });

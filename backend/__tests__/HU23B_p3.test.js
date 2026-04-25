@@ -1,4 +1,5 @@
 const request = require("supertest");
+const { expect: expectFluent } = require("chai");
 
 jest.mock("../cuidadosService", () => ({
   crearCuidado: jest.fn()
@@ -38,7 +39,11 @@ describe("HU23 – Backend – Escenario P3 – Error interno durante el registr
       tipo_cuidado: "riego",
       detalle: "Detalle de prueba"
     });
-    expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "No se pudo registrar el cuidado" });
+
+    expectFluent(res.status).to.equal(500);
+
+    expectFluent(res.body).to.deep.equal({
+      error: "No se pudo registrar el cuidado"
+    });
   });
 });

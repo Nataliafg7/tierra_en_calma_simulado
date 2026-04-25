@@ -2,6 +2,7 @@
 // HU25 - Escenario P1: consulta exitosa del último dato
 
 const request = require("supertest");
+const { expect: expectFluent } = require("chai");
 
 jest.mock("../mqttService", () => ({
   getUltimoDato: jest.fn()
@@ -23,10 +24,15 @@ describe("HU25  Backend  Escenario P1  Consulta exitosa del último dato", () =>
     // Act
     const res = await request(app).get("/api/datos");
 
-    // Assert
+    // Assert (mock)
     expect(mqttService.getUltimoDato).toHaveBeenCalledTimes(1);
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("dato");
-    expect(res.body.dato).toBe(datoEsperado);
+
+    // Assert (fluent)
+    expectFluent(res.status).to.equal(200);
+
+    expectFluent(res.body)
+      .to.be.an("object")
+      .and.to.have.property("dato")
+      .that.equals(datoEsperado);
   });
 });

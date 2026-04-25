@@ -1,6 +1,7 @@
 // Nueva
 
 const request = require("supertest");
+const { expect: expectFluent } = require("chai");
 
 jest.mock("../mqttService", () => ({
   initMQTTBroker: jest.fn(),
@@ -20,61 +21,67 @@ jest.mock("../pkgCentralService", () => ({
 }));
 
 const mqttService = require("../mqttService");
-const app = require("../server");
+const { createApp } = require("../app");
 
 describe("HDU20 - Endpoint /api/monitorear", () => {
+  let app;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    app = createApp();
   });
 
   test("P1 - Debe responder 400 cuando id_planta_usuario es inválido", async () => {
-    // Arrange
     const payload = { id_planta_usuario: "abc" };
 
-    // Act
-    const response = await request(app).post("/api/monitorear").send(payload);
+    const response = await request(app)
+      .post("/api/monitorear")
+      .send(payload);
 
-    // Assert
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({
+    expectFluent(response.status).to.equal(400);
+
+    expectFluent(response.body).to.deep.equal({
       ok: false,
       error: "id_planta_usuario inválido",
     });
+
     expect(mqttService.setSensorForPlanta).not.toHaveBeenCalled();
   });
 
   test("P2 - Debe responder 200 cuando el monitoreo se prepara correctamente", async () => {
-    // Arrange
     const payload = { id_planta_usuario: 17 };
     mqttService.setSensorForPlanta.mockResolvedValue(501);
 
-    // Act
-    const response = await request(app).post("/api/monitorear").send(payload);
+    const response = await request(app)
+      .post("/api/monitorear")
+      .send(payload);
 
-    // Assert
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual({
+    expectFluent(response.status).to.equal(200);
+
+    expectFluent(response.body).to.deep.equal({
       ok: true,
       id_sensor: 501,
     });
+
     expect(mqttService.setSensorForPlanta).toHaveBeenCalledTimes(1);
     expect(mqttService.setSensorForPlanta).toHaveBeenCalledWith(17);
   });
 
   test("P3 - Debe responder 500 cuando ocurre un error al preparar el monitoreo", async () => {
-    // Arrange
     const payload = { id_planta_usuario: 17 };
     mqttService.setSensorForPlanta.mockRejectedValue(new Error("Fallo interno"));
 
-    // Act
-    const response = await request(app).post("/api/monitorear").send(payload);
+    const response = await request(app)
+      .post("/api/monitorear")
+      .send(payload);
 
-    // Assert
-    expect(response.status).toBe(500);
-    expect(response.body).toEqual({
+    expectFluent(response.status).to.equal(500);
+
+    expectFluent(response.body).to.deep.equal({
       ok: false,
       error: "No se pudo preparar el monitoreo",
     });
+
     expect(mqttService.setSensorForPlanta).toHaveBeenCalledTimes(1);
     expect(mqttService.setSensorForPlanta).toHaveBeenCalledWith(17);
   });

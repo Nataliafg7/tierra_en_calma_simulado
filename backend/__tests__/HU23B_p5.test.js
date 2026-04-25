@@ -1,6 +1,7 @@
 // Nueva
 
 const request = require("supertest");
+const { expect: expectFluent } = require("chai");
 
 jest.mock("../cuidadosService", () => ({
   crearCuidado: jest.fn()
@@ -33,13 +34,15 @@ describe("HU23 – Backend – Escenario adicional – Conversión numérica de 
       .post("/api/cuidados")
       .send(payload);
 
-    // Assert
+    // Assert (mock)
     expect(cuidadosService.crearCuidado).toHaveBeenCalledWith({
       id_planta_usuario: 7,
       fecha: "2026-03-04",
       tipo_cuidado: "poda",
       detalle: "Recorte de hojas secas"
     });
-    expect(res.status).toBe(201);
+
+    // Assert (fluent)
+    expectFluent(res.status).to.equal(201);
   });
 });

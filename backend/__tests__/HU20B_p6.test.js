@@ -3,6 +3,8 @@
 
 process.env.NODE_ENV = "test";
 
+const { expect: expectFluent } = require("chai");
+
 describe("HU20 Backend – Escenario P6 – Camino estructural no alcanzable", () => {
   test("Escenario P6 – El camino 'ok:true y conexión inexistente en finally' no es alcanzable con la lógica actual", () => {
     // Arrange
@@ -12,6 +14,6 @@ describe("HU20 Backend – Escenario P6 – Camino estructural no alcanzable", (
     const resultado = caminoNoAlcanzable;
 
     // Assert
-    expect(resultado).toBe(true);
+    expectFluent(resultado).to.be.true;
   });
 });

@@ -1,6 +1,8 @@
 // __tests__/HU21B_p4.test.js
 // HU21 - Escenario P4: detener el simulador corta el ciclo
 
+const { expect: expectFluent } = require("chai");
+
 describe("HU21 Backend Escenario P4 Detener simulador corta el ciclo", () => {
   test("Escenario P4 – Después de stopSimulator(), no se ejecuta más el callback aunque pase el tiempo", () => {
     // Arrange
@@ -28,7 +30,7 @@ describe("HU21 Backend Escenario P4 Detener simulador corta el ciclo", () => {
     jest.useRealTimers();
 
     // Assert
-    expect(llamadasAntesDeDetener).toBeGreaterThan(0);
-    expect(llamadasDespues).toBe(llamadasAntesDeDetener);
+    expectFluent(llamadasAntesDeDetener).to.be.greaterThan(0);
+    expectFluent(llamadasDespues).to.equal(llamadasAntesDeDetener);
   });
 });
