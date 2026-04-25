@@ -36,9 +36,9 @@ describe("HU1 - Backend - P4: Registro exitoso", () => {
     });
   });
 
-  test("Debe registrar usuario correctamente", async () => {
-    // Arrange:
-    const body = {
+  test("Debe registrar un usuario correctamente cuando los datos son válidos", async () => {
+    // Arrange: Se prepara un usuario con todos los datos válidos para el registro
+    const usuarioValido = {
       id_usuario: 4,
       nombre: "Juliana",
       apellido: "Florez",
@@ -47,17 +47,21 @@ describe("HU1 - Backend - P4: Registro exitoso", () => {
       contrasena: "12345678"
     };
 
-    // Act:
-    const res = await request(app).post("/api/register").send(body);
+    // Act: Se envía la solicitud al endpoint de registro
+    const response = await request(app)
+      .post("/api/register")
+      .send(usuarioValido);
 
-    // Assert:
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual({
+    // Assert: Se valida que el sistema responda con éxito
+    expect(response.status).toBe(200);
+
+    expect(response.body).toEqual({
       message: "Usuario registrado con éxito"
     });
 
-    expect(oracledb.getConnection).toHaveBeenCalled();
-    expect(executeMock).toHaveBeenCalled();
-    expect(closeMock).toHaveBeenCalled();
+    // Assert: Se valida que el flujo de base de datos se haya ejecutado correctamente
+    expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
+    expect(executeMock).toHaveBeenCalledTimes(1);
+    expect(closeMock).toHaveBeenCalledTimes(1);
   });
 });

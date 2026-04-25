@@ -1,29 +1,6 @@
 /**
  * HU3F - Inicio de sesión (Frontend Angular)
  * Escenario P7: Error genérico sin mensaje del backend
- *
- * Objetivo de la prueba:
- * Verificar que onLoginSubmit() muestre el mensaje genérico
- * "Credenciales inválidas." cuando ocurre un error distinto de status 0
- * y el backend no envía err.error.message.
- *
- * Principios FIRST:
- * - Fast: no depende de backend real.
- * - Independent: no depende de otras pruebas.
- * - Repeatable: usa un error controlado.
- * - Self-validating: valida con expect().
- * - Timely: cubre la rama final del manejo de errores.
- *
- * Patrón AAA:
- * - Arrange: preparar credenciales, stub y spies.
- * - Act: ejecutar onLoginSubmit().
- * - Assert: validar mensaje genérico y ausencia de navegación/sesión.
- *
- * Tipo de double usado:
- * - Stub: AuthServiceP7Stub.
- * - Spy: sobre window.alert.
- * - Spy: sobre router.navigate.
- * - Dummy: DummyComponent.
  */
 
 import { Component } from '@angular/core';
@@ -95,13 +72,17 @@ describe('HU3 Frontend - LoginComponent - P7', () => {
 
   it('HU3F_P7 - Debe mostrar mensaje genérico cuando no existe err.error.message', () => {
     // ===================== ARRANGE =====================
+    // Se preparan credenciales válidas para forzar un error controlado del backend
+    // FIRST: el error es simulado con throwError, sin dependencia externa
     component.loginCorreo = 'usuario@correo.com';
     component.loginContrasena = '123456';
 
     const alertSpy = spyOn(window, 'alert');
     const navigateSpy = spyOn(router, 'navigate');
+    const setItemSpy = spyOn(localStorage, 'setItem').and.callThrough();
 
     let preventDefaultEjecutado = false;
+
     const event = {
       preventDefault: () => {
         preventDefaultEjecutado = true;
@@ -109,12 +90,26 @@ describe('HU3 Frontend - LoginComponent - P7', () => {
     } as unknown as Event;
 
     // ======================= ACT =======================
+    // Se ejecuta el flujo de inicio de sesión
     component.onLoginSubmit(event);
 
     // ===================== ASSERT ======================
+    // Se valida que el formulario detuvo su comportamiento por defecto
     expect(preventDefaultEjecutado).toBeTrue();
-    expect(alertSpy).toHaveBeenCalledWith('Credenciales inválidas.');
+    // Fluent assertion: expresa claramente que preventDefault fue ejecutado
+
+    expect(alertSpy).toHaveBeenCalledOnceWith('Credenciales inválidas.');
+    // Fluent assertion: valida el mensaje genérico cuando no existe err.error.message
+
+    expect(setItemSpy).not.toHaveBeenCalled();
+    // Fluent assertion: confirma que no se intenta persistir sesión en caso de error
+
     expect(localStorage.getItem('usuario')).toBeNull();
+    // Fluent assertion: valida que no haya datos de usuario almacenados
+
     expect(navigateSpy).not.toHaveBeenCalled();
+    // Fluent assertion: confirma que no hay navegación cuando ocurre error
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating por sus expects
   });
 });

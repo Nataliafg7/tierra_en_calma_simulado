@@ -26,9 +26,9 @@ describe("HU1 - Backend - P3: Contraseña inválida", () => {
     jest.clearAllMocks();
   });
 
-  test("Debe responder 400 cuando la contraseña es menor a 8 caracteres", async () => {
-    // Arrange:
-    const body = {
+  test("Debe rechazar el registro cuando la contraseña tiene menos de 8 caracteres", async () => {
+    // Arrange: Se construye un usuario con contraseña inválida (menor a 8 caracteres)
+    const usuarioInvalido = {
       id_usuario: 3,
       nombre: "Juliana",
       apellido: "Florez",
@@ -37,15 +37,19 @@ describe("HU1 - Backend - P3: Contraseña inválida", () => {
       contrasena: "1234"
     };
 
-    // Act:
-    const res = await request(app).post("/api/register").send(body);
+    // Act: Se envía la petición de registro al endpoint
+    const response = await request(app)
+      .post("/api/register")
+      .send(usuarioInvalido);
 
-    // Assert:
-    expect(res.status).toBe(400);
-    expect(res.body).toEqual({
+    // Assert: Se valida que el sistema rechaza la solicitud correctamente
+    expect(response.status).toBe(400); // Debe responder con error de validación
+
+    expect(response.body).toEqual({
       error: "La contraseña debe tener al menos 8 caracteres"
-    });
+    }); // Mensaje claro y específico
 
+    // Assert adicional: No debe intentar conectarse a la BD si la validación falla
     expect(oracledb.getConnection).not.toHaveBeenCalled();
   });
 });

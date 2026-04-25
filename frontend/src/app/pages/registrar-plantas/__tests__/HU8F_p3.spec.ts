@@ -1,10 +1,10 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
+
 import { RegistrarPlantasComponent } from '../registrar-plantas';
 
-describe('HU8 – Frontend – Escenario 3 (P3) – Respuesta exitosa con arreglo vacío', () => {
-
+describe('HU8 – Frontend – P3: Respuesta exitosa con arreglo vacío', () => {
   let component: RegistrarPlantasComponent;
   let fixture: ComponentFixture<RegistrarPlantasComponent>;
   let httpMock: HttpTestingController;
@@ -18,12 +18,6 @@ describe('HU8 – Frontend – Escenario 3 (P3) – Respuesta exitosa con arregl
         HttpClientTestingModule
       ],
       providers: [
-        /**
-         * Mock de Router.
-         * No se evalúa navegación en este escenario, pero el componente
-         * requiere la dependencia, por lo que se simula para permitir
-         * su correcta instanciación en el entorno de pruebas.
-         */
         {
           provide: Router,
           useValue: {
@@ -39,63 +33,43 @@ describe('HU8 – Frontend – Escenario 3 (P3) – Respuesta exitosa con arregl
   });
 
   afterEach(() => {
-    /**
-     * Verifica que no existan solicitudes HTTP pendientes,
-     * asegurando el aislamiento del escenario de prueba.
-     */
-    httpMock.verify();
+    httpMock.verify(); // FIRST: asegura que no queden solicitudes HTTP pendientes
   });
 
-  it('P3 – Debe manejar correctamente una respuesta exitosa con lista vacía', () => {
+  it('HU8F_P3 - Debe manejar correctamente una respuesta exitosa con lista vacía', () => {
+    // ===================== ARRANGE =====================
+    // Se prepara una respuesta exitosa sin plantas para validar el caso límite de lista vacía
+    // FIRST: no depende de backend real porque la respuesta HTTP se controla desde la prueba
+    const plantasMock: any[] = [];
 
-    /**
-     * Objetivo:
-     * Validar que el componente maneje correctamente una respuesta exitosa
-     * del backend cuando no existen plantas disponibles (arreglo vacío).
-     *
-     * Justificación técnica:
-     * Este escenario cubre un caso límite del flujo exitoso de HU8, donde
-     * el backend responde sin datos. Se espera que el componente no falle,
-     * mantenga su estado consistente y registre correctamente el resultado.
-     */
-
-    // =========================
-    // Arrange
-    // =========================
     const consoleLogSpy = spyOn(console, 'log');
 
-    // =========================
-    // Act
-    // =========================
-    /**
-     * Ejecuta ngOnInit() → cargarPlantas()
-     */
+    // ======================= ACT =======================
+    // detectChanges ejecuta ngOnInit y dispara cargarPlantas()
     fixture.detectChanges();
 
     const req = httpMock.expectOne(`${API_URL}/plantas`);
+
     expect(req.request.method).toBe('GET');
+    // Fluent assertion: valida que el componente realiza la consulta con el método HTTP esperado
 
-    /**
-     * Se simula una respuesta exitosa sin datos
-     */
-    req.flush([]);
+    req.flush(plantasMock);
 
-    // =========================
-    // Assert
-    // =========================
-    /**
-     * Se valida que el componente registre en consola
-     * un mapa vacío sin generar errores.
-     */
-    expect(consoleLogSpy).toHaveBeenCalledWith(
+    // ===================== ASSERT ======================
+    const mapaPlantaIds = (component as any).plantaIds as Record<string, number>;
+
+    expect(mapaPlantaIds).toEqual({});
+    // Fluent assertion: valida que el mapa queda vacío cuando el backend responde sin plantas
+
+    expect(consoleLogSpy).toHaveBeenCalledOnceWith(
       'Mapa de plantas cargado:',
       {}
     );
+    // Fluent assertion: valida el registro exacto del resultado exitoso con mapa vacío
 
-    /**
-     * Se verifica que el componente continúa en estado válido
-     */
     expect(component).toBeTruthy();
-  });
+    // Fluent assertion: confirma que el componente sigue en estado válido
 
+    // FIRST: prueba rápida, independiente, repetible y self-validating por sus propios expects
+  });
 });

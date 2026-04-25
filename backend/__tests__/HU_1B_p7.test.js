@@ -36,10 +36,9 @@ describe("HU1 - Backend - P7: Error en execute con close exitoso", () => {
     });
   });
 
-  test("Debe responder 500 cuando falla execute y luego cerrar la conexión", async () => {
-    // Arrange:
-    // Se simula una conexión exitosa, pero la inserción falla.
-    const body = {
+  test("Debe responder 500 cuando falla execute y cerrar la conexión correctamente", async () => {
+    // Arrange: Se prepara un usuario válido para que el error ocurra únicamente durante execute
+    const usuarioValido = {
       id_usuario: 7,
       nombre: "Juliana",
       apellido: "Florez",
@@ -48,16 +47,20 @@ describe("HU1 - Backend - P7: Error en execute con close exitoso", () => {
       contrasena: "12345678",
     };
 
-    // Act:
-    const res = await request(app).post("/api/register").send(body);
+    // Act: Se envía la solicitud de registro al endpoint
+    const response = await request(app)
+      .post("/api/register")
+      .send(usuarioValido);
 
-    // Assert:
-    expect(res.status).toBe(500);
-    expect(res.body).toEqual({
+    // Assert: Se valida que el sistema responda con error interno controlado
+    expect(response.status).toBe(500);
+
+    expect(response.body).toEqual({
       error: "Error al registrar usuario",
       detalles: "Fallo en execute",
-    });
+    }); // Fluent assertion: valida el contrato exacto de error devuelto por el endpoint
 
+    // Assert: Se valida que la conexión se obtuvo, se intentó ejecutar la operación y luego se cerró
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
     expect(executeMock).toHaveBeenCalledTimes(1);
     expect(closeMock).toHaveBeenCalledTimes(1);

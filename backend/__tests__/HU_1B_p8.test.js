@@ -36,6 +36,7 @@ describe("HU1 - Backend - P8: Error en execute y también en close", () => {
       close: closeMock,
     });
 
+    // Se intercepta console.error para validar el manejo del error sin afectar la salida del test
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
@@ -43,10 +44,9 @@ describe("HU1 - Backend - P8: Error en execute y también en close", () => {
     consoleErrorSpy.mockRestore();
   });
 
-  test("Debe responder 500 cuando falla execute y además falla close", async () => {
-    // Arrange:
-    // En este escenario falla la inserción y luego también el cierre.
-    const body = {
+  test("Debe responder 500 cuando falla execute y también falla el cierre de la conexión", async () => {
+    // Arrange: Se prepara un usuario válido para que el fallo ocurra durante execute y luego en close
+    const usuarioValido = {
       id_usuario: 8,
       nombre: "Juliana",
       apellido: "Florez",
@@ -55,23 +55,28 @@ describe("HU1 - Backend - P8: Error en execute y también en close", () => {
       contrasena: "12345678",
     };
 
-    // Act:
-    const res = await request(app).post("/api/register").send(body);
+    // Act: Se envía la solicitud de registro al endpoint
+    const response = await request(app)
+      .post("/api/register")
+      .send(usuarioValido);
 
-    // Assert:
-    expect(res.status).toBe(500);
-    expect(res.body).toEqual({
+    // Assert: Se valida que el endpoint conserve el error principal de execute
+    expect(response.status).toBe(500);
+
+    expect(response.body).toEqual({
       error: "Error al registrar usuario",
       detalles: "Fallo en execute",
-    });
+    }); // Fluent assertion: valida el contrato exacto de error devuelto por el endpoint
 
+    // Assert: Se valida que el flujo de conexión se haya ejecutado una sola vez
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
     expect(executeMock).toHaveBeenCalledTimes(1);
     expect(closeMock).toHaveBeenCalledTimes(1);
 
+    // Assert: Se valida que el error del cierre fue manejado sin reemplazar el error principal
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       "Error al cerrar la conexión en registro:",
       expect.any(Error)
-    );
+    ); // Fluent assertion: valida el manejo flexible del error sin depender de una instancia exacta
   });
 });

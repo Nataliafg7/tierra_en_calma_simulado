@@ -10,14 +10,11 @@ jest.mock("oracledb", () => ({
 jest.mock("../mqttService", () => ({}));
 jest.mock("../cuidadosService", () => ({ crearCuidado: jest.fn() }));
 jest.mock("../pkgCentralService", () => ({ verificarCondiciones: jest.fn() }));
-
 jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
-
 jest.mock("swagger-ui-express", () => ({
   serve: [],
   setup: () => (req, res, next) => next(),
 }));
-
 jest.mock("yamljs", () => ({
   load: jest.fn(() => ({})),
 }));
@@ -26,40 +23,39 @@ describe("HU10B P2 - POST /api/registrar-planta", () => {
   let app;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks(); // FIRST: evita contaminación entre pruebas
     app = createApp();
   });
 
-  test("debe responder 400 cuando faltan datos y no debe acceder a la base de datos", async () => {
-    /*
-      Objetivo:
-      Verificar la validación previa de datos.
-
-      Mock utilizado:
-      - oracledb.getConnection: queda mockeado, pero no debe ser llamado.
-
-      Qué se valida:
-      - estado HTTP 400
-      - mensaje de error esperado
-      - que no se llama a getConnection
-    */
-
-    // Arrange
+  test("Debe responder 400 cuando faltan datos y no debe acceder a la base de datos", async () => {
+    // ===================== ARRANGE =====================
+    // Se prepara una solicitud incompleta (faltan datos obligatorios)
+    // FIRST: no se usa Oracle real, y no debería intentarse conexión
     const body = {
       id_usuario: 10,
     };
 
-    // Act
+    // ======================= ACT =======================
+    // Se ejecuta el endpoint con datos inválidos
     const response = await request(app)
       .post("/api/registrar-planta")
       .send(body);
 
-    // Assert
+    // ===================== ASSERT ======================
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({
+    // Fluent assertion: valida que el endpoint responde con error de validación
+
+    expect(response.body).toMatchObject({
       error: "Datos incompletos para registrar la planta",
     });
+    // Fluent assertion: valida el mensaje de error sin depender de estructura extra
+
+    expect(response.body).toHaveProperty("error");
+    // Fluent assertion: asegura que la propiedad error existe en la respuesta
 
     expect(oracledb.getConnection).not.toHaveBeenCalled();
+    // Fluent assertion: confirma que no se accede a la BD cuando falla la validación
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating
   });
 });

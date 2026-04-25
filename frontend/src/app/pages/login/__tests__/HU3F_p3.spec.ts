@@ -1,31 +1,8 @@
 /**
  * HU3F - Inicio de sesión (Frontend Angular)
  * Escenario P3: Inicio de sesión exitoso como usuario normal
- *
- * Objetivo de la prueba:
- * Verificar que onLoginSubmit() procese correctamente un login exitoso
- * de un usuario no administrador, guardando la sesión, mostrando
- * bienvenida y navegando a /mis-plantas.
- *
- * Principios FIRST:
- * - Fast: no depende de backend real.
- * - Independent: no depende de otras pruebas.
- * - Repeatable: usa una respuesta fija y controlada.
- * - Self-validating: valida el resultado con expect().
- * - Timely: cubre una rama específica del método.
- *
- * Patrón AAA:
- * - Arrange: preparar credenciales, spies y entorno.
- * - Act: ejecutar onLoginSubmit().
- * - Assert: validar persistencia, alerta y navegación.
- *
- * Tipo de double usado:
- * - Stub: AuthServiceP3Stub para simular respuesta exitosa.
- * - Spy: sobre window.alert.
- * - Spy: sobre router.navigate.
- * - Spy: sobre localStorage.setItem.
- * - Dummy: DummyComponent para rutas.
  */
+
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, Routes } from '@angular/router';
@@ -50,8 +27,13 @@ class AuthServiceP3Stub {
     });
   }
 
-  register() { return of({}); }
-  recuperarContrasena() { return of({}); }
+  register() {
+    return of({});
+  }
+
+  recuperarContrasena() {
+    return of({});
+  }
 }
 
 describe('HU3 Frontend - LoginComponent - P3', () => {
@@ -93,28 +75,50 @@ describe('HU3 Frontend - LoginComponent - P3', () => {
 
   it('HU3F_P3 - Debe guardar usuario, mostrar bienvenida y navegar a /mis-plantas', () => {
     // ===================== ARRANGE =====================
+    // Se preparan credenciales válidas de un usuario normal, no administrador
+    // FIRST: el login no depende del backend porque AuthService está controlado por un stub
     component.loginCorreo = ' juliana@gmail.com ';
     component.loginContrasena = ' 1234 ';
 
     const alertSpy = spyOn(window, 'alert');
     const navigateSpy = spyOn(router, 'navigate');
-    spyOn(localStorage, 'setItem').and.callThrough();
+    const setItemSpy = spyOn(localStorage, 'setItem').and.callThrough();
 
     let preventDefaultEjecutado = false;
+
     const event = {
-      preventDefault: () => preventDefaultEjecutado = true
+      preventDefault: () => {
+        preventDefaultEjecutado = true;
+      }
     } as unknown as Event;
 
     // ======================= ACT =======================
+    // Se ejecuta el método del formulario de inicio de sesión
     component.onLoginSubmit(event);
 
     // ===================== ASSERT ======================
+    // Se valida que el formulario no haga recarga de página
     expect(preventDefaultEjecutado).toBeTrue();
-    expect(alertSpy).toHaveBeenCalledWith('Bienvenid@ Juliana');
-    expect(navigateSpy).toHaveBeenCalledWith(['/mis-plantas']);
+    // Fluent assertion: expresa claramente que preventDefault fue ejecutado
 
-    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-    expect(usuario.NOMBRE).toBe('Juliana');
-    expect(usuario.CORREO_ELECTRONICO).toBe('juliana@gmail.com');
+    expect(alertSpy).toHaveBeenCalledOnceWith('Bienvenid@ Juliana');
+    // Fluent assertion: valida el mensaje exacto de bienvenida para el usuario autenticado
+
+    expect(navigateSpy).toHaveBeenCalledOnceWith(['/mis-plantas']);
+    // Fluent assertion: valida la navegación exacta esperada para usuarios normales
+
+    expect(setItemSpy).toHaveBeenCalledTimes(1);
+    // Fluent assertion: confirma que la sesión se persistió una sola vez
+
+    const usuarioGuardado = JSON.parse(localStorage.getItem('usuario') || '{}');
+
+    expect(usuarioGuardado).toEqual({
+      ID_USUARIO: 2,
+      NOMBRE: 'Juliana',
+      CORREO_ELECTRONICO: 'juliana@gmail.com'
+    });
+    // Fluent assertion: valida el contrato completo del usuario guardado en localStorage
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating por sus propios expects
   });
 });

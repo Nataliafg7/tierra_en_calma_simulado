@@ -36,6 +36,7 @@ describe("HU1 - Backend - P5: Registro exitoso con error en close", () => {
       close: closeMock,
     });
 
+    // Se intercepta console.error para validar el manejo del error sin contaminar la salida del test
     consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
@@ -44,9 +45,8 @@ describe("HU1 - Backend - P5: Registro exitoso con error en close", () => {
   });
 
   test("Debe responder 200 aunque falle el cierre de la conexión", async () => {
-    // Arrange:
-    // Se simula un registro exitoso y luego un fallo al cerrar la conexión.
-    const body = {
+    // Arrange: Usuario válido para simular flujo exitoso de registro
+    const usuarioValido = {
       id_usuario: 5,
       nombre: "Juliana",
       apellido: "Florez",
@@ -55,23 +55,27 @@ describe("HU1 - Backend - P5: Registro exitoso con error en close", () => {
       contrasena: "12345678",
     };
 
-    // Act:
-    const res = await request(app).post("/api/register").send(body);
+    // Act: Se ejecuta el registro
+    const response = await request(app)
+      .post("/api/register")
+      .send(usuarioValido);
 
-    // Assert:
-    // La respuesta exitosa ya se debió enviar antes del finally.
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual({
+    // Assert: Se valida que la respuesta principal NO se vea afectada por el error en el cierre
+    expect(response.status).toBe(200);
+
+    expect(response.body).toEqual({
       message: "Usuario registrado con éxito",
-    });
+    }); // Fluent assertion: valida exactamente el contrato de salida esperado
 
+    // Assert: Se verifica que el flujo de base de datos se ejecutó completamente
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
     expect(executeMock).toHaveBeenCalledTimes(1);
     expect(closeMock).toHaveBeenCalledTimes(1);
 
+    // Assert: Se valida que el error fue manejado correctamente sin romper la ejecución
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       "Error al cerrar la conexión en registro:",
       expect.any(Error)
-    );
+    ); // Fluent assertion: asegura que se registra el error esperado sin depender del mensaje exacto
   });
 });

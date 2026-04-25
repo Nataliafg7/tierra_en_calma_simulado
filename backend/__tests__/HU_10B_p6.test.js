@@ -10,14 +10,11 @@ jest.mock("oracledb", () => ({
 jest.mock("../mqttService", () => ({}));
 jest.mock("../cuidadosService", () => ({ crearCuidado: jest.fn() }));
 jest.mock("../pkgCentralService", () => ({ verificarCondiciones: jest.fn() }));
-
 jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
-
 jest.mock("swagger-ui-express", () => ({
   serve: [],
   setup: () => (req, res, next) => next(),
 }));
-
 jest.mock("yamljs", () => ({
   load: jest.fn(() => ({})),
 }));
@@ -28,7 +25,7 @@ describe("HU10B P6 - POST /api/registrar-planta", () => {
   let errorSpy;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks(); // FIRST: evita contaminación entre pruebas
     app = createApp();
 
     connectionMock = {
@@ -43,43 +40,69 @@ describe("HU10B P6 - POST /api/registrar-planta", () => {
     errorSpy.mockRestore();
   });
 
-  test("debe responder 500 cuando falla el INSERT y además falla el cierre de la conexión", async () => {
-    /*
-      Objetivo:
-      Verificar el escenario combinado de error en execute y error en close.
+  test("Debe responder 500 cuando falla el INSERT y además falla el cierre de la conexión", async () => {
+    // ===================== ARRANGE =====================
+    // Se prepara una solicitud válida, pero se simulan dos errores:
+    // falla el INSERT y también falla el cierre de conexión
+    // FIRST: no se usa Oracle real porque execute y close están controlados por mocks
+    const body = {
+      id_usuario: 10,
+      id_planta: 3,
+    };
 
-      Mock utilizado:
-      - oracledb.getConnection: devuelve conexión simulada.
-      - connection.execute: rechaza con error simulado.
-      - connection.close: rechaza con error simulado.
-
-      Qué se valida:
-      - estado HTTP 500
-      - mensaje del error principal
-      - intento de ejecutar INSERT
-      - intento de cerrar conexión
-      - registro de errores en consola
-    */
-
-    // Arrange
     oracledb.getConnection.mockResolvedValue(connectionMock);
     connectionMock.execute.mockRejectedValue(new Error("Error en execute"));
     connectionMock.close.mockRejectedValue(new Error("Error en close"));
 
-    // Act
+    // ======================= ACT =======================
+    // Se ejecuta el endpoint para cubrir el escenario combinado de errores
     const response = await request(app)
       .post("/api/registrar-planta")
-      .send({ id_usuario: 10, id_planta: 3 });
+      .send(body);
 
-    // Assert
+    // ===================== ASSERT ======================
     expect(response.status).toBe(500);
-    expect(response.body).toEqual({
+    // Fluent assertion: valida que el endpoint responde con error interno del servidor
+
+    expect(response.body).toMatchObject({
       error: "Error al registrar planta",
     });
+    // Fluent assertion: valida el mensaje controlado del error principal
+
+    expect(response.body).toHaveProperty("error");
+    // Fluent assertion: confirma que la respuesta contiene la propiedad error
 
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
+    // Fluent assertion: confirma que se abrió conexión una sola vez
+
     expect(connectionMock.execute).toHaveBeenCalledTimes(1);
+    // Fluent assertion: confirma que se intentó ejecutar el INSERT una sola vez
+
+    expect(connectionMock.execute).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO TIERRA_EN_CALMA.PLANTAS_USUARIO"),
+      { id_planta: 3, id_usuario: 10 },
+      { autoCommit: true }
+    );
+    // Fluent assertion: valida que el INSERT se intentó con SQL, parámetros y autoCommit correctos
+
     expect(connectionMock.close).toHaveBeenCalledTimes(1);
-    expect(errorSpy).toHaveBeenCalled();
+    // Fluent assertion: confirma que se intentó cerrar la conexión desde el bloque finally
+
+    expect(errorSpy).toHaveBeenCalledTimes(2);
+    // Fluent assertion: valida que se registraron los dos errores: execute y close
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      "Error al registrar planta:",
+      expect.any(Error)
+    );
+    // Fluent assertion: valida que se registró el error principal del INSERT
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      "Error al cerrar conexión en registrar planta:",
+      expect.any(Error)
+    );
+    // Fluent assertion: valida que se registró el error del cierre de conexión
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating
   });
 });

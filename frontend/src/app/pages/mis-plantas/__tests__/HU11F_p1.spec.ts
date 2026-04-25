@@ -1,28 +1,6 @@
 /**
  * HU11F - Visualización de plantas registradas
  * Escenario P1: Sesión inválida
- *
- * Objetivo de la prueba:
- * Verificar que, si no existe una sesión válida, el componente muestre
- * una alerta y redirija al usuario al login.
- *
- * Principios FIRST:
- * - Fast: no usa backend real.
- * - Independent: no depende de otras pruebas.
- * - Repeatable: usa datos controlados.
- * - Self-validating: valida resultados con expect().
- * - Timely: cubre la validación de sesión.
- *
- * Patrón AAA:
- * - Arrange: preparar entorno sin sesión y espiar alerta y navegación.
- * - Act: ejecutar ngOnInit().
- * - Assert: validar mensaje y redirección.
- *
- * Tipo de double usado:
- * - Stub: AuthServiceStub para aislar dependencias.
- * - Spy: window.alert para validar el mensaje.
- * - Spy: router.navigate para validar navegación.
- * - Dummy: DummyComponent para rutas de prueba.
  */
 
 import { Component } from '@angular/core';
@@ -69,23 +47,33 @@ describe('HU11 Frontend - MisPlantasComponent - P1', () => {
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
 
-    localStorage.clear();
+    localStorage.clear(); // FIRST: evita contaminación entre pruebas
   });
 
   afterEach(() => {
     localStorage.clear();
   });
 
-  it('HU11F_P1 - Debe mostrar alerta y navegar a /login si la sesión es inválida', () => {
+  it('HU11F P1 - Debe mostrar alerta y navegar a /login si la sesión es inválida', () => {
     // ===================== ARRANGE =====================
+    // Se prepara el componente sin usuario en localStorage
+    // FIRST: no se usa backend real porque AuthService está aislado con stub
     const alertSpy = spyOn(window, 'alert');
     const navigateSpy = spyOn(router, 'navigate');
 
     // ======================= ACT =======================
+    // Se ejecuta la inicialización del componente sin sesión válida
     component.ngOnInit();
 
     // ===================== ASSERT ======================
-    expect(alertSpy).toHaveBeenCalledWith('Sesión inválida. Inicia sesión nuevamente.');
+    expect(alertSpy).toHaveBeenCalledWith(
+      'Sesión inválida. Inicia sesión nuevamente.'
+    );
+    // Fluent assertion: valida que se informa al usuario que la sesión no es válida
+
     expect(navigateSpy).toHaveBeenCalledWith(['/login']);
+    // Fluent assertion: valida que el usuario es redirigido al login
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating
   });
 });

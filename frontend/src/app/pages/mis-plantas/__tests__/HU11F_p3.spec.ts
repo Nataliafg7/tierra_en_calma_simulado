@@ -1,30 +1,11 @@
 /**
  * HU11F - Visualización de plantas registradas
  * Escenario P3: Lista vacía
- *
- * Objetivo de la prueba:
- * Verificar que el componente maneje correctamente una respuesta vacía
- * sin producir errores.
- *
- * Principios FIRST:
- * - Fast: no usa backend real.
- * - Independent: no depende de otras pruebas.
- * - Repeatable: usa datos controlados.
- * - Self-validating: valida resultados con expect().
- * - Timely: cubre la ausencia de plantas.
- *
- * Patrón AAA:
- * - Arrange: preparar sesión válida y respuesta vacía.
- * - Act: ejecutar ngOnInit().
- * - Assert: validar lista vacía.
- *
- * Tipo de double usado:
- * - Stub: AuthServiceStub con lista vacía.
  */
 
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of } from 'rxjs';
@@ -64,26 +45,42 @@ describe('HU11 Frontend - MisPlantasComponent - P3', () => {
     fixture = TestBed.createComponent(MisPlantasComponent);
     component = fixture.componentInstance;
 
-    localStorage.clear();
+    localStorage.clear(); // FIRST: evita contaminación entre pruebas
   });
 
   afterEach(() => {
     localStorage.clear();
   });
 
-  it('HU11F_P3 - Debe manejar correctamente una lista vacía de plantas', () => {
+  it('HU11F P3 - Debe manejar correctamente una lista vacía de plantas', () => {
     // ===================== ARRANGE =====================
-    localStorage.setItem('usuario', JSON.stringify({
-      ID_USUARIO: 1,
-      NOMBRE: 'Juliana'
-    }));
+    // Se prepara una sesión válida, pero el servicio responde sin plantas
+    // FIRST: no se usa backend real porque AuthService responde con una lista vacía controlada
+    localStorage.setItem(
+      'usuario',
+      JSON.stringify({
+        ID_USUARIO: 1,
+        NOMBRE: 'Juliana'
+      })
+    );
 
     // ======================= ACT =======================
+    // Se inicializa el componente para cargar las plantas del usuario
     component.ngOnInit();
 
     // ===================== ASSERT ======================
     expect(component.nombreUsuario).toBe('Juliana');
+    // Fluent assertion: valida que el nombre del usuario se toma desde localStorage
+
     expect(component.plantas).toEqual([]);
+    // Fluent assertion: valida que la lista de plantas queda vacía
+
+    expect(component.plantas).toHaveSize(0);
+    // Fluent assertion: confirma que no se cargaron plantas
+
     expect(component.page).toBe(1);
+    // Fluent assertion: valida que la paginación permanece en la primera página
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating
   });
 });

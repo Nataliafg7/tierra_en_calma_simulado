@@ -10,14 +10,11 @@ jest.mock("oracledb", () => ({
 jest.mock("../mqttService", () => ({}));
 jest.mock("../cuidadosService", () => ({ crearCuidado: jest.fn() }));
 jest.mock("../pkgCentralService", () => ({ verificarCondiciones: jest.fn() }));
-
 jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
-
 jest.mock("swagger-ui-express", () => ({
   serve: [],
   setup: () => (req, res, next) => next(),
 }));
-
 jest.mock("yamljs", () => ({
   load: jest.fn(() => ({})),
 }));
@@ -28,7 +25,7 @@ describe("HU8B P5 - GET /api/plantas", () => {
   let errorSpy;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks(); // FIRST: evita contaminación entre pruebas
     app = createApp();
 
     connectionMock = {
@@ -36,53 +33,47 @@ describe("HU8B P5 - GET /api/plantas", () => {
       close: jest.fn(),
     };
 
+    // Spy para validar los errores registrados sin mostrarlos en consola durante la prueba
     errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
-    errorSpy.mockRestore();
+    errorSpy.mockRestore(); // FIRST: restaura console.error para no afectar otros tests
   });
 
-  test("debe responder 500 cuando falla la consulta y además falla el cierre de la conexión", async () => {
-    /*
-      Objetivo:
-      Verificar el escenario más completo de error:
-      falla la consulta principal y luego también falla close.
-
-      Mock utilizado:
-      - oracledb.getConnection: devuelve conexión simulada.
-      - connection.execute: rechaza con error simulado.
-      - connection.close: rechaza con error simulado.
-
-      Qué se valida:
-      - estado HTTP 500
-      - cuerpo del error principal
-      - intento de ejecutar consulta
-      - intento de cerrar conexión
-      - registro de errores en consola
-
-      Observación:
-      El error principal sigue siendo el de la consulta.
-      El error de close se registra, pero no reemplaza la respuesta enviada.
-    */
-
-    // Arrange
+  test("Debe responder 500 cuando falla la consulta y también falla el cierre de la conexión", async () => {
+    // ===================== ARRANGE =====================
+    // Se simula que la consulta principal falla y luego también falla close
+    // FIRST: ambos errores están controlados por mocks, sin depender de Oracle real
     oracledb.getConnection.mockResolvedValue(connectionMock);
     connectionMock.execute.mockRejectedValue(new Error("Error en execute"));
     connectionMock.close.mockRejectedValue(new Error("Error en close"));
 
-    // Act
+    // ======================= ACT =======================
+    // Se consulta el endpoint del banco de especies
     const response = await request(app).get("/api/plantas");
 
-    // Assert
+    // ===================== ASSERT ======================
     expect(response.status).toBe(500);
+    // Fluent assertion: expresa claramente que el error principal debe responder como error interno
+
     expect(response.body).toEqual({
       error: "Error al obtener la lista de plantas",
     });
+    // Fluent assertion: valida el contrato exacto de error devuelto por el endpoint
 
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
+    // Fluent assertion: confirma que se abrió conexión una sola vez
+
     expect(connectionMock.execute).toHaveBeenCalledTimes(1);
+    // Fluent assertion: confirma que se intentó ejecutar la consulta principal
+
     expect(connectionMock.close).toHaveBeenCalledTimes(1);
+    // Fluent assertion: confirma que se intentó cerrar la conexión aunque también fallara
+
     expect(errorSpy).toHaveBeenCalled();
+    // Fluent assertion: valida que los errores fueron registrados de forma controlada
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating por sus propios expects
   });
 });

@@ -1,31 +1,8 @@
 /**
  * HU3F - Inicio de sesión (Frontend Angular)
  * Escenario P2: Inicio de sesión exitoso como administrador
- *
- * Objetivo de la prueba:
- * Verificar que onLoginSubmit() procese correctamente una respuesta exitosa,
- * guarde el usuario en localStorage, muestre el mensaje de bienvenida
- * y navegue a la ruta /admin cuando el correo corresponde al administrador.
- *
- * Principios FIRST:
- * - Fast: no usa backend real.
- * - Independent: no depende de otras pruebas.
- * - Repeatable: trabaja con respuesta controlada.
- * - Self-validating: usa expect() para validar resultados.
- * - Timely: cubre el camino exitoso del login administrador.
- *
- * Patrón AAA:
- * - Arrange: preparar credenciales válidas, spies y entorno.
- * - Act: ejecutar onLoginSubmit().
- * - Assert: validar alerta, almacenamiento y navegación.
- *
- * Tipo de double usado:
- * - Stub: AuthServiceP2Stub, devuelve una respuesta exitosa controlada.
- * - Spy: sobre window.alert para validar el mensaje.
- * - Spy: sobre router.navigate para validar navegación.
- * - Spy: sobre localStorage.setItem para verificar persistencia.
- * - Dummy: DummyComponent para las rutas de prueba.
  */
+
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, Routes } from '@angular/router';
@@ -50,8 +27,13 @@ class AuthServiceP2Stub {
     });
   }
 
-  register() { return of({}); }
-  recuperarContrasena() { return of({}); }
+  register() {
+    return of({});
+  }
+
+  recuperarContrasena() {
+    return of({});
+  }
 }
 
 describe('HU3 Frontend - LoginComponent - P2', () => {
@@ -93,28 +75,50 @@ describe('HU3 Frontend - LoginComponent - P2', () => {
 
   it('HU3F_P2 - Debe guardar usuario, mostrar bienvenida y navegar a /admin', () => {
     // ===================== ARRANGE =====================
+    // Se preparan credenciales válidas con espacios para validar que el componente aplique trim()
+    // FIRST: la respuesta del login está controlada por el stub, sin backend real
     component.loginCorreo = ' admin@tierraencalma.com ';
     component.loginContrasena = ' admin123 ';
 
     const alertSpy = spyOn(window, 'alert');
     const navigateSpy = spyOn(router, 'navigate');
-    spyOn(localStorage, 'setItem').and.callThrough();
+    const setItemSpy = spyOn(localStorage, 'setItem').and.callThrough();
 
     let preventDefaultEjecutado = false;
+
     const event = {
-      preventDefault: () => preventDefaultEjecutado = true
+      preventDefault: () => {
+        preventDefaultEjecutado = true;
+      }
     } as unknown as Event;
 
     // ======================= ACT =======================
+    // Se ejecuta el flujo de inicio de sesión desde el formulario
     component.onLoginSubmit(event);
 
     // ===================== ASSERT ======================
+    // Se valida que el formulario no recargue la página
     expect(preventDefaultEjecutado).toBeTrue();
-    expect(alertSpy).toHaveBeenCalledWith('Bienvenid@ Administrador');
-    expect(navigateSpy).toHaveBeenCalledWith(['/admin']);
+    // Fluent assertion: expresa claramente que preventDefault fue ejecutado
 
-    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-    expect(usuario.NOMBRE).toBe('Administrador');
-    expect(usuario.CORREO_ELECTRONICO).toBe('admin@tierraencalma.com');
+    expect(alertSpy).toHaveBeenCalledOnceWith('Bienvenid@ Administrador');
+    // Fluent assertion: valida el mensaje exacto mostrado al usuario administrador
+
+    expect(navigateSpy).toHaveBeenCalledOnceWith(['/admin']);
+    // Fluent assertion: valida la navegación exacta hacia el panel administrador
+
+    expect(setItemSpy).toHaveBeenCalledTimes(1);
+    // Fluent assertion: confirma que la sesión se guardó una sola vez
+
+    const usuarioGuardado = JSON.parse(localStorage.getItem('usuario') || '{}');
+
+    expect(usuarioGuardado).toEqual({
+      ID_USUARIO: 1,
+      NOMBRE: 'Administrador',
+      CORREO_ELECTRONICO: 'admin@tierraencalma.com'
+    });
+    // Fluent assertion: valida el contrato completo del usuario persistido en localStorage
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating por sus expects
   });
 });

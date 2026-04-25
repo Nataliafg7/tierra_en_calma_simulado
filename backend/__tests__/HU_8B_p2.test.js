@@ -10,14 +10,11 @@ jest.mock("oracledb", () => ({
 jest.mock("../mqttService", () => ({}));
 jest.mock("../cuidadosService", () => ({ crearCuidado: jest.fn() }));
 jest.mock("../pkgCentralService", () => ({ verificarCondiciones: jest.fn() }));
-
 jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
-
 jest.mock("swagger-ui-express", () => ({
   serve: [],
   setup: () => (req, res, next) => next(),
 }));
-
 jest.mock("yamljs", () => ({
   load: jest.fn(() => ({})),
 }));
@@ -27,46 +24,42 @@ describe("HU8B P2 - GET /api/plantas", () => {
   let errorSpy;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks(); // FIRST: evita contaminación entre pruebas
     app = createApp();
+
+    // Spy para validar el registro del error sin mostrarlo en consola durante la prueba
     errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
-    errorSpy.mockRestore();
+    errorSpy.mockRestore(); // FIRST: restaura console.error para no afectar otros tests
   });
 
-  test("debe responder 500 cuando ocurre un error al obtener la conexión", async () => {
-    /*
-      Objetivo:
-      Verificar el comportamiento del endpoint cuando falla getConnection.
-
-      Mock utilizado:
-      - oracledb.getConnection: rechaza con un error simulado.
-
-      Qué se valida:
-      - estado HTTP 500
-      - mensaje de error esperado
-      - que sí se intentó obtener conexión
-      - que se registró el error por consola
-
-      Observación:
-      En este escenario no existe conexión, por eso no hay cierre.
-    */
-
-    // Arrange
+  test("Debe responder 500 cuando ocurre un error al obtener la conexión", async () => {
+    // ===================== ARRANGE =====================
+    // Se simula un fallo al abrir conexión con Oracle
+    // FIRST: el error está controlado por el mock y no depende de una BD real
     oracledb.getConnection.mockRejectedValue(new Error("Fallo de conexión"));
 
-    // Act
+    // ======================= ACT =======================
+    // Se consulta el endpoint del banco de especies
     const response = await request(app).get("/api/plantas");
 
-    // Assert
+    // ===================== ASSERT ======================
     expect(response.status).toBe(500);
+    // Fluent assertion: expresa claramente el código HTTP esperado ante un error interno
+
     expect(response.body).toEqual({
       error: "Error al obtener la lista de plantas",
     });
+    // Fluent assertion: valida el contrato exacto de error devuelto por el endpoint
 
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
+    // Fluent assertion: confirma que se intentó obtener conexión una sola vez
+
     expect(errorSpy).toHaveBeenCalled();
+    // Fluent assertion: confirma que el error fue registrado de forma controlada
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating por sus propios expects
   });
 });
