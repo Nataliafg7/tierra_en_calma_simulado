@@ -63,3 +63,5 @@ frontend/coverage
 backend/.scannerwork
 frontend/.scannerwork
 .scannerwork
+
+backend/k6/results/*
