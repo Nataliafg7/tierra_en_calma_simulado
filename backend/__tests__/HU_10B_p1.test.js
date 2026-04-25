@@ -10,14 +10,11 @@ jest.mock("oracledb", () => ({
 jest.mock("../mqttService", () => ({}));
 jest.mock("../cuidadosService", () => ({ crearCuidado: jest.fn() }));
 jest.mock("../pkgCentralService", () => ({ verificarCondiciones: jest.fn() }));
-
 jest.mock("nodemailer", () => ({ createTransport: jest.fn() }));
-
 jest.mock("swagger-ui-express", () => ({
   serve: [],
   setup: () => (req, res, next) => next(),
 }));
-
 jest.mock("yamljs", () => ({
   load: jest.fn(() => ({})),
 }));
@@ -27,7 +24,7 @@ describe("HU10B P1 - POST /api/registrar-planta", () => {
   let connectionMock;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks(); // FIRST: evita contaminación entre pruebas
     app = createApp();
 
     connectionMock = {
@@ -36,25 +33,10 @@ describe("HU10B P1 - POST /api/registrar-planta", () => {
     };
   });
 
-  test("debe responder 200 cuando la planta se registra correctamente", async () => {
-    /*
-      Objetivo:
-      Verificar el flujo exitoso del endpoint /api/registrar-planta.
-
-      Mock utilizado:
-      - oracledb.getConnection: devuelve una conexión simulada.
-      - connection.execute: resuelve correctamente el INSERT.
-      - connection.close: resuelve correctamente.
-
-      Qué se valida:
-      - estado HTTP 200
-      - mensaje de éxito
-      - llamada a getConnection
-      - llamada a execute con SQL, parámetros y autoCommit esperados
-      - llamada a close al finalizar
-    */
-
-    // Arrange
+  test("Debe responder 200 cuando la planta se registra correctamente", async () => {
+    // ===================== ARRANGE =====================
+    // Se prepara una solicitud válida para asociar una planta a un usuario
+    // FIRST: no se usa Oracle real porque la conexión y el INSERT están controlados por mocks
     const body = {
       id_usuario: 10,
       id_planta: 3,
@@ -64,23 +46,37 @@ describe("HU10B P1 - POST /api/registrar-planta", () => {
     connectionMock.execute.mockResolvedValue({});
     connectionMock.close.mockResolvedValue();
 
-    // Act
+    // ======================= ACT =======================
+    // Se ejecuta el endpoint encargado de registrar la planta en el jardín del usuario
     const response = await request(app)
       .post("/api/registrar-planta")
       .send(body);
 
-    // Assert
+    // ===================== ASSERT ======================
     expect(response.status).toBe(200);
+    // Fluent assertion: expresa claramente que el registro exitoso debe devolver HTTP 200
+
     expect(response.body).toEqual({
       message: "Planta registrada con éxito en tu jardín",
     });
+    // Fluent assertion: valida el contrato exacto de respuesta del endpoint
 
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
+    // Fluent assertion: confirma que se abrió conexión una sola vez
+
     expect(connectionMock.execute).toHaveBeenCalledTimes(1);
-expect(connectionMock.execute).toHaveBeenCalledWith(
-  expect.stringContaining("INSERT INTO TIERRA_EN_CALMA.PLANTAS_USUARIO"),
-  { id_planta: 3, id_usuario: 10 },
-  { autoCommit: true }
-);    expect(connectionMock.close).toHaveBeenCalledTimes(1);
+    // Fluent assertion: confirma que el INSERT se ejecutó una sola vez
+
+    expect(connectionMock.execute).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO TIERRA_EN_CALMA.PLANTAS_USUARIO"),
+      { id_planta: 3, id_usuario: 10 },
+      { autoCommit: true }
+    );
+    // Fluent assertion: valida SQL, parámetros y autoCommit usados para registrar la planta
+
+    expect(connectionMock.close).toHaveBeenCalledTimes(1);
+    // Fluent assertion: confirma que la conexión se cerró correctamente
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating por sus propios expects
   });
 });

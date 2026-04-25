@@ -1,26 +1,6 @@
 /**
  * HU11F - Visualización de plantas registradas
  * Escenario P15: Retroceso del carrusel
- *
- * Objetivo de la prueba:
- * Verificar que el carrusel retroceda correctamente
- * cuando el índice actual es mayor que cero.
- *
- * Principios FIRST:
- * - Fast: no usa backend real.
- * - Independent: no depende de otras pruebas.
- * - Repeatable: usa un carrusel simulado.
- * - Self-validating: valida el resultado con expect().
- * - Timely: cubre navegación del carrusel hacia atrás.
- *
- * Patrón AAA:
- * - Arrange: preparar carrusel simulado y posicionar índice en 1.
- * - Act: ejecutar anterior().
- * - Assert: validar retroceso y transform.
- *
- * Tipo de double usado:
- * - Stub: AuthServiceStub para aislar dependencias.
- * - Dummy: carrusel simulado para representar el elemento visual.
  */
 
 import { Component } from '@angular/core';
@@ -57,10 +37,18 @@ describe('HU11 Frontend - MisPlantasComponent - P15', () => {
 
     fixture = TestBed.createComponent(MisPlantasComponent);
     component = fixture.componentInstance;
+
+    localStorage.clear(); // FIRST: evita contaminación entre pruebas
   });
 
-  it('HU11F_P15 - Debe retroceder el carrusel cuando el índice actual es mayor que cero', () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it('HU11F P15 - Debe retroceder el carrusel cuando el índice actual es mayor que cero', () => {
     // ===================== ARRANGE =====================
+    // Se prepara un carrusel simulado con varios elementos y el índice ubicado en la segunda posición
+    // FIRST: no se usa backend real porque solo se valida lógica visual interna del carrusel
     const items = [
       { clientWidth: 100 },
       { clientWidth: 100 },
@@ -80,10 +68,19 @@ describe('HU11 Frontend - MisPlantasComponent - P15', () => {
     component.indiceActual = 1;
 
     // ======================= ACT =======================
+    // Se ejecuta la acción de retroceder en el carrusel
     component.anterior();
 
     // ===================== ASSERT ======================
     expect(component.indiceActual).toBe(0);
+    // Fluent assertion: valida que el índice retrocede a la posición anterior
+
     expect(carrusel.style.transform).toBe('translateX(-0px)');
+    // Fluent assertion: valida que el desplazamiento visual del carrusel se actualiza correctamente
+
+    expect((component as any).carruselRef.nativeElement).toBe(carrusel);
+    // Fluent assertion: confirma que se usó el carrusel simulado como referencia visual
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating
   });
 });

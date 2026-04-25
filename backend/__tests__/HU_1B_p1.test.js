@@ -22,7 +22,7 @@ jest.mock("yamljs", () => ({
   load: jest.fn(() => ({})),
 }));
 
-describe("HU10B P1 - POST /api/registrar-planta", () => {
+describe("HU10B - Asociación de plantas", () => {
   let app;
   let connectionMock;
 
@@ -36,37 +36,56 @@ describe("HU10B P1 - POST /api/registrar-planta", () => {
     };
   });
 
-  test("debe responder 200 cuando la planta se registra correctamente", async () => {
-    // Arrange
+  test("HU10B_P1 - debe responder 200 cuando la planta se registra correctamente", async () => {
+    // FIRST: prueba rápida, independiente y repetible porque usa Oracle simulado.
+
+    // ===================== ARRANGE =====================
+    // Se prepara el cuerpo válido para asociar una planta a un usuario.
     const body = {
       id_usuario: 10,
       id_planta: 3,
     };
 
+    // Se simula una conexión exitosa con Oracle y una inserción correcta.
     oracledb.getConnection.mockResolvedValue(connectionMock);
     connectionMock.execute.mockResolvedValue({});
     connectionMock.close.mockResolvedValue();
 
-    // Act
+    // ======================= ACT =======================
+    // Se envía la solicitud POST al endpoint de asociación de plantas.
     const response = await request(app)
       .post("/api/registrar-planta")
       .send(body);
 
-    // Assert
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual({
-      message: "Planta registrada con éxito en tu jardín",
-    });
+    // ===================== ASSERT ======================
+    // Se valida que el endpoint responda exitosamente.
+    expect(response.status)
+      .toBe(200);
 
-    expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
-    expect(connectionMock.execute).toHaveBeenCalledTimes(1);
+    // Se valida el mensaje devuelto por el backend.
+    expect(response.body)
+      .toEqual({
+        message: "Planta registrada con éxito en tu jardín",
+      });
 
-    expect(connectionMock.execute).toHaveBeenCalledWith(
-      expect.stringContaining("INSERT INTO TIERRA_EN_CALMA.PLANTAS_USUARIO"),
-      { id_planta: 3, id_usuario: 10 },
-      { autoCommit: true }
-    );
+    // Se valida que el backend solicite una conexión a Oracle.
+    expect(oracledb.getConnection)
+      .toHaveBeenCalledTimes(1);
 
-    expect(connectionMock.close).toHaveBeenCalledTimes(1);
+    // Se valida que se ejecute una operación SQL.
+    expect(connectionMock.execute)
+      .toHaveBeenCalledTimes(1);
+
+    // Se valida que la consulta inserte la relación usuario-planta con autocommit.
+    expect(connectionMock.execute)
+      .toHaveBeenCalledWith(
+        expect.stringContaining("INSERT INTO TIERRA_EN_CALMA.PLANTAS_USUARIO"),
+        { id_planta: 3, id_usuario: 10 },
+        { autoCommit: true }
+      );
+
+    // Se valida que la conexión se cierre al finalizar el proceso.
+    expect(connectionMock.close)
+      .toHaveBeenCalledTimes(1);
   });
 });

@@ -77,7 +77,7 @@
               "zone.js/testing"
             ],
             "tsConfig": "tsconfig.spec.json",
-            "codeCoverage": true,
+            
             "assets": [
               "src/favicon.ico",
               "src/assets"

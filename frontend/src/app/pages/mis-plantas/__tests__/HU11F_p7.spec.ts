@@ -1,26 +1,6 @@
 /**
  * HU11F - Visualización de plantas registradas
  * Escenario P7: Planta inválida en monitoreo
- *
- * Objetivo de la prueba:
- * Verificar que si la planta no tiene un ID_PLANTA_USUARIO válido,
- * el componente muestre una alerta y no continúe el flujo.
- *
- * Principios FIRST:
- * - Fast: no usa backend real.
- * - Independent: no depende de otras pruebas.
- * - Repeatable: usa datos controlados.
- * - Self-validating: valida resultados con expect().
- * - Timely: cubre validación de entrada del monitoreo.
- *
- * Patrón AAA:
- * - Arrange: preparar planta inválida y espiar alerta.
- * - Act: ejecutar monitorear().
- * - Assert: validar mensaje.
- *
- * Tipo de double usado:
- * - Stub: AuthServiceStub para aislar dependencias.
- * - Spy: window.alert para validar el mensaje.
  */
 
 import { Component } from '@angular/core';
@@ -57,11 +37,20 @@ describe('HU11 Frontend - MisPlantasComponent - P7', () => {
 
     fixture = TestBed.createComponent(MisPlantasComponent);
     component = fixture.componentInstance;
+
+    localStorage.clear(); // FIRST: evita contaminación entre pruebas
   });
 
-  it('HU11F_P7 - Debe mostrar alerta si la planta es inválida', () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it('HU11F P7 - Debe mostrar alerta si la planta es inválida', () => {
     // ===================== ARRANGE =====================
+    // Se prepara una planta sin ID_PLANTA_USUARIO válido
+    // FIRST: no se usa backend real porque solo se valida el flujo interno del componente
     const alertSpy = spyOn(window, 'alert');
+
     const planta = {
       ID_PLANTA_USUARIO: 0,
       ID_PLANTA: 1,
@@ -70,9 +59,15 @@ describe('HU11 Frontend - MisPlantasComponent - P7', () => {
     };
 
     // ======================= ACT =======================
+    // Se intenta monitorear una planta inválida
     component.monitorear(planta);
 
     // ===================== ASSERT ======================
-    expect(alertSpy).toHaveBeenCalledWith('Planta inválida (falta ID_PLANTA_USUARIO)');
+    expect(alertSpy).toHaveBeenCalledWith(
+      'Planta inválida (falta ID_PLANTA_USUARIO)'
+    );
+    // Fluent assertion: valida que se informa al usuario cuando la planta no tiene ID válido
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating
   });
 });

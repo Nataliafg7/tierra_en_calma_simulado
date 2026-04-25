@@ -1,30 +1,11 @@
 /**
  * HU11F - Visualización de plantas registradas
  * Escenario P5: Formato inesperado
- *
- * Objetivo de la prueba:
- * Verificar que el componente asigne una lista vacía cuando la respuesta
- * del servicio no sea un arreglo.
- *
- * Principios FIRST:
- * - Fast: no usa backend real.
- * - Independent: no depende de otras pruebas.
- * - Repeatable: usa una respuesta controlada.
- * - Self-validating: valida resultados con expect().
- * - Timely: cubre el manejo de formatos inesperados.
- *
- * Patrón AAA:
- * - Arrange: preparar sesión válida y respuesta inválida.
- * - Act: ejecutar ngOnInit().
- * - Assert: validar lista vacía.
- *
- * Tipo de double usado:
- * - Stub: AuthServiceStub con respuesta inesperada.
  */
 
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of } from 'rxjs';
@@ -64,25 +45,42 @@ describe('HU11 Frontend - MisPlantasComponent - P5', () => {
     fixture = TestBed.createComponent(MisPlantasComponent);
     component = fixture.componentInstance;
 
-    localStorage.clear();
+    localStorage.clear(); // FIRST: evita contaminación entre pruebas
   });
 
   afterEach(() => {
     localStorage.clear();
   });
 
-  it('HU11F_P5 - Debe asignar lista vacía si la respuesta no es un arreglo', () => {
+  it('HU11F P5 - Debe asignar lista vacía si la respuesta no es un arreglo', () => {
     // ===================== ARRANGE =====================
-    localStorage.setItem('usuario', JSON.stringify({
-      ID_USUARIO: 1,
-      NOMBRE: 'Juliana'
-    }));
+    // Se prepara una sesión válida, pero el servicio responde con formato inesperado
+    // FIRST: no se usa backend real porque AuthService responde con un valor controlado
+    localStorage.setItem(
+      'usuario',
+      JSON.stringify({
+        ID_USUARIO: 1,
+        NOMBRE: 'Juliana'
+      })
+    );
 
     // ======================= ACT =======================
+    // Se inicializa el componente para validar el manejo de respuestas no válidas
     component.ngOnInit();
 
     // ===================== ASSERT ======================
+    expect(component.nombreUsuario).toBe('Juliana');
+    // Fluent assertion: valida que el nombre del usuario se toma desde localStorage
+
     expect(component.plantas).toEqual([]);
+    // Fluent assertion: valida que una respuesta inesperada se transforma en lista vacía
+
+    expect(component.plantas).toHaveSize(0);
+    // Fluent assertion: confirma que no se cargan plantas con una respuesta inválida
+
     expect(component.page).toBe(1);
+    // Fluent assertion: valida que la paginación permanece en la primera página
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating
   });
 });

@@ -1,27 +1,6 @@
 /**
  * HU11F - Visualización de plantas registradas
  * Escenario P9: Navegación a registrar nueva planta
- *
- * Objetivo de la prueba:
- * Verificar que el componente navegue correctamente
- * a la vista de registrar plantas.
- *
- * Principios FIRST:
- * - Fast: no usa backend real.
- * - Independent: no depende de otras pruebas.
- * - Repeatable: usa un entorno controlado.
- * - Self-validating: valida navegación con expect().
- * - Timely: cubre un flujo funcional directo.
- *
- * Patrón AAA:
- * - Arrange: preparar spy de navegación.
- * - Act: ejecutar registrarNuevaPlanta().
- * - Assert: validar ruta destino.
- *
- * Tipo de double usado:
- * - Stub: AuthServiceStub para aislar dependencias.
- * - Spy: router.navigate para validar navegación.
- * - Dummy: DummyComponent para rutas de prueba.
  */
 
 import { Component } from '@angular/core';
@@ -65,16 +44,31 @@ describe('HU11 Frontend - MisPlantasComponent - P9', () => {
     fixture = TestBed.createComponent(MisPlantasComponent);
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
+
+    localStorage.clear(); // FIRST: evita contaminación entre pruebas
   });
 
-  it('HU11F_P9 - Debe navegar a la vista de registrar plantas', () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it('HU11F P9 - Debe navegar a la vista de registrar plantas', () => {
     // ===================== ARRANGE =====================
+    // Se prepara el spy de navegación para verificar la ruta destino
+    // FIRST: no se usa backend real porque solo se valida navegación interna
     const navigateSpy = spyOn(router, 'navigate');
 
     // ======================= ACT =======================
+    // Se ejecuta el método encargado de llevar al usuario a registrar una nueva planta
     component.registrarNuevaPlanta();
 
     // ===================== ASSERT ======================
     expect(navigateSpy).toHaveBeenCalledWith(['/registrar-plantas']);
+    // Fluent assertion: valida que el componente navega a la vista de registrar plantas
+
+    expect(navigateSpy).toHaveBeenCalledTimes(1);
+    // Fluent assertion: confirma que la navegación se ejecuta una sola vez
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating
   });
 });

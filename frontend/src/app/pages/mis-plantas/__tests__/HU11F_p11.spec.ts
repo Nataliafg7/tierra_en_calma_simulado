@@ -1,25 +1,6 @@
 /**
  * HU11F - Visualización de plantas registradas
  * Escenario P11: Clase visual por defecto
- *
- * Objetivo de la prueba:
- * Verificar que el componente retorne la clase por defecto
- * cuando la planta no coincida con ningún mapeo definido.
- *
- * Principios FIRST:
- * - Fast: no usa backend real.
- * - Independent: no depende de otras pruebas.
- * - Repeatable: usa entrada controlada.
- * - Self-validating: valida el resultado con expect().
- * - Timely: cubre el caso por defecto del mapeo.
- *
- * Patrón AAA:
- * - Arrange: preparar planta no mapeada.
- * - Act: ejecutar plantClass().
- * - Assert: validar clase por defecto.
- *
- * Tipo de double usado:
- * - Stub: AuthServiceStub para aislar dependencias.
  */
 
 import { Component } from '@angular/core';
@@ -56,10 +37,18 @@ describe('HU11 Frontend - MisPlantasComponent - P11', () => {
 
     fixture = TestBed.createComponent(MisPlantasComponent);
     component = fixture.componentInstance;
+
+    localStorage.clear(); // FIRST: evita contaminación entre pruebas
   });
 
-  it('HU11F_P11 - Debe devolver la clase por defecto para una planta no mapeada', () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it('HU11F P11 - Debe devolver la clase por defecto para una planta no mapeada', () => {
     // ===================== ARRANGE =====================
+    // Se prepara una planta que no coincide con ningún mapeo definido
+    // FIRST: no se usa backend real porque solo se evalúa lógica interna del componente
     const planta = {
       ID_PLANTA: 99,
       NOMBRE_COMUN: 'Rosa',
@@ -67,9 +56,16 @@ describe('HU11 Frontend - MisPlantasComponent - P11', () => {
     };
 
     // ======================= ACT =======================
+    // Se ejecuta el método encargado de asignar la clase visual
     const clase = component.plantClass(planta);
 
     // ===================== ASSERT ======================
     expect(clase).toBe('ceriman-card');
+    // Fluent assertion: valida que se retorna la clase por defecto cuando no hay coincidencia
+
+    expect(typeof clase).toBe('string');
+    // Fluent assertion: confirma que siempre se retorna una clase válida tipo string
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating
   });
 });

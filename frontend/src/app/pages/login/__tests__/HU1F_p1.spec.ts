@@ -1,29 +1,4 @@
-/**
- * HU1F - Registro de usuario (Frontend Angular)
- * Escenario P1: Campos obligatorios vacíos
- *
- * Objetivo de la prueba:
- * Verificar que el método onRegisterSubmit() detenga el flujo cuando
- * faltan campos obligatorios, evitando la petición HTTP y mostrando el mensaje correspondiente.
- *
- * Principios FIRST:
- * - Fast: no depende de backend real.
- * - Independent: no depende de otras pruebas.
- * - Repeatable: siempre produce el mismo resultado.
- * - Self-validating: valida con expect().
- * - Timely: prueba directamente una unidad concreta del componente.
- *
- * Patrón AAA:
- * - Arrange: preparar datos vacíos y evento.
- * - Act: ejecutar onRegisterSubmit().
- * - Assert: comprobar preventDefault, alerta y ausencia de request.
- *
- * Tipo de double usado:
- * - Spy: sobre window.alert para verificar el mensaje mostrado.
- * - Stub de infraestructura HTTP: HttpTestingController para comprobar
- *   que no se emite ninguna solicitud al backend.
- */
-
+/// <reference types="jasmine" />
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -33,14 +8,18 @@ import { of } from 'rxjs';
 import { LoginComponent } from '../login';
 import { AuthService } from '../auth.service';
 
-describe('HU1F - Registro Frontend (P1)', () => {
+describe('HU1F - Registro Frontend', () => {
   let fixture: ComponentFixture<LoginComponent>;
   let component: LoginComponent;
   let httpMock: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LoginComponent, HttpClientTestingModule, RouterTestingModule],
+      imports: [
+        LoginComponent,
+        HttpClientTestingModule,
+        RouterTestingModule
+      ],
       providers: [
         AuthService,
         {
@@ -63,7 +42,10 @@ describe('HU1F - Registro Frontend (P1)', () => {
   });
 
   it('HU1F_P1 - No debe registrar si faltan campos obligatorios', () => {
+    // FIRST: prueba rápida, independiente y repetible porque no usa backend real.
+
     // ===================== ARRANGE =====================
+    // Se preparan campos vacíos para validar el comportamiento del formulario.
     component.regIdUsuario = '   ';
     component.regNombre = '   ';
     component.regApellido = '';
@@ -71,22 +53,30 @@ describe('HU1F - Registro Frontend (P1)', () => {
     component.regCorreo = '   ';
     component.regContrasena = '   ';
 
+    // Se usa un spy para comprobar el mensaje mostrado al usuario.
     const alertSpy = spyOn(window, 'alert');
 
+    // Se simula el evento del formulario para validar que se detiene el envío.
     let preventDefaultEjecutado = false;
+
     const event = {
       preventDefault: () => {
         preventDefaultEjecutado = true;
       }
-    } as unknown as Event;
+    } as Event;
 
     // ======================= ACT =======================
+    // Se ejecuta el método que procesa el registro.
     component.onRegisterSubmit(event);
 
     // ===================== ASSERT ======================
-    expect(preventDefaultEjecutado).toBeTrue();
+    // Fluent Assertion: las validaciones se expresan de forma encadenada con expect().toBe().
+    expect(preventDefaultEjecutado).toBe(true);
+
+    // Fluent Assertion: se valida que la alerta indique que faltan campos obligatorios.
     expect(alertSpy).toHaveBeenCalledWith('Todos los campos son obligatorios.');
 
+    // Fluent Assertion: se confirma que no se haya enviado ninguna solicitud HTTP.
     const requests = httpMock.match(() => true);
     expect(requests.length).toBe(0);
   });

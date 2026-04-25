@@ -25,13 +25,14 @@ describe("HU1 - Backend - P6: Error en getConnection", () => {
     jest.clearAllMocks();
     app = createApp();
 
-    oracledb.getConnection.mockRejectedValue(new Error("Fallo al obtener conexión"));
+    oracledb.getConnection.mockRejectedValue(
+      new Error("Fallo al obtener conexión")
+    );
   });
 
-  test("Debe responder 500 cuando falla getConnection", async () => {
-    // Arrange:
-    // Se simula un fallo al abrir la conexión con la base de datos.
-    const body = {
+  test("Debe responder 500 cuando falla la conexión con la base de datos", async () => {
+    // Arrange: Se prepara un usuario válido para que el fallo ocurra únicamente al obtener la conexión
+    const usuarioValido = {
       id_usuario: 6,
       nombre: "Juliana",
       apellido: "Florez",
@@ -40,16 +41,20 @@ describe("HU1 - Backend - P6: Error en getConnection", () => {
       contrasena: "12345678",
     };
 
-    // Act:
-    const res = await request(app).post("/api/register").send(body);
+    // Act: Se envía la solicitud al endpoint de registro
+    const response = await request(app)
+      .post("/api/register")
+      .send(usuarioValido);
 
-    // Assert:
-    expect(res.status).toBe(500);
-    expect(res.body).toEqual({
+    // Assert: Se valida que el sistema responda con error interno del servidor
+    expect(response.status).toBe(500);
+
+    expect(response.body).toEqual({
       error: "Error al registrar usuario",
       detalles: "Fallo al obtener conexión",
-    });
+    }); // Fluent assertion: valida el contrato exacto de error devuelto por el endpoint
 
+    // Assert: Se verifica que solo se intentó abrir la conexión una vez
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);
   });
 });

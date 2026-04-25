@@ -1,29 +1,6 @@
 /**
  * HU3F - Inicio de sesión (Frontend Angular)
  * Escenario P1: Campos obligatorios vacíos
- *
- * Objetivo de la prueba:
- * Verificar que el método onLoginSubmit() detenga el flujo cuando
- * el correo o la contraseña están vacíos después de aplicar trim(),
- * evitando el inicio de sesión, la navegación y el almacenamiento de sesión.
- *
- * Principios FIRST:
- * - Fast: no depende de backend real.
- * - Independent: no depende de otras pruebas.
- * - Repeatable: siempre produce el mismo resultado.
- * - Self-validating: valida el resultado con expect().
- * - Timely: prueba directamente una unidad concreta del componente.
- *
- * Patrón AAA:
- * - Arrange: preparar inputs vacíos y el evento submit.
- * - Act: ejecutar onLoginSubmit().
- * - Assert: validar alerta, corte del flujo y ausencia de navegación.
- *
- * Tipo de double usado:
- * - Stub: AuthServiceP1Stub. Se usa para garantizar que login() no debe ejecutarse.
- * - Spy: sobre window.alert para verificar el mensaje mostrado.
- * - Spy: sobre router.navigate para comprobar que no hubo navegación.
- * - Dummy: DummyComponent para definir rutas de prueba.
  */
 
 import { Component } from '@angular/core';
@@ -41,7 +18,7 @@ class DummyComponent {}
 
 class AuthServiceP1Stub {
   login() {
-    throw new Error('En P1 no se debe invocar login() porque el flujo debe cortar por validación.');
+    throw new Error('No debe ejecutarse login() cuando los campos obligatorios están vacíos.');
   }
 
   register() {
@@ -92,6 +69,8 @@ describe('HU3 Frontend - LoginComponent - P1', () => {
 
   it('HU3F_P1 - Debe mostrar alerta y cortar el flujo si correo o contraseña están vacíos', () => {
     // ===================== ARRANGE =====================
+    // Se preparan campos con espacios para validar que trim() los trate como vacíos
+    // FIRST: no depende de backend real porque AuthService está reemplazado por un stub
     component.loginCorreo = '   ';
     component.loginContrasena = '   ';
 
@@ -99,6 +78,7 @@ describe('HU3 Frontend - LoginComponent - P1', () => {
     const navigateSpy = spyOn(router, 'navigate');
 
     let preventDefaultEjecutado = false;
+
     const event = {
       preventDefault: () => {
         preventDefaultEjecutado = true;
@@ -106,12 +86,26 @@ describe('HU3 Frontend - LoginComponent - P1', () => {
     } as unknown as Event;
 
     // ======================= ACT =======================
+    // Se ejecuta el método principal del formulario de login
     component.onLoginSubmit(event);
 
     // ===================== ASSERT ======================
+    // Se valida que el submit del formulario se detenga correctamente
     expect(preventDefaultEjecutado).toBeTrue();
-    expect(alertSpy).toHaveBeenCalledWith('Ingresa tu correo y contraseña.');
+    // Fluent assertion: expresa claramente que preventDefault sí fue ejecutado
+
+    // Se valida que el usuario reciba el mensaje esperado por campos vacíos
+    expect(alertSpy).toHaveBeenCalledOnceWith('Ingresa tu correo y contraseña.');
+    // Fluent assertion: valida el contrato exacto del mensaje mostrado al usuario
+
+    // Se valida que no exista navegación porque el login no debe continuar
     expect(navigateSpy).not.toHaveBeenCalled();
+    // Fluent assertion: confirma que el flujo se cortó antes de redirigir
+
+    // Se valida que no se guarde sesión cuando los datos son inválidos
     expect(localStorage.getItem('usuario')).toBeNull();
+    // Fluent assertion: confirma que no se creó información de sesión inválida
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating por sus propios expects
   });
 });

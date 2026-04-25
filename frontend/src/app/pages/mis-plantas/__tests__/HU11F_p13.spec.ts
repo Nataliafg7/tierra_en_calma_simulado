@@ -1,26 +1,6 @@
 /**
  * HU11F - Visualización de plantas registradas
  * Escenario P13: Navegación por tipo Dólar
- *
- * Objetivo de la prueba:
- * Verificar que al identificar una planta tipo Dólar
- * se invoque el método de navegación correspondiente.
- *
- * Principios FIRST:
- * - Fast: no usa backend real.
- * - Independent: no depende de otras pruebas.
- * - Repeatable: usa entrada controlada.
- * - Self-validating: valida llamada con expect().
- * - Timely: cubre navegación por tipo de planta.
- *
- * Patrón AAA:
- * - Arrange: preparar planta tipo Dólar y espiar método.
- * - Act: ejecutar irPlanta().
- * - Assert: validar invocación de irADolar().
- *
- * Tipo de double usado:
- * - Stub: AuthServiceStub para aislar dependencias.
- * - Spy: método irADolar para validar el flujo.
  */
 
 import { Component } from '@angular/core';
@@ -57,11 +37,20 @@ describe('HU11 Frontend - MisPlantasComponent - P13', () => {
 
     fixture = TestBed.createComponent(MisPlantasComponent);
     component = fixture.componentInstance;
+
+    localStorage.clear(); // FIRST: evita contaminación entre pruebas
   });
 
-  it('HU11F_P13 - Debe invocar irADolar cuando la planta corresponde a ese tipo', () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it('HU11F P13 - Debe invocar irADolar cuando la planta corresponde a ese tipo', () => {
     // ===================== ARRANGE =====================
+    // Se prepara una planta tipo "Dólar" y se espía el método de navegación correspondiente
+    // FIRST: no se usa backend real porque solo se valida lógica interna del componente
     const irADolarSpy = spyOn(component, 'irADolar');
+
     const planta = {
       ID_PLANTA: 2,
       NOMBRE_COMUN: 'Dólar',
@@ -69,9 +58,16 @@ describe('HU11 Frontend - MisPlantasComponent - P13', () => {
     };
 
     // ======================= ACT =======================
+    // Se ejecuta el método que decide la navegación según el tipo de planta
     component.irPlanta(planta);
 
     // ===================== ASSERT ======================
     expect(irADolarSpy).toHaveBeenCalled();
+    // Fluent assertion: valida que se invoca la navegación específica para plantas tipo Dólar
+
+    expect(irADolarSpy).toHaveBeenCalledTimes(1);
+    // Fluent assertion: confirma que el método se ejecuta exactamente una vez
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating
   });
 });

@@ -1,29 +1,4 @@
-/**
- * HU1F - Registro de usuario (Frontend Angular)
- * Escenario P3: Error del backend al registrar
- *
- * Objetivo de la prueba:
- * Verificar que onRegisterSubmit() maneje correctamente la rama error
- * cuando el backend falla, mostrando el mensaje de error y manteniendo
- * al usuario en la vista de registro.
- *
- * Principios FIRST:
- * - Fast: no depende del backend real.
- * - Independent: no depende de base de datos ni de otras pruebas.
- * - Repeatable: siempre se ejecuta en condiciones controladas.
- * - Self-validating: usa expect() para validar el resultado.
- * - Timely: se enfoca en una sola rama del método.
- *
- * Patrón AAA:
- * - Arrange: preparar datos válidos, vista de registro y evento.
- * - Act: ejecutar onRegisterSubmit() y simular error HTTP.
- * - Assert: comprobar alerta, request enviada y permanencia en registro.
- *
- * Tipo de double usado:
- * - Spy: sobre window.alert para verificar el mensaje mostrado.
- * - Stub de infraestructura HTTP: HttpTestingController para simular
- *   el error del backend sin hacer llamadas reales.
- */
+/// <reference types="jasmine" />
 
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
@@ -34,7 +9,7 @@ import { of } from 'rxjs';
 import { LoginComponent } from '../login';
 import { AuthService } from '../auth.service';
 
-describe('HU1F - Registro Frontend (P3)', () => {
+describe('HU1F - Registro Frontend', () => {
   let fixture: ComponentFixture<LoginComponent>;
   let component: LoginComponent;
   let httpMock: HttpTestingController;
@@ -64,19 +39,25 @@ describe('HU1F - Registro Frontend (P3)', () => {
   });
 
   it('HU1F_P3 - Debe mostrar error y mantenerse en registro cuando falla el backend', () => {
+    // FIRST: prueba rápida, independiente y repetible porque simula el error sin usar backend real.
+
     // ===================== ARRANGE =====================
+    // Se prepara el componente en la vista de registro.
     component.isContainerActive = true;
     component.isTransitioning = false;
 
+    // Se ingresan datos válidos para que el flujo llegue hasta la petición HTTP.
     component.regIdUsuario = '12345';
     component.regNombre = 'Juliana';
     component.regApellido = 'Casas';
     component.regTelefono = '3000000000';
     component.regCorreo = 'juliana@mail.com';
-    component.regContrasena = '1234';
+    component.regContrasena = '12345678';
 
+    // Se usa un spy para validar el mensaje mostrado ante el error.
     const alertSpy = spyOn(window, 'alert');
 
+    // Se simula el evento del formulario para verificar que se detiene el envío tradicional.
     let preventDefaultEjecutado = false;
     const event = {
       preventDefault: () => {
@@ -85,35 +66,58 @@ describe('HU1F - Registro Frontend (P3)', () => {
     } as unknown as Event;
 
     // ======================= ACT =======================
+    // Se ejecuta el método que procesa el registro.
     component.onRegisterSubmit(event);
 
-    const req = httpMock.expectOne(r =>
-      r.method === 'POST' && r.url.endsWith('/register')
+    // Se intercepta la petición HTTP que normalmente iría al backend.
+    const req = httpMock.expectOne(request =>
+      request.method === 'POST' && request.url.endsWith('/register')
     );
 
+    // Se simula una respuesta de error del backend.
     req.flush(
       { message: 'Error interno' },
       { status: 500, statusText: 'Internal Server Error' }
     );
 
     // ===================== ASSERT ======================
-    expect(preventDefaultEjecutado).toBeTrue();
-    expect(req.request.method).toBe('POST');
+    // Se valida que el formulario haya detenido su comportamiento por defecto.
+    expect(preventDefaultEjecutado)
+      .withContext('Debe ejecutar preventDefault antes de procesar el registro')
+      .toBeTrue();
 
-    expect(req.request.body).toEqual({
-      id_usuario: '12345',
-      nombre: 'Juliana',
-      apellido: 'Casas',
-      telefono: '3000000000',
-      correo_electronico: 'juliana@mail.com',
-      contrasena: '1234'
-    });
+    // Se valida que la petición enviada sea de tipo POST.
+    expect(req.request.method)
+      .withContext('Debe enviar una petición POST para intentar registrar el usuario')
+      .toBe('POST');
 
-    expect(alertSpy).toHaveBeenCalledWith(
-      'No se pudo registrar el usuario. Revisa los datos o intenta más tarde.'
-    );
+    // Se valida que el cuerpo enviado al backend contenga los datos correctos.
+    expect(req.request.body)
+      .withContext('Debe enviar el objeto newUser con la información del formulario')
+      .toEqual({
+        id_usuario: '12345',
+        nombre: 'Juliana',
+        apellido: 'Casas',
+        telefono: '3000000000',
+        correo_electronico: 'juliana@mail.com',
+        contrasena: '12345678'
+      });
 
-    expect(component.isContainerActive).toBeTrue();
-    expect(component.isTransitioning).toBeFalse();
+    // Se valida que el usuario reciba un mensaje claro cuando falla el registro.
+    expect(alertSpy)
+      .withContext('Debe mostrar una alerta indicando que no se pudo registrar el usuario')
+      .toHaveBeenCalledWith(
+        'No se pudo registrar el usuario. Revisa los datos o intenta más tarde.'
+      );
+
+    // Se valida que el usuario permanezca en la vista de registro.
+    expect(component.isContainerActive)
+      .withContext('Debe mantenerse en la vista de registro cuando el backend falla')
+      .toBeTrue();
+
+    // Se valida que no se active la transición hacia login.
+    expect(component.isTransitioning)
+      .withContext('No debe iniciar transición si el registro no fue exitoso')
+      .toBeFalse();
   });
 });

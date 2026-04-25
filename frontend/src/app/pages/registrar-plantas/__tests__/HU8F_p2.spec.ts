@@ -1,9 +1,10 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
+
 import { RegistrarPlantasComponent } from '../registrar-plantas';
 
-describe('HU8 – Frontend – Escenario 2 (P2) – Error al cargar plantas (GET /api/plantas)', () => {
+describe('HU8 – Frontend – P2: Error al cargar plantas', () => {
   let fixture: ComponentFixture<RegistrarPlantasComponent>;
   let component: RegistrarPlantasComponent;
   let httpMock: HttpTestingController;
@@ -17,11 +18,6 @@ describe('HU8 – Frontend – Escenario 2 (P2) – Error al cargar plantas (GET
         HttpClientTestingModule
       ],
       providers: [
-        /**
-         * Mock de Router.
-         * No se evalúa navegación en este escenario, pero el componente
-         * requiere la dependencia para su correcta instanciación.
-         */
         {
           provide: Router,
           useValue: {
@@ -37,60 +33,45 @@ describe('HU8 – Frontend – Escenario 2 (P2) – Error al cargar plantas (GET
   });
 
   afterEach(() => {
-    /**
-     * Garantiza que no queden solicitudes HTTP pendientes,
-     * asegurando el aislamiento del escenario de prueba.
-     */
-    httpMock.verify();
+    httpMock.verify(); // FIRST: garantiza que no queden peticiones HTTP pendientes
   });
 
-  it('P2 – Debe ejecutar console.error y mostrar alert cuando el GET falla', () => {
-
-    /**
-     * Objetivo:
-     * Verificar que el componente maneje correctamente un error del backend
-     * al intentar cargar el banco de especies.
-     *
-     * Justificación técnica:
-     * Este escenario valida la rama de error del flujo de HU8, comprobando
-     * que se registre el error en consola y se notifique al usuario mediante
-     * una alerta, sin romper la ejecución del componente.
-     */
-
-    // =========================
-    // Arrange
-    // =========================
+  it('HU8F_P2 - Debe mostrar alert y registrar error cuando falla el GET de plantas', () => {
+    // ===================== ARRANGE =====================
+    // Se preparan spies para validar el manejo del error sin mostrar mensajes reales durante la prueba
+    // FIRST: el error HTTP es controlado por HttpTestingController, sin backend real
     const consoleErrorSpy = spyOn(console, 'error');
     const alertSpy = spyOn(window, 'alert');
 
-    // =========================
-    // Act
-    // =========================
-    /**
-     * Ejecuta ngOnInit() → cargarPlantas()
-     */
+    // ======================= ACT =======================
+    // detectChanges ejecuta ngOnInit y dispara cargarPlantas()
     fixture.detectChanges();
 
     const req = httpMock.expectOne(`${API_URL}/plantas`);
-    expect(req.request.method).toBe('GET');
 
-    /**
-     * Se simula un error del backend (HTTP 500)
-     */
+    expect(req.request.method).toBe('GET');
+    // Fluent assertion: valida que la solicitud use el método HTTP esperado
+
     req.flush(
       { message: 'Server error' },
       { status: 500, statusText: 'Internal Server Error' }
     );
 
-    // =========================
-    // Assert
-    // =========================
+    // ===================== ASSERT ======================
     expect(consoleErrorSpy).toHaveBeenCalled();
-    expect(alertSpy).toHaveBeenCalledWith('No se pudieron cargar las plantas desde el servidor');
+    // Fluent assertion: confirma que el error fue registrado por consola
 
-    /**
-     * Se valida que el componente no falle y continúe en estado válido
-     */
+    expect(alertSpy).toHaveBeenCalledOnceWith('No se pudieron cargar las plantas desde el servidor');
+    // Fluent assertion: valida el mensaje exacto mostrado al usuario cuando falla la carga
+
     expect(component).toBeTruthy();
+    // Fluent assertion: confirma que el componente sigue creado aunque ocurra el error
+
+    const mapaPlantaIds = (component as any).plantaIds as Record<string, number>;
+
+    expect(mapaPlantaIds).toEqual({});
+    // Fluent assertion: valida que no se construya mapa de plantas cuando el backend falla
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating por sus propios expects
   });
 });

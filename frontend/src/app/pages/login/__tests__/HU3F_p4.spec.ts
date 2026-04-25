@@ -1,29 +1,6 @@
 /**
  * HU3F - Inicio de sesión (Frontend Angular)
  * Escenario P4: Respuesta exitosa pero usuario inválido
- *
- * Objetivo de la prueba:
- * Verificar que onLoginSubmit() maneje correctamente una respuesta
- * donde el backend devuelve un objeto user sin NOMBRE ni nombre,
- * mostrando mensaje de credenciales inválidas y evitando guardar sesión o navegar.
- *
- * Principios FIRST:
- * - Fast: usa datos simulados.
- * - Independent: no depende de backend ni de otras pruebas.
- * - Repeatable: el resultado siempre es el mismo.
- * - Self-validating: se valida con expect().
- * - Timely: cubre la rama del usuario inválido.
- *
- * Patrón AAA:
- * - Arrange: preparar credenciales, stub y spies.
- * - Act: ejecutar onLoginSubmit().
- * - Assert: validar alerta, ausencia de sesión y no navegación.
- *
- * Tipo de double usado:
- * - Stub: AuthServiceP4Stub.
- * - Spy: sobre window.alert.
- * - Spy: sobre router.navigate.
- * - Dummy: DummyComponent.
  */
 
 import { Component } from '@angular/core';
@@ -96,13 +73,17 @@ describe('HU3 Frontend - LoginComponent - P4', () => {
 
   it('HU3F_P4 - Debe mostrar alerta de credenciales inválidas y no guardar sesión', () => {
     // ===================== ARRANGE =====================
+    // Se prepara una respuesta con user incompleto, sin NOMBRE ni nombre
+    // FIRST: el resultado es repetible porque el stub siempre devuelve el mismo usuario inválido
     component.loginCorreo = 'usuario@correo.com';
     component.loginContrasena = '123456';
 
     const alertSpy = spyOn(window, 'alert');
     const navigateSpy = spyOn(router, 'navigate');
+    const setItemSpy = spyOn(localStorage, 'setItem').and.callThrough();
 
     let preventDefaultEjecutado = false;
+
     const event = {
       preventDefault: () => {
         preventDefaultEjecutado = true;
@@ -110,12 +91,26 @@ describe('HU3 Frontend - LoginComponent - P4', () => {
     } as unknown as Event;
 
     // ======================= ACT =======================
+    // Se ejecuta el flujo de inicio de sesión
     component.onLoginSubmit(event);
 
     // ===================== ASSERT ======================
+    // Se valida que el formulario detenga el comportamiento por defecto
     expect(preventDefaultEjecutado).toBeTrue();
-    expect(alertSpy).toHaveBeenCalledWith('Credenciales inválidas. Verifica tu correo o contraseña.');
+    // Fluent assertion: expresa claramente que preventDefault fue ejecutado
+
+    expect(alertSpy).toHaveBeenCalledOnceWith('Credenciales inválidas. Verifica tu correo o contraseña.');
+    // Fluent assertion: valida el mensaje exacto cuando el backend devuelve un usuario incompleto
+
+    expect(setItemSpy).not.toHaveBeenCalled();
+    // Fluent assertion: confirma que no se intenta persistir una sesión inválida
+
     expect(localStorage.getItem('usuario')).toBeNull();
+    // Fluent assertion: valida que no exista usuario almacenado en localStorage
+
     expect(navigateSpy).not.toHaveBeenCalled();
+    // Fluent assertion: confirma que no hay navegación cuando el usuario no es válido
+
+    // FIRST: prueba rápida, independiente, repetible y self-validating por sus propios expects
   });
 });

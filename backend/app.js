@@ -1,3 +1,4 @@
+
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -49,8 +50,7 @@ function createApp() {
   const dbConfig = {
     user: process.env.ORACLE_USER,
     password: process.env.ORACLE_PASS,
-    connectString: process.env.ORACLE_CONN,
-  };
+connectString: process.env.ORACLE_CONN || process.env.ORACLE_CONNECT_STRING  };
 
   // ======================= REGISTRO DE USUARIOS =======================
   app.post("/api/register", async (req, res) => {
