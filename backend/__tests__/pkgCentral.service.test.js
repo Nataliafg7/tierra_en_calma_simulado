@@ -26,7 +26,7 @@ describe('Servicio pkgCentralService', () => {
     oracledb.getConnection.mockResolvedValue(connectionMock);
 
     connectionMock.execute.mockResolvedValueOnce({
-      rows: [{ TEMPERATURA: 22.5, HUMEDAD: 15 }] // 15% simula sequía
+      rows: [{ TEMPERATURA: 22.5, HUMEDAD: 15 }] // 15% simula sequía → umbral de riego
     });
 
     connectionMock.execute.mockResolvedValueOnce({
@@ -38,9 +38,11 @@ describe('Servicio pkgCentralService', () => {
     // Act
     const resultado = await pkgCentralService.verificarCondiciones(100);
 
-    // Assert
+    // Assert (Fluent)
+    // El resultado debe indicar éxito (ok: true) y el mensaje debe mencionar riego automático
     expect(resultado).toHaveProperty('ok', true);
-    expect(resultado.mensaje).toContain("Riego automático activado");
+    expect(resultado.ok).toBeTrue();
+    expect(resultado.mensaje).toBeString().toContain("Riego automático activado");
     expect(spyRiegoFisico).toHaveBeenCalledTimes(1);
     expect(connectionMock.close).toHaveBeenCalledTimes(1);
   });
@@ -57,25 +59,29 @@ describe('Servicio pkgCentralService', () => {
     // Act
     const resultado = await pkgCentralService.verificarCondiciones(1);
 
-    // Assert
+    // Assert (Fluent)
+    // Cuando no hay lecturas, ok debe ser false y el mensaje debe ser descriptivo
     expect(resultado).toHaveProperty('ok', false);
-    expect(resultado.mensaje).toBe("No hay lecturas registradas para esta planta.");
+    expect(resultado.ok).toBeFalse();
+    expect(resultado.mensaje).toBeString().toBe("No hay lecturas registradas para esta planta.");
     expect(connectionMock.close).toHaveBeenCalledTimes(1);
   });
-  
+
   test('verificarCondiciones: Debería manejar errores de DB 500 y retornar false', async () => {
-      // Arrange
-      oracledb.getConnection.mockRejectedValue(new Error("Database offline"));
-      const logSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    // Arrange
+    oracledb.getConnection.mockRejectedValue(new Error("Database offline"));
+    const logSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-      // Act
-      const resultado = await pkgCentralService.verificarCondiciones(1);
+    // Act
+    const resultado = await pkgCentralService.verificarCondiciones(1);
 
-      // Assert
-      expect(resultado).toHaveProperty('ok', false);
-      expect(resultado.mensaje).toBe("Error al ejecutar la verificación.");
-      expect(logSpy).toHaveBeenCalled();
-      
-      logSpy.mockRestore();
+    // Assert (Fluent)
+    // Ante error de DB, ok debe ser false y el mensaje de error debe ser claro
+    expect(resultado).toHaveProperty('ok', false);
+    expect(resultado.ok).toBeFalse();
+    expect(resultado.mensaje).toBeString().toBe("Error al ejecutar la verificación.");
+    expect(logSpy).toHaveBeenCalled();
+
+    logSpy.mockRestore();
   });
 });

@@ -274,6 +274,11 @@ async function enviarComandoFisicoRiego() {
 /* istanbul ignore end */
 
 
+/* istanbul ignore next */
+function __clearSensorIdForTests() {
+  CURRENT_SENSOR_ID = null;
+}
+
 module.exports = {
   initMQTTBroker,
   initMQTTSimulator,
@@ -286,4 +291,5 @@ module.exports = {
   stopSimulator,
   procesarDatoInterno,
   procesarDatoMQTT,
+  __clearSensorIdForTests,
 };
