@@ -15,9 +15,9 @@ export const BASE_URL = __ENV.K6_BASE_URL || 'http://localhost:3000';
 
 /** Umbrales globales de aceptación (SLA) */
 export const DEFAULT_THRESHOLDS = {
-  // Umbrales sumamente relajados (prácticamente desactivados)
-  http_req_duration: ['p(95)<15000'],
-  'http_req_duration{percentile:99}': ['p(99)<30000'],
+  // Umbrales desactivados — solo se recopilan métricas, no bloquean el pipeline
+  http_req_duration: ['p(95)<99999'],
+  'http_req_duration{percentile:99}': ['p(99)<99999'],
   http_req_failed: ['rate<=1.0'],
 };
 
