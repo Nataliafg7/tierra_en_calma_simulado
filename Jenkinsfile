@@ -243,7 +243,11 @@ pipeline {
                         echo 'Analizando Backend con SonarQube...'
                         dir('backend') {
                             sh """
-                                sonar-scanner \\
+                                export NVM_DIR="\$NVM_DIR"
+                                [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
+                                nvm use \${NODE_VERSION}
+
+                                npx sonar-scanner \\
                                   -Dsonar.projectKey=${SONAR_PROJECT_BACKEND} \\
                                   -Dsonar.projectName="Tierra en Calma - Backend" \\
                                   -Dsonar.sources=. \\
@@ -259,7 +263,11 @@ pipeline {
                         echo 'Analizando Frontend con SonarQube...'
                         dir('frontend') {
                             sh """
-                                sonar-scanner \\
+                                export NVM_DIR="\$NVM_DIR"
+                                [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
+                                nvm use \${NODE_VERSION}
+
+                                npx sonar-scanner \\
                                   -Dsonar.projectKey=${SONAR_PROJECT_FRONT} \\
                                   -Dsonar.projectName="Tierra en Calma - Frontend" \\
                                   -Dsonar.sources=src \\
