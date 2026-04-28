@@ -240,7 +240,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        withCredentials([string(credentialsId: 'SONAR_TOKEN_ID', variable: 'SONAR_TOKEN')]) {
+                        withSonarQubeEnv('sonarqube-server') {
                             echo 'Analizando Backend con SonarQube...'
                             dir('backend') {
                                 sh """
@@ -255,8 +255,6 @@ pipeline {
                                       -Dsonar.inclusions=app.js,server.js,SimuladorSensor.js,mqttService.js,pkgCentralService.js,cuidadosService.js \\
                                       -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \\
                                       -Dsonar.test.inclusions=__tests__/**/*.test.js \\
-                                      -Dsonar.host.url=${SONAR_HOST} \\
-                                      -Dsonar.token=\${SONAR_TOKEN} \\
                                       -Dsonar.sourceEncoding=UTF-8
                                 """
                             }
@@ -275,8 +273,6 @@ pipeline {
                                       -Dsonar.inclusions=src/app/app.ts,src/app/guards/auth-guard.ts,src/app/pages/login/login.ts,src/app/pages/login/auth.service.ts,src/app/pages/registrar-plantas/registrar-plantas.ts,src/app/pages/mis-plantas/mis-plantas.ts,src/app/pages/monstera/monstera.ts,src/app/services/mqtt-data.service.ts,src/app/layouts/public-layout.ts \\
                                       -Dsonar.javascript.lcov.reportPaths=coverage/frontend/lcov.info \\
                                       -Dsonar.test.inclusions=**/*.spec.ts \\
-                                      -Dsonar.host.url=${SONAR_HOST} \\
-                                      -Dsonar.token=\${SONAR_TOKEN} \\
                                       -Dsonar.sourceEncoding=UTF-8
                                 """
                             }
