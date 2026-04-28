@@ -9,14 +9,21 @@ module.exports = function (config) {
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
-      require('karma-coverage')
+      require('karma-coverage'),
+      require('karma-junit-reporter')
     ],
     client: {
       jasmine: {},
       clearContext: false
     },
 
-    reporters: ['kjhtml', 'coverage'],
+    reporters: ['kjhtml', 'coverage', 'junit'],
+
+    junitReporter: {
+      outputDir: 'test-results',
+      outputFile: 'karma-results.xml',
+      useBrowserName: false
+    },
 
     coverageReporter: {
       dir: require('path').join(__dirname, './coverage/frontend'),
