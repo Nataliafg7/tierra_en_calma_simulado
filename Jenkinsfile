@@ -151,9 +151,9 @@ pipeline {
                         [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
                         nvm use ${NODE_VERSION}
 
-                        if [ -f package-lock.json ]; then
-                            npm ci
-                        elif [ -f package.json ]; then
+                        if [ -f package.json ]; then
+                            # npm install en lugar de npm ci para regenerar
+                            # el lock si hay dependencias nuevas sin commitear
                             npm install
                         else
                             echo "No frontend package.json, skipping"
