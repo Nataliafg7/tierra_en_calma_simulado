@@ -51,7 +51,6 @@ pipeline {
     // ── Opciones del pipeline ──────────────────────────────────────────────────
     options {
         timestamps()
-        ansiColor('xterm')
         timeout(time: 90, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '10'))
         disableConcurrentBuilds()
