@@ -71,7 +71,7 @@ describe("HU11B P6 - GET /api/mis-plantas con error al cerrar conexión", () => 
     expect(response.body).toEqual(filas);
     // Fluent assertion: valida que se devuelven las plantas consultadas correctamente
 
-    expect(response.body).toHaveSize(1);
+    expect(response.body).toHaveLength(1);
     // Fluent assertion: confirma la cantidad de plantas devueltas en la respuesta
 
     expect(response.body[0]).toMatchObject({
@@ -102,7 +102,7 @@ describe("HU11B P6 - GET /api/mis-plantas con error al cerrar conexión", () => 
     // Fluent assertion: valida que el error de cierre fue registrado en consola
 
     expect(errorSpy).toHaveBeenCalledWith(
-      "Error al cerrar conexión en mis plantas:",
+      "Error al cerrar conexión de mis plantas:",
       expect.any(Error)
     );
     // Fluent assertion: valida el mensaje exacto usado para registrar el error de cierre

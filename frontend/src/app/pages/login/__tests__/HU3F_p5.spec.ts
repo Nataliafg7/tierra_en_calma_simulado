@@ -96,7 +96,7 @@ describe('HU3 Frontend - LoginComponent - P5', () => {
     expect(preventDefaultEjecutado).toBeTrue();
     // Fluent assertion: valida que el formulario detuvo el comportamiento por defecto
 
-    expect(alertSpy).toHaveBeenCalledOnceWith('No se pudo conectar con el servidor.');
+    expect(alertSpy).toHaveBeenCalledOnceWith('No se pudo conectar con el servidor. Verifica el backend.');
     // Fluent assertion: valida el mensaje exacto para error de conexión status 0
 
     expect(setItemSpy).not.toHaveBeenCalled();
