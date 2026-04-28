@@ -559,5 +559,5 @@ def parseLcovCoverage(String lcovPath) {
     }
 
     if (lf == 0) return 0
-    return Math.round((lh * 100.0) / lf)
+    return ((lh * 100) / lf).toInteger()
 }
