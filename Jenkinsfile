@@ -537,7 +537,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'DOCKER_CREDENTIALS_ID', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
                         sh '''
                             # Login en Docker Hub
-                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
 
                             # Build & Push Backend
                             cd backend
