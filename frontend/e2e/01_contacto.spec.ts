@@ -7,12 +7,12 @@ test.describe('F1 - Formulario de Contacto', () => {
   });
 
   test('debe mostrar el formulario de contacto correctamente', async ({ page }) => {
-    await expect(page.locator('form')).toBeVisible();
-    await expect(page.getByRole('button', { name: /enviar mensaje/i })).toBeVisible();
+    await expect(page.locator('form').first()).toBeVisible();
+    await expect(page.getByRole('button', { name: /enviar mensaje/i }).first()).toBeVisible();
   });
 
   test('debe mantener el botón de envío deshabilitado si el formulario está vacío', async ({ page }) => {
-    const btnEnviar = page.getByRole('button', { name: /enviar mensaje/i });
+    const btnEnviar = page.getByRole('button', { name: /enviar mensaje/i }).first();
     await expect(btnEnviar).toBeDisabled();
   });
 
@@ -31,14 +31,14 @@ test.describe('F1 - Formulario de Contacto', () => {
       await route.fulfill({ status: 200, json: { message: 'Mensaje enviado' } });
     });
 
-    await page.getByLabel(/nombre/i).fill('Test User');
-    await page.getByLabel(/correo/i).fill('test@example.com');
-    await page.getByLabel(/mensaje/i).fill('Prueba E2E');
+    await page.getByLabel(/nombre/i).first().fill('Test User');
+    await page.getByLabel(/correo/i).first().fill('test@example.com');
+    await page.getByLabel(/mensaje/i).first().fill('Prueba E2E');
     
-    await page.getByRole('button', { name: /enviar mensaje/i }).click();
+    await page.getByRole('button', { name: /enviar mensaje/i }).first().click();
 
     // Validar que el formulario se reseteó automáticamente (comportamiento de Angular)
-    await expect(page.getByLabel(/nombre/i)).toHaveValue('');
+    await expect(page.getByLabel(/nombre/i).first()).toHaveValue('');
     
     // Validar que se capturó el alert con el texto correcto
     expect(alertMessage).toContain('fue enviado correctamente');
