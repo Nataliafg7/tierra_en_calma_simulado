@@ -22,6 +22,9 @@ pipeline {
         // Ruta donde nvm instala Node (persiste en el workspace del agente)
         NVM_DIR               = '/root/.nvm'
 
+        // Chromium para Karma y Playwright (instalado en la etapa Setup)
+        CHROME_BIN            = '/usr/bin/chromium'
+
         // Docker Hub
         DOCKER_BACKEND_IMAGE  = 'nataliaflorezg/tierra-backend'
         DOCKER_FRONTEND_IMAGE = 'nataliaflorezg/tierra-frontend'
@@ -70,7 +73,20 @@ pipeline {
         stage('Setup: Node.js via nvm') {
             steps {
                 sh '''
-                    # Instalar nvm si no existe
+                    # ── Instalar Chromium (necesario para Karma y Playwright) ──────
+                    if ! command -v chromium > /dev/null 2>&1 && ! command -v chromium-browser > /dev/null 2>&1; then
+                        echo ">>> Instalando Chromium..."
+                        apt-get update -qq
+                        apt-get install -y --no-install-recommends chromium
+                    else
+                        echo ">>> Chromium ya instalado: $(chromium --version 2>/dev/null || chromium-browser --version)"
+                    fi
+
+                    # Detectar ruta real de chromium y exportar CHROME_BIN
+                    REAL_CHROME=$(command -v chromium 2>/dev/null || command -v chromium-browser 2>/dev/null || echo "/usr/bin/chromium")
+                    echo "CHROME_BIN detectado: $REAL_CHROME"
+
+                    # ── Instalar nvm si no existe ─────────────────────────────────
                     if [ ! -d "$NVM_DIR" ]; then
                         echo ">>> Instalando nvm..."
                         curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
@@ -165,6 +181,10 @@ pipeline {
                         export NVM_DIR="$NVM_DIR"
                         [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
                         nvm use ${NODE_VERSION}
+
+                        # Detectar el binario real de chromium en este entorno
+                        export CHROME_BIN=$(command -v chromium 2>/dev/null || command -v chromium-browser 2>/dev/null || echo "/usr/bin/chromium")
+                        echo "Usando CHROME_BIN=$CHROME_BIN"
 
                         npm run test:coverage
                     '''
