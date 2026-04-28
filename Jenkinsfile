@@ -132,14 +132,9 @@ pipeline {
             post {
                 always {
                     junit allowEmptyResults: true, testResults: 'backend/junit.xml'
-                    publishHTML(target: [
-                        allowMissing         : true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll              : true,
-                        reportDir            : 'backend/coverage/lcov-report',
-                        reportFiles          : 'index.html',
-                        reportName           : 'Backend Coverage Report'
-                    ])
+                    // Archivar reporte de cobertura HTML del backend
+                    archiveArtifacts artifacts: 'backend/coverage/lcov-report/**',
+                                     allowEmptyArchive: true
                 }
             }
         }
@@ -178,14 +173,9 @@ pipeline {
             post {
                 always {
                     junit allowEmptyResults: true, testResults: 'frontend/test-results/**/*.xml'
-                    publishHTML(target: [
-                        allowMissing         : true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll              : true,
-                        reportDir            : 'frontend/coverage/frontend/lcov-report',
-                        reportFiles          : 'index.html',
-                        reportName           : 'Frontend Coverage Report'
-                    ])
+                    // Archivar reporte de cobertura HTML del frontend
+                    archiveArtifacts artifacts: 'frontend/coverage/frontend/lcov-report/**',
+                                     allowEmptyArchive: true
                 }
             }
         }
@@ -493,14 +483,9 @@ pipeline {
             post {
                 always {
                     junit allowEmptyResults: true, testResults: 'frontend/test-results/**/*.xml'
-                    publishHTML(target: [
-                        allowMissing         : true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll              : true,
-                        reportDir            : 'frontend/playwright-report',
-                        reportFiles          : 'index.html',
-                        reportName           : 'Playwright E2E Report'
-                    ])
+                    // Archivar reporte HTML de Playwright y evidencias de fallos
+                    archiveArtifacts artifacts: 'frontend/playwright-report/**',
+                                     allowEmptyArchive: true
                     archiveArtifacts artifacts: 'frontend/test-results/**/*.png,frontend/test-results/**/*.webm',
                                      allowEmptyArchive: true
                 }
