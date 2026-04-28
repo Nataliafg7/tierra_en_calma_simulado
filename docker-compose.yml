@@ -1,19 +1,44 @@
 services:
+  oracle-db:
+    image: gvenzl/oracle-xe:21.3.0-slim
+    container_name: tierra-oracle
+    environment:
+      - ORACLE_PASSWORD=admin123
+      - APP_USER=TIERRA_EN_CALMA
+      - APP_USER_PASSWORD=Tierracalma
+      - ORACLE_PDB=XEPDB1
+    ports:
+      - "1522:1521"
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+      - ./setup-user.sql:/docker-entrypoint-initdb.d/00-setup-user.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - tierra-net
+
   backend:
-    image: nataliaflorezg/tierra-backend:v9
+    build: ./backend
     container_name: tierra-backend
     ports:
-      - "3001:3000"
+      - "3000:3000"
+    volumes:
+      - ./backend:/usr/src/app
     env_file:
       - ./backend/.env
+    networks:
+      - tierra-net
+    depends_on:
+      - oracle-db
 
   frontend:
-    image: nataliaflorezg/tierra-frontend:v11
+    build: ./frontend
     container_name: tierra-frontend
     ports:
       - "4200:80"
     depends_on:
       - backend
+    networks:
+      - tierra-net
 
   jenkins:
     image: jenkins/jenkins:lts
@@ -26,6 +51,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     user: root # Truco para desarrollo local
     restart: on-failure
+    networks:
+      - tierra-net
 
   sonarqube:
     image: sonarqube:lts-community
@@ -39,8 +66,15 @@ services:
       - sonarqube_logs:/opt/sonarqube/logs
       - sonarqube_extensions:/opt/sonarqube/extensions
     restart: on-failure
+    networks:
+      - tierra-net
+
+networks:
+  tierra-net:
+    driver: bridge
 
 volumes:
+  oracle-data:
   jenkins_data:
   sonarqube_data:
   sonarqube_logs:
