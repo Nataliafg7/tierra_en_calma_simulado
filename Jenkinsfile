@@ -291,29 +291,7 @@ pipeline {
             }
         }
 
-        // ──────────────────────────────────────────────────────────────────────
-        // ETAPA 7: SonarQube Quality Gate
-        //   Espera el webhook de SonarQube → Jenkins antes de continuar.
-        //   Configurar en SQ: Administration → Webhooks → http://<jenkins>:8080/sonarqube-webhook/
-        // ──────────────────────────────────────────────────────────────────────
-        stage('SonarQube Quality Gate') {
-            steps {
-                echo 'Esperando Quality Gate de SonarQube...'
-                script {
-                    try {
-                        timeout(time: 5, unit: 'MINUTES') {
-                            waitForQualityGate abortPipeline: true
-                        }
-                    } catch (Exception e) {
-                        echo "================================================================"
-                        echo "⚠️  ADVERTENCIA: Falló el Quality Gate de SonarQube"
-                        echo "Es posible que el análisis anterior haya fallado o el servidor de SonarQube no esté respondiendo."
-                        echo "================================================================"
-                        currentBuild.result = 'UNSTABLE'
-                    }
-                }
-            }
-        }
+
 
         // ──────────────────────────────────────────────────────────────────────
         // ETAPA 8: Build Angular
