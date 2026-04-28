@@ -1,0 +1,221 @@
+<?xml version="1.0"?>
+<testsuite name="Chrome Headless 147.0.0.0 (Windows 10)" package="" timestamp="2026-04-28T04:52:33" id="0" hostname="DESKTOP-Q9STOOO" tests="142" errors="0" failures="0" time="1.233">
+  <properties>
+    <property name="browser.fullName" value="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36"/>
+  </properties>
+  <testcase name="HU19 / HU21 — Actualización de lecturas ambientales P2 — Si el dato es válido pero no coincide regex, actualiza UI pero no agrega puntos" time="0.078" classname="HU19 / HU21 — Actualización de lecturas ambientales"/>
+  <testcase name="HU19 / HU21 — Actualización de lecturas ambientales P1 — Si /datos retorna respuesta inválida, omite el procesamiento" time="0.008" classname="HU19 / HU21 — Actualización de lecturas ambientales"/>
+  <testcase name="HU19 / HU21 — Actualización de lecturas ambientales HU25 P1 — Si la respuesta es inválida, no actualiza el gráfico" time="0.006" classname="HU19 / HU21 — Actualización de lecturas ambientales"/>
+  <testcase name="HU19 / HU21 — Actualización de lecturas ambientales HU25 P5 — Si la humedad es baja y válida, activa riego automático y actualiza el gráfico" time="0.005" classname="HU19 / HU21 — Actualización de lecturas ambientales"/>
+  <testcase name="HU19 / HU21 — Actualización de lecturas ambientales P5 — Si coinciden T y H >= 30, agrega ambos puntos sin riego" time="0.006" classname="HU19 / HU21 — Actualización de lecturas ambientales"/>
+  <testcase name="HU19 / HU21 — Actualización de lecturas ambientales P6 — Si la humedad es &lt; 30, ejecuta riego automático y registra el evento" time="0.005" classname="HU19 / HU21 — Actualización de lecturas ambientales"/>
+  <testcase name="HU19 / HU21 — Actualización de lecturas ambientales P3 — Si solo coincide temperatura, agrega punto de temperatura y no de humedad" time="0.004" classname="HU19 / HU21 — Actualización de lecturas ambientales"/>
+  <testcase name="HU19 / HU21 — Actualización de lecturas ambientales P4 — Si solo coincide humedad >= 30, agrega punto de humedad y no ejecuta riego automático" time="0.005" classname="HU19 / HU21 — Actualización de lecturas ambientales"/>
+  <testcase name="HU20 — Registro automático del evento de riego en el historial Escenario 3 — Si el riego es exitoso y el historial >= 10, elimina el más antiguo" time="0.008" classname="HU20 — Registro automático del evento de riego en el historial"/>
+  <testcase name="HU20 — Registro automático del evento de riego en el historial Escenario 1 — Si falla el servicio de riego, muestra error y no agrega al historial" time="0.007" classname="HU20 — Registro automático del evento de riego en el historial"/>
+  <testcase name="HU20 — Registro automático del evento de riego en el historial Escenario 2 — Si el riego es exitoso y el historial &lt; 10, agrega sin eliminar" time="0.007" classname="HU20 — Registro automático del evento de riego en el historial"/>
+  <testcase name="HU3 Frontend - LoginComponent - P10 HU3F_P10 - Debe mostrar error del backend" time="0.29" classname="HU3 Frontend - LoginComponent - P10"/>
+  <testcase name="HU8 – Frontend – P2: Error al cargar plantas HU8F_P2 - Debe mostrar alert y registrar error cuando falla el GET de plantas" time="0.018" classname="HU8 – Frontend – P2: Error al cargar plantas"/>
+  <testcase name="HU11 Frontend - MisPlantasComponent - P9 HU11F P9 - Debe navegar a la vista de registrar plantas" time="0.027" classname="HU11 Frontend - MisPlantasComponent - P9"/>
+  <testcase name="MonsteraComponent — cargarDatos edge cases should set temperatura and humedadSuelo to --- when dato has no matches" time="0.01" classname="MonsteraComponent — cargarDatos edge cases"/>
+  <testcase name="MonsteraComponent — cargarDatos edge cases should trigger riego automatico when humidity &lt; 30" time="0.006" classname="MonsteraComponent — cargarDatos edge cases"/>
+  <testcase name="MonsteraComponent — cargarDatos edge cases should not set isConnected when dato is null" time="0.005" classname="MonsteraComponent — cargarDatos edge cases"/>
+  <testcase name="HU11 Frontend - MisPlantasComponent - P13 HU11F P13 - Debe invocar irADolar cuando la planta corresponde a ese tipo" time="0.003" classname="HU11 Frontend - MisPlantasComponent - P13"/>
+  <testcase name="MonsteraComponent activarRiego() P1 — Debe manejar error si falla la activación del riego" time="0.005" classname="MonsteraComponent activarRiego()"/>
+  <testcase name="MonsteraComponent activarRiego() P2 — Debe activar riego y registrar evento en historial" time="0.005" classname="MonsteraComponent activarRiego()"/>
+  <testcase name="MonsteraComponent guardarCuidado() Cuidados Escenario 1 — ID inválido y localStorage inválido: NO hace POST y NO limpia formulario" time="0.005" classname="MonsteraComponent guardarCuidado()"/>
+  <testcase name="MonsteraComponent guardarCuidado() Cuidados Escenario 2 — ID no entero: NO hace POST y NO limpia formulario" time="0.004" classname="MonsteraComponent guardarCuidado()"/>
+  <testcase name="MonsteraComponent guardarCuidado() Cuidados Escenario 4 — Tipo vacío/espacios: NO hace POST y NO limpia formulario" time="0.005" classname="MonsteraComponent guardarCuidado()"/>
+  <testcase name="MonsteraComponent guardarCuidado() Cuidados Escenario 3 — Fecha inválida: NO hace POST y NO limpia formulario" time="0.004" classname="MonsteraComponent guardarCuidado()"/>
+  <testcase name="MonsteraComponent guardarCuidado() Cuidados Escenario 6 — POST exitoso: limpia formulario" time="0.085" classname="MonsteraComponent guardarCuidado()"/>
+  <testcase name="MonsteraComponent guardarCuidado() Cuidados Escenario 5 — POST falla: NO limpia formulario" time="0.113" classname="MonsteraComponent guardarCuidado()"/>
+  <testcase name="MonsteraComponent cargarDatos() Lecturas P4 — Solo H (>=30): agrega humedad, NO ejecuta riego automático" time="0.006" classname="MonsteraComponent cargarDatos()"/>
+  <testcase name="MonsteraComponent cargarDatos() Lecturas P3 — Solo T: agrega punto temp, NO agrega humedad" time="0.006" classname="MonsteraComponent cargarDatos()"/>
+  <testcase name="MonsteraComponent cargarDatos() Lecturas P1 — Si /datos retorna res inválido, NO actualiza UI ni puntos" time="0.005" classname="MonsteraComponent cargarDatos()"/>
+  <testcase name="MonsteraComponent cargarDatos() Lecturas P5 — T y H (>=30): agrega temp y humedad, NO ejecuta riego automático" time="0.005" classname="MonsteraComponent cargarDatos()"/>
+  <testcase name="MonsteraComponent cargarDatos() Lecturas P6 — H (&lt;30): ejecuta riego automático y registra evento automático" time="0.004" classname="MonsteraComponent cargarDatos()"/>
+  <testcase name="MonsteraComponent cargarDatos() Lecturas P2 — Dato válido sin regex: actualiza UI, NO agrega puntos" time="0.004" classname="MonsteraComponent cargarDatos()"/>
+  <testcase name="MonsteraComponent HDEU - Registro automático del evento de riego en el historial HDEU Escenario 1 — Si falla el servicio, NO agrega registro al historial" time="0.009" classname="MonsteraComponent HDEU - Registro automático del evento de riego en el historial"/>
+  <testcase name="MonsteraComponent HDEU - Registro automático del evento de riego en el historial HDEU Escenario 3 — En éxito elimina el registro más antiguo si supera 10" time="0.006" classname="MonsteraComponent HDEU - Registro automático del evento de riego en el historial"/>
+  <testcase name="MonsteraComponent HDEU - Registro automático del evento de riego en el historial HDEU Escenario 2 — En éxito agrega registro y NO elimina si queda en &lt;= 10" time="0.006" classname="MonsteraComponent HDEU - Registro automático del evento de riego en el historial"/>
+  <testcase name="HU3 Frontend - LoginComponent - P1 HU3F_P1 - Debe mostrar alerta y cortar el flujo si correo o contraseña están vacíos" time="0.009" classname="HU3 Frontend - LoginComponent - P1"/>
+  <testcase name="HU11 Frontend - MisPlantasComponent - P8 HU11F P8 - Debe mostrar alerta si el backend falla al preparar el monitoreo" time="0.004" classname="HU11 Frontend - MisPlantasComponent - P8"/>
+  <testcase name="Rendimiento frontend - HU19, HU20, HU21, HU23 y HU25 HU19 - carga la pantalla de riego manual en tiempo adecuado" time="0.006" classname="Rendimiento frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Rendimiento frontend - HU19, HU20, HU21, HU23 y HU25 HU20 - registra el evento de riego en historial en tiempo adecuado" time="0.005" classname="Rendimiento frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Rendimiento frontend - HU19, HU20, HU21, HU23 y HU25 Carga - múltiples ejecuciones de riego manual sin degradación" time="0.006" classname="Rendimiento frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Rendimiento frontend - HU19, HU20, HU21, HU23 y HU25 HU25 - carga datos del gráfico humedad-temperatura en tiempo adecuado" time="0.005" classname="Rendimiento frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Rendimiento frontend - HU19, HU20, HU21, HU23 y HU25 HU23 - registra cuidado en tiempo adecuado" time="0.005" classname="Rendimiento frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Rendimiento frontend - HU19, HU20, HU21, HU23 y HU25 HU19 - ejecuta el riego manual en tiempo adecuado" time="0.005" classname="Rendimiento frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Rendimiento frontend - HU19, HU20, HU21, HU23 y HU25 HU21 - actualiza lecturas ambientales en tiempo adecuado" time="0.004" classname="Rendimiento frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="App Component irAContacto should navigate to home and scroll to footer when element exists" time="0.005" classname="App Component irAContacto"/>
+  <testcase name="App Component irAContacto should navigate to home but not scroll when footer element is null" time="0.001" classname="App Component irAContacto"/>
+  <testcase name="App Component should call Swal.fire and reset contacto on enviarFormulario()" time="0.001" classname="App Component"/>
+  <testcase name="App Component should have correct initial title" time="0.001" classname="App Component"/>
+  <testcase name="App Component should create the app" time="0.001" classname="App Component"/>
+  <testcase name="HU8 – Frontend – P1: Carga exitosa del banco de especies HU8F_P1 - Debe construir el mapa plantaIds cuando la carga es exitosa" time="0.002" classname="HU8 – Frontend – P1: Carga exitosa del banco de especies"/>
+  <testcase name="HU8 – Frontend – P3: Respuesta exitosa con arreglo vacío HU8F_P3 - Debe manejar correctamente una respuesta exitosa con lista vacía" time="0.003" classname="HU8 – Frontend – P3: Respuesta exitosa con arreglo vacío"/>
+  <testcase name="Rendimiento frontend - HU1, HU3, HU8, HU10 y HU11 HU1 y HU3 - carga el componente de login y registro en tiempo adecuado" time="0.007" classname="Rendimiento frontend - HU1, HU3, HU8, HU10 y HU11"/>
+  <testcase name="Rendimiento frontend - HU1, HU3, HU8, HU10 y HU11 HU11 - carga el componente de mis plantas en tiempo adecuado" time="0.004" classname="Rendimiento frontend - HU1, HU3, HU8, HU10 y HU11"/>
+  <testcase name="Rendimiento frontend - HU1, HU3, HU8, HU10 y HU11 HU8 y HU10 - carga el componente de registrar plantas en tiempo adecuado" time="0.002" classname="Rendimiento frontend - HU1, HU3, HU8, HU10 y HU11"/>
+  <testcase name="MonsteraComponent — ngOnInit fallbacks should alert Falta id_planta_usuario when guardarCuidado called with null id" time="0.004" classname="MonsteraComponent — ngOnInit fallbacks"/>
+  <testcase name="MonsteraComponent — ngOnInit fallbacks should alert Falta ID de planta when verificarCondiciones called with null id" time="0.004" classname="MonsteraComponent — ngOnInit fallbacks"/>
+  <testcase name="MonsteraComponent — ngOnInit fallbacks should use localStorage fallback when queryParam is not an integer" time="0.004" classname="MonsteraComponent — ngOnInit fallbacks"/>
+  <testcase name="MonsteraComponent — ngOnInit fallbacks should alert and return early when neither queryParam nor localStorage has valid id" time="0.003" classname="MonsteraComponent — ngOnInit fallbacks"/>
+  <testcase name="HU11 Frontend - MisPlantasComponent - P7 HU11F P7 - Debe mostrar alerta si la planta es inválida" time="0.002" classname="HU11 Frontend - MisPlantasComponent - P7"/>
+  <testcase name="HU11 Frontend - MisPlantasComponent - P5 HU11F P5 - Debe asignar lista vacía si la respuesta no es un arreglo" time="0.002" classname="HU11 Frontend - MisPlantasComponent - P5"/>
+  <testcase name="HU11 Frontend - MisPlantasComponent - P4 HU11F P4 - Debe mostrar alerta si ocurre un error al cargar las plantas" time="0.003" classname="HU11 Frontend - MisPlantasComponent - P4"/>
+  <testcase name="HU3 Frontend - LoginComponent - P7 HU3F_P7 - Debe mostrar mensaje genérico cuando no existe err.error.message" time="0.006" classname="HU3 Frontend - LoginComponent - P7"/>
+  <testcase name="HU11 Frontend - MisPlantasComponent - P5 HU11F P5 - Debe asignar lista vacía si la respuesta no es un arreglo" time="0.002" classname="HU11 Frontend - MisPlantasComponent - P5"/>
+  <testcase name="HU3 Frontend - LoginComponent - P5 HU3F_P5 - Debe mostrar error de conexión y no guardar sesión ni navegar" time="0.005" classname="HU3 Frontend - LoginComponent - P5"/>
+  <testcase name="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25 HU19 - si falla el servicio de riego, muestra error y no agrega historial" time="0.005" classname="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25 HU23 - rechaza guardar cuidado sin tipo de cuidado" time="0.004" classname="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25 HU21 - si la lectura ambiental es inválida, no actualiza temperatura ni humedad" time="0.005" classname="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25 HU23 - rechaza guardar cuidado sin id_planta_usuario válido" time="0.004" classname="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25 HU23 - rechaza guardar cuidado sin fecha" time="0.004" classname="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25 HU23 - si el backend falla al guardar cuidado, muestra error controlado" time="0.005" classname="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25 HU25 - si no hay ID de planta, no verifica condiciones" time="0.004" classname="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25 HU25 - si falla la verificación de condiciones, muestra error controlado" time="0.005" classname="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25 HU20 - no registra evento de riego en historial cuando el riego falla" time="0.006" classname="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25 HU21 - si no llega dato ambiental, no marca conexión activa" time="0.006" classname="Seguridad frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="HU3 Frontend - LoginComponent - P9 HU3F_P9 - No debe llamar login si campos están vacíos" time="0.006" classname="HU3 Frontend - LoginComponent - P9"/>
+  <testcase name="HU11 Frontend - MisPlantasComponent - P9 HU11F P9 - Debe navegar a la vista de registrar plantas" time="0.003" classname="HU11 Frontend - MisPlantasComponent - P9"/>
+  <testcase name="Seguridad frontend - HU1, HU3, HU8, HU10 y HU11 HU1 - no permite registro con campos obligatorios vacíos" time="0.004" classname="Seguridad frontend - HU1, HU3, HU8, HU10 y HU11"/>
+  <testcase name="Seguridad frontend - HU1, HU3, HU8, HU10 y HU11 HU11 - redirige cuando no existe sesión válida" time="0.003" classname="Seguridad frontend - HU1, HU3, HU8, HU10 y HU11"/>
+  <testcase name="Seguridad frontend - HU1, HU3, HU8, HU10 y HU11 HU10 - no permite añadir planta sin id válido" time="0.002" classname="Seguridad frontend - HU1, HU3, HU8, HU10 y HU11"/>
+  <testcase name="Seguridad frontend - HU1, HU3, HU8, HU10 y HU11 HU3 - no permite login sin correo y contraseña" time="0.004" classname="Seguridad frontend - HU1, HU3, HU8, HU10 y HU11"/>
+  <testcase name="Seguridad frontend - HU1, HU3, HU8, HU10 y HU11 HU8 - maneja error cuando falla la carga de plantas" time="0.002" classname="Seguridad frontend - HU1, HU3, HU8, HU10 y HU11"/>
+  <testcase name="Seguridad frontend - HU1, HU3, HU8, HU10 y HU11 HU10 - no permite añadir planta sin usuario en sesión" time="0.002" classname="Seguridad frontend - HU1, HU3, HU8, HU10 y HU11"/>
+  <testcase name="HU11 Frontend - MisPlantasComponent - P3 HU11F P3 - Debe manejar correctamente una lista vacía de plantas" time="0.002" classname="HU11 Frontend - MisPlantasComponent - P3"/>
+  <testcase name="HU11 Frontend - MisPlantasComponent - P11 HU11F P11 - Debe devolver la clase por defecto para una planta no mapeada" time="0.002" classname="HU11 Frontend - MisPlantasComponent - P11"/>
+  <testcase name="HU1F - Registro Frontend HU1F_P2 - Debe registrar correctamente y volver a la vista de login" time="0.018" classname="HU1F - Registro Frontend"/>
+  <testcase name="HU3 Frontend - LoginComponent - P2 HU3F_P2 - Debe guardar usuario, mostrar bienvenida y navegar a /admin" time="0.014" classname="HU3 Frontend - LoginComponent - P2"/>
+  <testcase name="MonsteraComponent should handle non-ISO fecha format and normalize it" time="0.004" classname="MonsteraComponent"/>
+  <testcase name="MonsteraComponent should validate missing tipo_cuidado" time="0.005" classname="MonsteraComponent"/>
+  <testcase name="MonsteraComponent should alert error when verificarCondiciones fetch rejects" time="0.006" classname="MonsteraComponent"/>
+  <testcase name="MonsteraComponent should POST care record when all fields are valid and show success" time="0.007" classname="MonsteraComponent"/>
+  <testcase name="MonsteraComponent should alert error when guardarCuidado fetch fails (not ok)" time="0.009" classname="MonsteraComponent"/>
+  <testcase name="MonsteraComponent should validate missing fecha" time="0.007" classname="MonsteraComponent"/>
+  <testcase name="MonsteraComponent should show fallback message when result.mensaje is absent" time="0.005" classname="MonsteraComponent"/>
+  <testcase name="MonsteraComponent should call fetch on verificarCondiciones when id is valid" time="0.006" classname="MonsteraComponent"/>
+  <testcase name="MonsteraComponent should handle activarRiego errors" time="0.005" classname="MonsteraComponent"/>
+  <testcase name="MonsteraComponent should activate riego manually and prompt success" time="0.005" classname="MonsteraComponent"/>
+  <testcase name="MonsteraComponent should alert error when guardarCuidado fetch rejects completely" time="0.004" classname="MonsteraComponent"/>
+  <testcase name="MonsteraComponent should create and load initial data properly" time="0.004" classname="MonsteraComponent"/>
+  <testcase name="HU3 Frontend - LoginComponent - P11 HU3F_P11 - Debe mostrar error de conexión" time="0.007" classname="HU3 Frontend - LoginComponent - P11"/>
+  <testcase name="HU10F - RegistrarPlantasComponent HU10F P4 - Debe redirigir al login si el usuario no ha iniciado sesión al intentar añadir una planta" time="0.002" classname="HU10F - RegistrarPlantasComponent"/>
+  <testcase name="HU10F - RegistrarPlantasComponent HU10F P5 - Debe mostrar una alerta cuando no exista el ID de la planta seleccionada" time="0.001" classname="HU10F - RegistrarPlantasComponent"/>
+  <testcase name="HU10F - RegistrarPlantasComponent HU10F P2 - Debe cargar plantas y construir correctamente el mapa de IDs normalizando nombres" time="0.002" classname="HU10F - RegistrarPlantasComponent"/>
+  <testcase name="HU10F - RegistrarPlantasComponent HU10F P3 - Debe mostrar una alerta cuando falle la carga de plantas" time="0.001" classname="HU10F - RegistrarPlantasComponent"/>
+  <testcase name="HU10F - RegistrarPlantasComponent HU10F P1 - Debe llamar cargarPlantas al iniciar el componente" time="0.001" classname="HU10F - RegistrarPlantasComponent"/>
+  <testcase name="HU10F - RegistrarPlantasComponent HU10F P8 - Debe usar el ID_USUARIO almacenado en localStorage al construir el body del registro" time="0.003" classname="HU10F - RegistrarPlantasComponent"/>
+  <testcase name="HU10F - RegistrarPlantasComponent HU10F P7 - Debe mostrar una alerta cuando ocurra un error al registrar la planta" time="0.002" classname="HU10F - RegistrarPlantasComponent"/>
+  <testcase name="HU10F - RegistrarPlantasComponent HU10F P6 - Debe registrar la planta correctamente y redirigir a mis-plantas" time="0.002" classname="HU10F - RegistrarPlantasComponent"/>
+  <testcase name="HU1F - Registro Frontend HU1F_P1 - No debe registrar si faltan campos obligatorios" time="0.003" classname="HU1F - Registro Frontend"/>
+  <testcase name="Regresión frontend - HU19, HU20, HU21, HU23 y HU25 HU23 - debe permitir registrar un cuidado con datos válidos" time="0.005" classname="Regresión frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Regresión frontend - HU19, HU20, HU21, HU23 y HU25 HU21 - debe actualizar correctamente las lecturas ambientales" time="0.006" classname="Regresión frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Regresión frontend - HU19, HU20, HU21, HU23 y HU25 HU20 - debe registrar el evento de riego manual en el historial" time="0.005" classname="Regresión frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Regresión frontend - HU19, HU20, HU21, HU23 y HU25 HU25 - debe actualizar los datos necesarios para el gráfico humedad-temperatura" time="0.005" classname="Regresión frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Regresión frontend - HU19, HU20, HU21, HU23 y HU25 HU19 - debe crear correctamente la pantalla de simulación de riego manual" time="0.004" classname="Regresión frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Regresión frontend - HU19, HU20, HU21, HU23 y HU25 HU19 - debe ejecutar el riego manual correctamente" time="0.003" classname="Regresión frontend - HU19, HU20, HU21, HU23 y HU25"/>
+  <testcase name="Regresión frontend - HU1, HU3, HU8, HU10 y HU11 HU8 - debe crear correctamente la pantalla de consulta del banco de especies" time="0.001" classname="Regresión frontend - HU1, HU3, HU8, HU10 y HU11"/>
+  <testcase name="Regresión frontend - HU1, HU3, HU8, HU10 y HU11 HU11 - debe crear correctamente la pantalla de plantas registradas" time="0.002" classname="Regresión frontend - HU1, HU3, HU8, HU10 y HU11"/>
+  <testcase name="Regresión frontend - HU1, HU3, HU8, HU10 y HU11 HU3 - debe crear correctamente la pantalla de inicio de sesión" time="0.005" classname="Regresión frontend - HU1, HU3, HU8, HU10 y HU11"/>
+  <testcase name="Regresión frontend - HU1, HU3, HU8, HU10 y HU11 HU10 - debe crear correctamente la pantalla de asociación de plantas" time="0.002" classname="Regresión frontend - HU1, HU3, HU8, HU10 y HU11"/>
+  <testcase name="Regresión frontend - HU1, HU3, HU8, HU10 y HU11 HU1 - debe crear correctamente la pantalla donde se realiza el registro de usuario" time="0.005" classname="Regresión frontend - HU1, HU3, HU8, HU10 y HU11"/>
+  <testcase name="HU3 Frontend - LoginComponent - P8 HU3F_P8 - Debe tomar el primer usuario del arreglo y navegar a /mis-plantas" time="0.006" classname="HU3 Frontend - LoginComponent - P8"/>
+  <testcase name="HU23 — Registro de cuidados (poda y fertilización) Escenario 6 — Flujo exitoso limpia el formulario" time="0.004" classname="HU23 — Registro de cuidados (poda y fertilización)"/>
+  <testcase name="HU23 — Registro de cuidados (poda y fertilización) Escenario 1 — ID inválido en componente y localStorage, muestra error de ID y no hace POST" time="0.003" classname="HU23 — Registro de cuidados (poda y fertilización)"/>
+  <testcase name="HU23 — Registro de cuidados (poda y fertilización) Escenario 3 — Fecha vacía, muestra error de fecha y no hace POST" time="0.003" classname="HU23 — Registro de cuidados (poda y fertilización)"/>
+  <testcase name="HU23 — Registro de cuidados (poda y fertilización) Escenario 2 — ID no es entero (1.5), muestra error de ID" time="0.003" classname="HU23 — Registro de cuidados (poda y fertilización)"/>
+  <testcase name="HU23 — Registro de cuidados (poda y fertilización) Escenario 5 — El backend responde con error, ejecuta catch y muestra alerta" time="0.005" classname="HU23 — Registro de cuidados (poda y fertilización)"/>
+  <testcase name="HU23 — Registro de cuidados (poda y fertilización) Escenario 4 — Tipo de cuidado vacío o con espacios, muestra error de tipo" time="0.003" classname="HU23 — Registro de cuidados (poda y fertilización)"/>
+  <testcase name="HU11 Frontend - MisPlantasComponent - P1 HU11F P1 - Debe mostrar alerta y navegar a /login si la sesión es inválida" time="0.002" classname="HU11 Frontend - MisPlantasComponent - P1"/>
+  <testcase name="HU3 Frontend - LoginComponent - P4 HU3F_P4 - Debe mostrar alerta de credenciales inválidas y no guardar sesión" time="0.005" classname="HU3 Frontend - LoginComponent - P4"/>
+  <testcase name="PublicLayoutComponent should create" time="0.02" classname="PublicLayoutComponent"/>
+  <testcase name="PublicLayoutComponent irAProposito should navigate and schedule scroll if element does not Initially exist" time="0.005" classname="PublicLayoutComponent irAProposito"/>
+  <testcase name="PublicLayoutComponent irAProposito should scroll if element exists" time="0.004" classname="PublicLayoutComponent irAProposito"/>
+  <testcase name="PublicLayoutComponent irAContacto should navigate to root and schedule scroll when footer element does not exist" time="0.004" classname="PublicLayoutComponent irAContacto"/>
+  <testcase name="PublicLayoutComponent irAContacto should scroll the inner footer element after navigation when it eventually exists" time="0.004" classname="PublicLayoutComponent irAContacto"/>
+  <testcase name="PublicLayoutComponent irAContacto should scroll to footer element when it exists" time="0.004" classname="PublicLayoutComponent irAContacto"/>
+  <testcase name="PublicLayoutComponent enviarFormulario should show error alert on post failure" time="0.003" classname="PublicLayoutComponent enviarFormulario"/>
+  <testcase name="PublicLayoutComponent enviarFormulario should show success alert and reset contacto on successful post" time="0.004" classname="PublicLayoutComponent enviarFormulario"/>
+  <testcase name="PublicLayoutComponent irAHome should navigate and scroll to top" time="0.004" classname="PublicLayoutComponent irAHome"/>
+  <testcase name="HU1F - Registro Frontend HU1F_P3 - Debe mostrar error y mantenerse en registro cuando falla el backend" time="0.005" classname="HU1F - Registro Frontend"/>
+  <testcase name="HU11 Frontend - MisPlantasComponent - P15 HU11F P15 - Debe retroceder el carrusel cuando el índice actual es mayor que cero" time="0.002" classname="HU11 Frontend - MisPlantasComponent - P15"/>
+  <testcase name="HU3 Frontend - LoginComponent - P3 HU3F_P3 - Debe guardar usuario, mostrar bienvenida y navegar a /mis-plantas" time="0.005" classname="HU3 Frontend - LoginComponent - P3"/>
+  <testcase name="HU11 Frontend - MisPlantasComponent - P2 HU11F P2 - Debe cargar correctamente las plantas del usuario" time="0.002" classname="HU11 Frontend - MisPlantasComponent - P2"/>
+  <testcase name="HU11 Frontend - MisPlantasComponent - P13 HU11F P13 - Debe invocar irADolar cuando la planta corresponde a ese tipo" time="0.003" classname="HU11 Frontend - MisPlantasComponent - P13"/>
+  <system-out>
+    <![CDATA[Chrome Headless 147.0.0.0 (Windows 10) ALERT: 'Riego activado correctamente'
+,Chrome Headless 147.0.0.0 (Windows 10) ERROR: 'Error al activar el riego:', HttpErrorResponse{headers: _HttpHeaders{headers: Map{}, normalizedNames: Map{}, lazyInit: undefined, lazyUpdate: null}, status: 500, statusText: 'Server Error', url: 'http://localhost:3000/api/regar', ok: false, type: undefined, redirected: undefined, name: 'HttpErrorResponse', message: 'Http failure response for http://localhost:3000/api/regar: 500 Server Error', error: Object{ok: false}}
+,Chrome Headless 147.0.0.0 (Windows 10) ALERT: 'Error al activar el riego'
+,Chrome Headless 147.0.0.0 (Windows 10) ALERT: 'Riego activado correctamente'
+,Chrome Headless 147.0.0.0 (Windows 10) ALERT: 'Falta id_planta_usuario'
+,Chrome Headless 147.0.0.0 (Windows 10) WARN: '[CUIDADO] id_planta_usuario inválido:', NaN
+,Chrome Headless 147.0.0.0 (Windows 10) ALERT: 'Falta id_planta_usuario'
+,Chrome Headless 147.0.0.0 (Windows 10) WARN: '[CUIDADO] id_planta_usuario inválido:', null
+,Chrome Headless 147.0.0.0 (Windows 10) ALERT: 'Falta tipo de cuidado'
+,Chrome Headless 147.0.0.0 (Windows 10) WARN: '[CUIDADO] tipo inválido:', '   '
+,Chrome Headless 147.0.0.0 (Windows 10) ALERT: 'Falta fecha (YYYY-MM-DD)'
+,Chrome Headless 147.0.0.0 (Windows 10) WARN: '[CUIDADO] fecha inválida:', ''
+,Chrome Headless 147.0.0.0 (Windows 10) LOG: '[CUIDADO] POST body verificado →', Object{id_planta_usuario: 10, fecha: '2026-03-04', tipo: 'Riego', detalles: 'algo'}
+,Chrome Headless 147.0.0.0 (Windows 10) ALERT: 'Cuidado guardado:
+Riego el 2026-03-04'
+,Chrome Headless 147.0.0.0 (Windows 10) LOG: '[CUIDADO] POST body verificado →', Object{id_planta_usuario: 10, fecha: '2026-03-04', tipo: 'Poda', detalles: 'detalle'}
+,Chrome Headless 147.0.0.0 (Windows 10) ERROR: '[CUIDADO] error', Error: Error backend
+Error: Error backend
+    at _a2.<anonymous> (http://localhost:9876/base/src/app/pages/monstera/monstera.ts:276:26)
+    at Generator.next (<anonymous>)
+    at fulfilled (http://localhost:9876/base/chunk-HBW54YOI.js:54:24)
+    at _ZoneDelegate.invoke (http://localhost:9876/base/node_modules/zone.js/fesm2015/zone.js:398:28)
+    at _ProxyZoneSpec.onInvoke (http://localhost:9876/base/node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
+    at _ZoneDelegate.invoke (http://localhost:9876/base/node_modules/zone.js/fesm2015/zone.js:397:34)
+    at ZoneImpl.run (http://localhost:9876/base/node_modules/zone.js/fesm2015/zone.js:113:43)
+    at http://localhost:9876/base/node_modules/zone.js/fesm2015/zone.js:2537:40
+    at _ZoneDelegate.invokeTask (http://localhost:9876/base/node_modules/zone.js/fesm2015/zone.js:431:33)
+    at _ProxyZoneSpec.onInvokeTask (http://localhost:9876/base/node_modules/zone.js/fesm2015/zone-testing.js:2163:39)
+,Chrome Headless 147.0.0.0 (Windows 10) ALERT: 'Error guardando el cuidado'
+,Chrome Headless 147.0.0.0 (Windows 10) ERROR: 'Error al activar el riego:', HttpErrorResponse{headers: _HttpHeaders{headers: Map{}, normalizedNames: Map{}, lazyInit: undefined, lazyUpdate: null}, status: 500, statusText: 'Server Error', url: 'http://localhost:3000/api/regar', ok: false, type: undefined, redirected: undefined, name: 'HttpErrorResponse', message: 'Http failure response for http://localhost:3000/api/regar: 500 Server Error', error: Object{ok: false}}
+,Chrome Headless 147.0.0.0 (Windows 10) ALERT: 'Error al activar el riego'
+,Chrome Headless 147.0.0.0 (Windows 10) ALERT: 'Riego activado correctamente'
+,Chrome Headless 147.0.0.0 (Windows 10) ALERT: 'Riego activado correctamente'
+,Chrome Headless 147.0.0.0 (Windows 10) LOG: '[Monitorear] planta:', Object{ID_PLANTA_USUARIO: 25, ID_PLANTA: 1, NOMBRE_COMUN: 'Monstera', NOMBRE_CIENTIFICO: 'Monstera deliciosa'}, 'ID_PLANTA_USUARIO=', 25
+,Chrome Headless 147.0.0.0 (Windows 10) LOG: '[Monitorear] persistido planta_usuario_id=', 25
+,Chrome Headless 147.0.0.0 (Windows 10) ERROR: '[Monitorear][ERROR] backend', HttpErrorResponse{headers: _HttpHeaders{headers: Map{}, normalizedNames: Map{}, lazyInit: undefined, lazyUpdate: null}, status: 500, statusText: 'Server Error', url: 'http://localhost:3000/api/monitorear', ok: false, type: undefined, redirected: undefined, name: 'HttpErrorResponse', message: 'Http failure response for http://localhost:3000/api/monitorear: 500 Server Error', error: 'Error'}
+,Chrome Headless 147.0.0.0 (Windows 10) LOG: 'Mapa de plantas cargado:', Object{}
+,Chrome Headless 147.0.0.0 (Windows 10) LOG: '[Monitorear] planta:', Object{ID_PLANTA_USUARIO: 0, ID_PLANTA: 1, NOMBRE_COMUN: 'Monstera', NOMBRE_CIENTIFICO: 'Monstera deliciosa'}, 'ID_PLANTA_USUARIO=', 0
+,Chrome Headless 147.0.0.0 (Windows 10) ERROR: 'Error cargando plantas:', HttpErrorResponse{headers: _HttpHeaders{headers: Map{}, normalizedNames: Map{}, lazyInit: undefined, lazyUpdate: null}, status: 500, statusText: 'Error del servidor', url: 'http://localhost:3000/api/plantas', ok: false, type: undefined, redirected: undefined, name: 'HttpErrorResponse', message: 'Http failure response for http://localhost:3000/api/plantas: 500 Error del servidor', error: Object{}}
+,Chrome Headless 147.0.0.0 (Windows 10) ALERT: 'Registro exitoso'
+,Chrome Headless 147.0.0.0 (Windows 10) ALERT: 'Sesión inválida. Inicia sesión nuevamente.'
+,Chrome Headless 147.0.0.0 (Windows 10) LOG: '[CUIDADO] POST body verificado →', Object{id_planta_usuario: 10, fecha: '2026-03-04', tipo: 'Riego', detalles: 'Aplicado'}
+,Chrome Headless 147.0.0.0 (Windows 10) LOG: '[CUIDADO] POST body verificado →', Object{id_planta_usuario: 10, fecha: '2026-03-04', tipo: 'Poda', detalles: 'Detalle'}
+,Chrome Headless 147.0.0.0 (Windows 10) ERROR: '[CUIDADO] error', Error: Error backend
+Error: Error backend
+    at http://localhost:9876/base/src/app/pages/monstera/monstera.spec.ts:723:20
+    at Generator.next (<anonymous>)
+    at http://localhost:9876/base/chunk-HBW54YOI.js:67:61
+    at new ZoneAwarePromise (http://localhost:9876/base/node_modules/zone.js/fesm2015/zone.js:2701:25)
+    at __async (http://localhost:9876/base/chunk-HBW54YOI.js:51:10)
+    at UserContext.<anonymous> (http://localhost:9876/base/src/app/pages/monstera/monstera.spec.ts:710:94)
+    at _ZoneDelegate.invoke (http://localhost:9876/base/node_modules/zone.js/fesm2015/zone.js:398:28)
+    at _ProxyZoneSpec.onInvoke (http://localhost:9876/base/node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
+    at _ZoneDelegate.invoke (http://localhost:9876/base/node_modules/zone.js/fesm2015/zone.js:397:34)
+    at ZoneImpl.run (http://localhost:9876/base/node_modules/zone.js/fesm2015/zone.js:113:43)
+,Chrome Headless 147.0.0.0 (Windows 10) ALERT: 'Error guardando el cuidado'
+,Chrome Headless 147.0.0.0 (Windows 10) ERROR: 'Error al enviar el formulario:', Error: NetError
+Error: NetError
+    at http://localhost:9876/base/src/app/layouts/public-layout.spec.ts:52:53
+    at _Observable.init [as _subscribe] (http://localhost:9876/base/node_modules/rxjs/src/internal/observable/throwError.ts:123:68)
+    at _Observable._trySubscribe (http://localhost:9876/base/node_modules/rxjs/src/internal/Observable.ts:235:19)
+    at http://localhost:9876/base/node_modules/rxjs/src/internal/Observable.ts:225:18
+    at errorContext (http://localhost:9876/base/node_modules/rxjs/src/internal/util/errorContext.ts:29:5)
+    at _Observable.subscribe (http://localhost:9876/base/node_modules/rxjs/src/internal/Observable.ts:211:5)
+    at _a.enviarFormulario (http://localhost:9876/base/src/app/layouts/public-layout.ts:22:40)
+    at UserContext.<anonymous> (http://localhost:9876/base/src/app/layouts/public-layout.spec.ts:55:17)
+    at _ZoneDelegate.invoke (http://localhost:9876/base/node_modules/zone.js/fesm2015/zone.js:398:28)
+    at _ProxyZoneSpec.onInvoke (http://localhost:9876/base/node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
+
+]]>
+  </system-out>
+  <system-err/>
+</testsuite>

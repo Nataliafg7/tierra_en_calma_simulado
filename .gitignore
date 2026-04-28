@@ -65,3 +65,7 @@ frontend/.scannerwork
 .scannerwork
 
 backend/k6/results/*
+!backend/k6/results/.gitkeep
+backend/junit.xml
+frontend/test-results/
+frontend/playwright-report/

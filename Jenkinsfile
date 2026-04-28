@@ -547,14 +547,17 @@ def parseLcovCoverage(String lcovPath) {
     }
 
     def content = readFile(lcovPath)
-    content.eachLine { line ->
+    def lines = content.split('\n')
+    
+    for (int i = 0; i < lines.length; i++) {
+        def line = lines[i].trim()
         if (line.startsWith('LF:')) {
-            lf += line.replace('LF:', '').trim().toInteger()
+            lf += line.replace('LF:', '').toInteger()
         } else if (line.startsWith('LH:')) {
-            lh += line.replace('LH:', '').trim().toInteger()
+            lh += line.replace('LH:', '').toInteger()
         }
     }
 
     if (lf == 0) return 0
-    return Math.round((lh / lf) * 100)
+    return Math.round((lh * 100.0) / lf)
 }
