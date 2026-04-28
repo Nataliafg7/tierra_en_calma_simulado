@@ -300,6 +300,22 @@ connectString: process.env.ORACLE_CONN || process.env.ORACLE_CONNECT_STRING  };
     }
   });
 
+  // ======================= REGAR =======================
+  /* istanbul ignore next */
+  app.post("/api/regar", async (req, res) => {
+    try {
+      const result = await mqttService.enviarComandoRiego();
+      if (result && result.ok) {
+        return res.status(200).json({ ok: true });
+      } else {
+        return res.status(500).json({ error: "No se pudo enviar el comando" });
+      }
+    } catch (e) {
+      console.error("Error en POST /api/regar:", e);
+      return res.status(500).json({ error: "No se pudo enviar el comando" });
+    }
+  });
+
   // ======================= REGISTRAR PLANTA =======================
   app.post("/api/registrar-planta", async (req, res) => {
     const { id_usuario, id_planta } = req.body;

@@ -70,7 +70,7 @@ describe("HU11B P2 - GET /api/mis-plantas exitoso con filas", () => {
     expect(response.body).toEqual(filas);
     // Fluent assertion: valida que se devuelven exactamente las plantas asociadas al usuario
 
-    expect(response.body).toHaveSize(2);
+    expect(response.body).toHaveLength(2);
     // Fluent assertion: confirma la cantidad de plantas devueltas en la respuesta
 
     expect(response.body[0]).toMatchObject({

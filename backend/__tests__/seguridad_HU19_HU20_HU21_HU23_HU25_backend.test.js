@@ -71,6 +71,7 @@ describe("Seguridad backend - HU19, HU20, HU21, HU23 y HU25", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mqttService.__clearSensorIdForTests();
 
     app = createApp();
 

@@ -66,7 +66,7 @@ describe("HU11B P4 - GET /api/mis-plantas con error en getConnection", () => {
     // Fluent assertion: valida que el error fue registrado en consola
 
     expect(errorSpy).toHaveBeenCalledWith(
-      "Error al obtener plantas del usuario:",
+      "Error al obtener las plantas del usuario:",
       expect.any(Error)
     );
     // Fluent assertion: valida que se registró el mensaje de error esperado

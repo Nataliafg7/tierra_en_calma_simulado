@@ -55,7 +55,7 @@ describe("HU11B P3 - GET /api/mis-plantas exitoso con rows nulo", () => {
     expect(response.body).toEqual([]);
     // Fluent assertion: valida que rows null se convierte en arreglo vacío
 
-    expect(response.body).toHaveSize(0);
+    expect(response.body).toHaveLength(0);
     // Fluent assertion: confirma que no se devuelven plantas
 
     expect(oracledb.getConnection).toHaveBeenCalledTimes(1);

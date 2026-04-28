@@ -40,6 +40,9 @@
       "pkgCentralService.js",
       "cuidadosService.js"
     ],
+    "testPathIgnorePatterns": [
+      "/k6/"
+    ],
     "setupFilesAfterEnv": ["./jest.setup.js"]
   }
 }
