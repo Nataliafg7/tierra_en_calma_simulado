@@ -2,19 +2,12 @@
 //  TIERRA EN CALMA — Jenkinsfile
 //  Pipeline CI/CD para monorepo (Backend Express + Frontend Angular)
 //
-//  Etapas:
-//   1. Checkout
-//   2. Install & Unit Tests → Backend (Jest + cobertura)
-//   3. Install & Unit Tests → Frontend (Karma + cobertura)
-//   4. Quality Gate → SonarQube + validación 80 % de cobertura
-//   5. Build → Angular
-//   6. Build & Push Docker → Backend
-//   7. Build & Push Docker → Frontend
-//   8. Performance Tests → k6 (smoke sobre cada endpoint)
-//   9. Regression Tests → Playwright E2E
+//  Imagen Jenkins base: jenkins/jenkins:lts (sin Node.js)
+//  → Node.js 22.15.0 se instala vía nvm en la etapa "Setup Node.js"
+//    y se reutiliza en todas las etapas exportando NVM_DIR al PATH.
 //
-//  Secrets requeridos en Jenkins (Manage Credentials):
-//   - DOCKER_CREDENTIALS_ID : Usuario/Password de Docker Hub
+//  Secrets requeridos en Jenkins (Manage Jenkins → Credentials):
+//   - DOCKER_CREDENTIALS_ID : Username/Password de Docker Hub
 //   - SONAR_TOKEN_ID        : Token de SonarQube (secret text)
 // =============================================================
 
@@ -26,14 +19,16 @@ pipeline {
         NODE_OPTIONS          = '--max-old-space-size=4096'
         NODE_VERSION          = '22.15.0'
 
+        // Ruta donde nvm instala Node (persiste en el workspace del agente)
+        NVM_DIR               = '/root/.nvm'
+
         // Docker Hub
-        DOCKER_REGISTRY       = 'docker.io'
         DOCKER_BACKEND_IMAGE  = 'nataliaflorezg/tierra-backend'
         DOCKER_FRONTEND_IMAGE = 'nataliaflorezg/tierra-frontend'
-        DOCKER_TAG            = "v${env.BUILD_NUMBER}"   // tag versionado por build
+        DOCKER_TAG            = "v${env.BUILD_NUMBER}"
 
         // SonarQube
-        SONAR_HOST            = 'http://localhost:9000'
+        SONAR_HOST            = 'http://sonarqube:9000'
         SONAR_PROJECT_BACKEND = 'tierra-en-calma-backend'
         SONAR_PROJECT_FRONT   = 'tierra-front-monstera'
 
@@ -43,8 +38,7 @@ pipeline {
         // k6
         K6_BASE_URL           = 'http://localhost:3000'
 
-        // Playwright
-        PLAYWRIGHT_BASE_URL   = 'http://localhost:4200'
+        // CI flag para Playwright y Angular
         CI                    = 'true'
     }
 
@@ -63,52 +57,81 @@ pipeline {
         // ──────────────────────────────────────────────────────────────────────
         stage('Checkout') {
             steps {
-                echo '📥 Clonando repositorio...'
+                echo 'Clonando repositorio...'
                 checkout scm
             }
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // ETAPA 2: Backend — Instalación y pruebas unitarias
+        // ETAPA 2: Instalar Node.js via nvm
+        //   Si nvm ya está instalado y la versión pedida ya existe,
+        //   los comandos son idempotentes y terminan en segundos.
+        // ──────────────────────────────────────────────────────────────────────
+        stage('Setup: Node.js via nvm') {
+            steps {
+                sh '''
+                    # Instalar nvm si no existe
+                    if [ ! -d "$NVM_DIR" ]; then
+                        echo ">>> Instalando nvm..."
+                        curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+                    fi
+
+                    # Cargar nvm e instalar la version requerida
+                    export NVM_DIR="$NVM_DIR"
+                    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+                    nvm install ${NODE_VERSION}
+                    nvm use ${NODE_VERSION}
+                    nvm alias default ${NODE_VERSION}
+
+                    echo "Node: $(node --version)"
+                    echo "npm:  $(npm --version)"
+                '''
+            }
+        }
+
+        // ──────────────────────────────────────────────────────────────────────
+        // ETAPA 3: Backend — Instalación y pruebas unitarias
         // ──────────────────────────────────────────────────────────────────────
         stage('Backend: Install & Unit Tests') {
             steps {
                 dir('backend') {
-                    echo '📦 Instalando dependencias del backend...'
+                    echo 'Instalando dependencias del backend...'
                     sh '''
+                        export NVM_DIR="$NVM_DIR"
+                        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                        nvm use ${NODE_VERSION}
+
                         if [ -f package-lock.json ]; then
                             npm ci
                         elif [ -f package.json ]; then
                             npm install
                         else
                             echo "No backend package.json, skipping"
-                            exit 0
                         fi
                     '''
 
-                    echo '🧪 Ejecutando pruebas unitarias del backend (Jest)...'
+                    echo 'Ejecutando pruebas unitarias del backend (Jest)...'
                     sh '''
-                        if [ -f package.json ]; then
-                            NODE_ENV=test \
-                            GMAIL_USER=test@tierraencalma.com \
-                            GMAIL_PASS=dummy \
-                            npm test -- --runInBand \
-                                       --forceExit \
-                                       --coverage \
-                                       --coverageReporters=lcov \
-                                       --coverageReporters=text-summary
-                        else
-                            echo "No backend project to test"
-                        fi
+                        export NVM_DIR="$NVM_DIR"
+                        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                        nvm use ${NODE_VERSION}
+
+                        NODE_ENV=test \
+                        GMAIL_USER=test@tierraencalma.com \
+                        GMAIL_PASS=dummy \
+                        JUNIT_REPORT_PATH=junit.xml \
+                        npm test -- --runInBand \
+                                   --forceExit \
+                                   --coverage \
+                                   --coverageReporters=lcov \
+                                   --coverageReporters=text-summary
                     '''
                 }
             }
             post {
                 always {
-                    // Publicar resultados JUnit si Jest genera XML
-                    junit allowEmptyResults: true,
-                          testResults: 'backend/junit.xml'
-                    // Publicar reporte de cobertura HTML
+                    junit allowEmptyResults: true, testResults: 'backend/junit.xml'
                     publishHTML(target: [
                         allowMissing         : true,
                         alwaysLinkToLastBuild: true,
@@ -122,37 +145,39 @@ pipeline {
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // ETAPA 3: Frontend — Instalación, pruebas unitarias y build
+        // ETAPA 4: Frontend — Instalación y pruebas unitarias
         // ──────────────────────────────────────────────────────────────────────
         stage('Frontend: Install & Unit Tests') {
             steps {
                 dir('frontend') {
-                    echo '📦 Instalando dependencias del frontend...'
+                    echo 'Instalando dependencias del frontend...'
                     sh '''
+                        export NVM_DIR="$NVM_DIR"
+                        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                        nvm use ${NODE_VERSION}
+
                         if [ -f package-lock.json ]; then
                             npm ci
                         elif [ -f package.json ]; then
                             npm install
                         else
                             echo "No frontend package.json, skipping"
-                            exit 0
                         fi
                     '''
 
-                    echo '🧪 Ejecutando pruebas unitarias del frontend (Karma/Jasmine)...'
+                    echo 'Ejecutando pruebas unitarias del frontend (Karma/Jasmine)...'
                     sh '''
-                        if [ -f package.json ]; then
-                            npm run test:coverage
-                        else
-                            echo "No frontend project to test"
-                        fi
+                        export NVM_DIR="$NVM_DIR"
+                        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                        nvm use ${NODE_VERSION}
+
+                        npm run test:coverage
                     '''
                 }
             }
             post {
                 always {
-                    junit allowEmptyResults: true,
-                          testResults: 'frontend/test-results/**/*.xml'
+                    junit allowEmptyResults: true, testResults: 'frontend/test-results/**/*.xml'
                     publishHTML(target: [
                         allowMissing         : true,
                         alwaysLinkToLastBuild: true,
@@ -166,81 +191,73 @@ pipeline {
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // ETAPA 4: Validación de cobertura mínima (80 %)
-        //          Se ejecuta ANTES de SonarQube para fallar rápido
+        // ETAPA 5: Validación de cobertura mínima (>= 80 %)
+        //   Se ejecuta ANTES de SonarQube para fallar rápido y ahorrar tiempo.
         // ──────────────────────────────────────────────────────────────────────
-        stage('Coverage Gate: ≥ 80 %') {
+        stage('Coverage Gate: >= 80%') {
             steps {
-                echo '🔍 Validando cobertura mínima del ${COVERAGE_THRESHOLD}%...'
                 script {
-                    // ── Backend: parsear lcov.info ──────────────────────────
-                    def backendLcov = 'backend/coverage/lcov.info'
-                    def backendCov  = parseLcovCoverage(backendLcov)
-                    echo "Backend coverage: ${backendCov}%"
-                    if (backendCov < env.COVERAGE_THRESHOLD.toInteger()) {
-                        error("❌ Backend coverage ${backendCov}% está por debajo del mínimo requerido (${COVERAGE_THRESHOLD}%)")
-                    }
-
-                    // ── Frontend: parsear lcov.info ──────────────────────────
+                    def backendLcov  = 'backend/coverage/lcov.info'
                     def frontendLcov = 'frontend/coverage/frontend/lcov.info'
-                    def frontendCov  = parseLcovCoverage(frontendLcov)
-                    echo "Frontend coverage: ${frontendCov}%"
-                    if (frontendCov < env.COVERAGE_THRESHOLD.toInteger()) {
-                        error("❌ Frontend coverage ${frontendCov}% está por debajo del mínimo requerido (${COVERAGE_THRESHOLD}%)")
+
+                    def backendCov  = parseLcovCoverage(backendLcov)
+                    def frontendCov = parseLcovCoverage(frontendLcov)
+
+                    echo "Backend  coverage : ${backendCov}%"
+                    echo "Frontend coverage : ${frontendCov}%"
+
+                    def threshold = env.COVERAGE_THRESHOLD.toInteger()
+
+                    if (backendCov < threshold) {
+                        error("Backend coverage ${backendCov}% esta por debajo del minimo requerido (${threshold}%)")
+                    }
+                    if (frontendCov < threshold) {
+                        error("Frontend coverage ${frontendCov}% esta por debajo del minimo requerido (${threshold}%)")
                     }
 
-                    echo "✅ Cobertura OK — Backend: ${backendCov}% | Frontend: ${frontendCov}%"
+                    echo "Cobertura OK — Backend: ${backendCov}% | Frontend: ${frontendCov}%"
                 }
             }
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // ETAPA 5: SonarQube — Análisis de calidad de código
+        // ETAPA 6: SonarQube — Análisis de calidad de código
+        //   Requiere sonar-scanner en el PATH del agente Jenkins.
+        //   Instalación: https://docs.sonarqube.org/latest/analysis/scan/sonarscanner/
         // ──────────────────────────────────────────────────────────────────────
         stage('SonarQube Analysis') {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'SONAR_TOKEN_ID', variable: 'SONAR_TOKEN')]) {
 
-                        // ── Análisis del Backend ────────────────────────────
-                        echo '📊 Analizando Backend con SonarQube...'
+                        echo 'Analizando Backend con SonarQube...'
                         dir('backend') {
                             sh """
-                                sonar-scanner \
-                                  -Dsonar.projectKey=${SONAR_PROJECT_BACKEND} \
-                                  -Dsonar.projectName='Tierra en Calma - Backend' \
-                                  -Dsonar.sources=. \
-                                  -Dsonar.inclusions=app.js,server.js,SimuladorSensor.js,mqttService.js,pkgCentralService.js,cuidadosService.js \
-                                  -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
-                                  -Dsonar.test.inclusions=__tests__/**/*.test.js \
-                                  -Dsonar.host.url=${SONAR_HOST} \
-                                  -Dsonar.token=\${SONAR_TOKEN} \
+                                sonar-scanner \\
+                                  -Dsonar.projectKey=${SONAR_PROJECT_BACKEND} \\
+                                  -Dsonar.projectName="Tierra en Calma - Backend" \\
+                                  -Dsonar.sources=. \\
+                                  -Dsonar.inclusions=app.js,server.js,SimuladorSensor.js,mqttService.js,pkgCentralService.js,cuidadosService.js \\
+                                  -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \\
+                                  -Dsonar.test.inclusions=__tests__/**/*.test.js \\
+                                  -Dsonar.host.url=${SONAR_HOST} \\
+                                  -Dsonar.token=\${SONAR_TOKEN} \\
                                   -Dsonar.sourceEncoding=UTF-8
                             """
                         }
 
-                        // ── Análisis del Frontend ───────────────────────────
-                        echo '📊 Analizando Frontend con SonarQube...'
+                        echo 'Analizando Frontend con SonarQube...'
                         dir('frontend') {
                             sh """
-                                sonar-scanner \
-                                  -Dsonar.projectKey=${SONAR_PROJECT_FRONT} \
-                                  -Dsonar.projectName='Tierra en Calma - Frontend' \
-                                  -Dsonar.sources=src \
-                                  -Dsonar.inclusions=\
-src/app/app.ts,\
-src/app/guards/auth-guard.ts,\
-src/app/pages/login/login.ts,\
-src/app/pages/login/auth.service.ts,\
-src/app/pages/registrar-plantas/registrar-plantas.ts,\
-src/app/pages/mis-plantas/mis-plantas.ts,\
-src/app/pages/monstera/monstera.ts,\
-src/app/services/mqtt-data.service.ts,\
-src/app/layouts/public-layout.ts \
-                                  -Dsonar.javascript.lcov.reportPaths=coverage/frontend/lcov.info \
-                                  -Dsonar.test.inclusions=**/*.spec.ts \
-                                  -Dsonar.host.url=${SONAR_HOST} \
-                                  -Dsonar.token=\${SONAR_TOKEN} \
+                                sonar-scanner \\
+                                  -Dsonar.projectKey=${SONAR_PROJECT_FRONT} \\
+                                  -Dsonar.projectName="Tierra en Calma - Frontend" \\
+                                  -Dsonar.sources=src \\
+                                  -Dsonar.inclusions=src/app/app.ts,src/app/guards/auth-guard.ts,src/app/pages/login/login.ts,src/app/pages/login/auth.service.ts,src/app/pages/registrar-plantas/registrar-plantas.ts,src/app/pages/mis-plantas/mis-plantas.ts,src/app/pages/monstera/monstera.ts,src/app/services/mqtt-data.service.ts,src/app/layouts/public-layout.ts \\
+                                  -Dsonar.javascript.lcov.reportPaths=coverage/frontend/lcov.info \\
+                                  -Dsonar.test.inclusions=**/*.spec.ts \\
+                                  -Dsonar.host.url=${SONAR_HOST} \\
+                                  -Dsonar.token=\${SONAR_TOKEN} \\
                                   -Dsonar.sourceEncoding=UTF-8
                             """
                         }
@@ -250,11 +267,13 @@ src/app/layouts/public-layout.ts \
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // ETAPA 6: SonarQube Quality Gate (espera al webhook de SQ)
+        // ETAPA 7: SonarQube Quality Gate
+        //   Espera el webhook de SonarQube → Jenkins antes de continuar.
+        //   Configurar en SQ: Administration → Webhooks → http://<jenkins>:8080/sonarqube-webhook/
         // ──────────────────────────────────────────────────────────────────────
         stage('SonarQube Quality Gate') {
             steps {
-                echo '⏳ Esperando Quality Gate de SonarQube...'
+                echo 'Esperando Quality Gate de SonarQube...'
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
@@ -262,58 +281,56 @@ src/app/layouts/public-layout.ts \
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // ETAPA 7: Build Angular
+        // ETAPA 8: Build Angular
         // ──────────────────────────────────────────────────────────────────────
         stage('Frontend: Build Angular') {
             steps {
                 dir('frontend') {
-                    echo '🔨 Compilando aplicación Angular...'
+                    echo 'Compilando aplicacion Angular...'
                     sh '''
-                        if [ -f package.json ]; then
-                            npm run build
-                        else
-                            echo "No frontend project to build"
-                        fi
+                        export NVM_DIR="$NVM_DIR"
+                        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                        nvm use ${NODE_VERSION}
+
+                        npm run build
                     '''
                 }
             }
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // ETAPA 8: Docker — Login, Build & Push (Backend + Frontend)
+        // ETAPA 9: Docker — Build & Push (Backend + Frontend)
         // ──────────────────────────────────────────────────────────────────────
         stage('Docker: Build & Push') {
             steps {
                 script {
                     withCredentials([usernamePassword(
-                        credentialsId : 'DOCKER_CREDENTIALS_ID',
+                        credentialsId   : 'DOCKER_CREDENTIALS_ID',
                         usernameVariable: 'DOCKER_USER',
                         passwordVariable: 'DOCKER_PASS'
                     )]) {
                         sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
 
-                        // ── Backend ─────────────────────────────────────────
-                        echo '🐳 Build & Push → Backend...'
+                        echo 'Build & Push Backend...'
                         sh """
-                            docker buildx build \
-                              --platform linux/amd64 \
-                              --push \
-                              -t ${DOCKER_BACKEND_IMAGE}:${DOCKER_TAG} \
-                              -t ${DOCKER_BACKEND_IMAGE}:latest \
-                              -f backend/Dockerfile \
+                            docker build \\
+                              -t ${DOCKER_BACKEND_IMAGE}:${DOCKER_TAG} \\
+                              -t ${DOCKER_BACKEND_IMAGE}:latest \\
+                              -f backend/Dockerfile \\
                               ./backend
+                            docker push ${DOCKER_BACKEND_IMAGE}:${DOCKER_TAG}
+                            docker push ${DOCKER_BACKEND_IMAGE}:latest
                         """
 
-                        // ── Frontend ────────────────────────────────────────
-                        echo '🐳 Build & Push → Frontend...'
+                        echo 'Build & Push Frontend...'
                         sh """
-                            docker buildx build \
-                              --platform linux/amd64 \
-                              --push \
-                              -t ${DOCKER_FRONTEND_IMAGE}:${DOCKER_TAG} \
-                              -t ${DOCKER_FRONTEND_IMAGE}:latest \
-                              -f frontend/Dockerfile \
+                            docker build \\
+                              -t ${DOCKER_FRONTEND_IMAGE}:${DOCKER_TAG} \\
+                              -t ${DOCKER_FRONTEND_IMAGE}:latest \\
+                              -f frontend/Dockerfile \\
                               ./frontend
+                            docker push ${DOCKER_FRONTEND_IMAGE}:${DOCKER_TAG}
+                            docker push ${DOCKER_FRONTEND_IMAGE}:latest
                         """
 
                         sh 'docker logout'
@@ -323,26 +340,25 @@ src/app/layouts/public-layout.ts \
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // ETAPA 9: k6 — Pruebas de rendimiento
-        //
-        //  Se levanta el backend temporalmente, se ejecutan los 5 scripts en
-        //  modo "smoke" (rápido) y luego se detiene el servidor.
-        //  Requiere que k6 esté instalado en el agente Jenkins.
+        // ETAPA 10: k6 — Pruebas de rendimiento (smoke)
+        //   Levanta el backend en background, ejecuta los 5 scripts k6
+        //   en modo smoke, luego apaga el servidor.
+        //   Requiere k6 instalado en el agente.
+        //   Instalación: https://grafana.com/docs/k6/latest/set-up/install-k6/
         // ──────────────────────────────────────────────────────────────────────
         stage('Performance Tests: k6') {
             steps {
                 script {
-                    echo '🚀 Iniciando backend para pruebas de rendimiento...'
-                    // Levanta el backend en background
+                    echo 'Levantando backend para pruebas de rendimiento...'
                     sh '''
+                        export NVM_DIR="$NVM_DIR"
+                        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                        nvm use ${NODE_VERSION}
+
                         cd backend
-                        NODE_ENV=test \
-                        GMAIL_USER=test@tierraencalma.com \
-                        GMAIL_PASS=dummy \
-                        node server.js &
+                        NODE_ENV=test GMAIL_USER=test@tierraencalma.com GMAIL_PASS=dummy node server.js &
                         echo $! > /tmp/backend_pid.txt
-                        # Esperar que el servidor arranque
-                        sleep 5
+                        sleep 6
                         echo "Backend PID: $(cat /tmp/backend_pid.txt)"
                     '''
 
@@ -356,25 +372,26 @@ src/app/layouts/public-layout.ts \
 
                     def k6Failed = false
 
-                    k6Scripts.each { script ->
-                        echo "  ⚡ Ejecutando k6: ${script} (modo smoke)..."
+                    k6Scripts.each { testScript ->
+                        def baseName = testScript.replace('.test.js', '')
+                        echo "Ejecutando k6: ${testScript} (smoke)..."
                         def result = sh(
                             returnStatus: true,
                             script: """
-                                k6 run \
-                                  -e SCENARIO=smoke \
-                                  -e K6_BASE_URL=${K6_BASE_URL} \
-                                  --out json=backend/k6/results/${script.replace('.test.js', '_results.json')} \
-                                  backend/k6/${script}
+                                mkdir -p backend/k6/results
+                                k6 run \\
+                                  -e SCENARIO=smoke \\
+                                  -e K6_BASE_URL=${K6_BASE_URL} \\
+                                  --out json=backend/k6/results/${baseName}_results.json \\
+                                  backend/k6/${testScript}
                             """
                         )
                         if (result != 0) {
-                            echo "⚠️  k6: ${script} reportó fallos en umbrales de rendimiento"
+                            echo "k6: ${testScript} reporto fallos en umbrales de SLA"
                             k6Failed = true
                         }
                     }
 
-                    // Detener backend
                     sh '''
                         if [ -f /tmp/backend_pid.txt ]; then
                             kill $(cat /tmp/backend_pid.txt) 2>/dev/null || true
@@ -383,73 +400,80 @@ src/app/layouts/public-layout.ts \
                     '''
 
                     if (k6Failed) {
-                        unstable('⚠️ Una o más pruebas k6 no superaron los umbrales de SLA definidos.')
+                        unstable('Una o mas pruebas k6 no superaron los umbrales de SLA definidos.')
                     } else {
-                        echo '✅ Todas las pruebas k6 pasaron los umbrales de rendimiento.'
+                        echo 'Todas las pruebas k6 pasaron los umbrales de rendimiento.'
                     }
                 }
             }
             post {
                 always {
-                    // Archivar resultados JSON de k6
-                    archiveArtifacts artifacts: 'backend/k6/results/*.json',
-                                     allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'backend/k6/results/*.json', allowEmptyArchive: true
                 }
             }
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // ETAPA 10: Playwright — Pruebas de regresión E2E
-        //
-        //  Levanta backend + frontend, ejecuta los 5 specs en modo headless
-        //  con un solo worker (comportamiento CI), luego detiene los servicios.
+        // ETAPA 11: Playwright — Pruebas de regresión E2E
+        //   Levanta backend + frontend (dist servido con npx serve),
+        //   ejecuta los 5 specs en Chromium headless, luego apaga los servicios.
         // ──────────────────────────────────────────────────────────────────────
         stage('Regression Tests: Playwright E2E') {
             steps {
                 script {
-                    echo '🎭 Levantando servicios para pruebas E2E...'
+                    echo 'Levantando servicios para pruebas E2E...'
 
-                    // Levantar Backend
+                    // Backend
                     sh '''
+                        export NVM_DIR="$NVM_DIR"
+                        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                        nvm use ${NODE_VERSION}
+
                         cd backend
-                        NODE_ENV=test \
-                        GMAIL_USER=test@tierraencalma.com \
-                        GMAIL_PASS=dummy \
-                        node server.js &
+                        NODE_ENV=test GMAIL_USER=test@tierraencalma.com GMAIL_PASS=dummy node server.js &
                         echo $! > /tmp/e2e_backend_pid.txt
                         sleep 5
                     '''
 
-                    // Levantar Frontend en modo producción (sirve el dist/)
+                    // Frontend (sirve el build de Angular)
                     sh '''
+                        export NVM_DIR="$NVM_DIR"
+                        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                        nvm use ${NODE_VERSION}
+
                         cd frontend
-                        # Instalar serve si no está disponible
                         npx --yes serve -s dist/frontend -l 4200 &
                         echo $! > /tmp/e2e_frontend_pid.txt
                         sleep 8
-                        echo "Frontend PID: $(cat /tmp/e2e_frontend_pid.txt)"
                     '''
 
-                    // Instalar navegadores Playwright si es necesario
+                    // Instalar navegadores Playwright
                     sh '''
+                        export NVM_DIR="$NVM_DIR"
+                        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                        nvm use ${NODE_VERSION}
+
                         cd frontend
                         npx playwright install --with-deps chromium
                     '''
 
-                    // Ejecutar pruebas de regresión (solo Chromium en CI)
+                    // Ejecutar pruebas E2E (solo Chromium en CI)
                     def e2eResult = sh(
                         returnStatus: true,
                         script: '''
+                            export NVM_DIR="$NVM_DIR"
+                            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                            nvm use ${NODE_VERSION}
+
                             cd frontend
-                            CI=true \
-                            npx playwright test \
-                              --project=chromium \
-                              --reporter=html,junit \
+                            CI=true npx playwright test \\
+                              --project=chromium \\
+                              --reporter=html,junit \\
                               --output=test-results
                         '''
                     )
 
-                    // Detener servicios E2E
+                    // Apagar servicios
                     sh '''
                         for PID_FILE in /tmp/e2e_backend_pid.txt /tmp/e2e_frontend_pid.txt; do
                             if [ -f "$PID_FILE" ]; then
@@ -460,19 +484,15 @@ src/app/layouts/public-layout.ts \
                     '''
 
                     if (e2eResult != 0) {
-                        error("❌ Las pruebas de regresión Playwright fallaron. Revisa el reporte HTML.")
+                        error('Las pruebas de regresion Playwright fallaron. Revisa el reporte HTML.')
                     } else {
-                        echo '✅ Todas las pruebas de regresión Playwright pasaron correctamente.'
+                        echo 'Todas las pruebas de regresion Playwright pasaron correctamente.'
                     }
                 }
             }
             post {
                 always {
-                    // Publicar reporte JUnit de Playwright
-                    junit allowEmptyResults: true,
-                          testResults: 'frontend/test-results/**/*.xml'
-
-                    // Publicar reporte HTML de Playwright
+                    junit allowEmptyResults: true, testResults: 'frontend/test-results/**/*.xml'
                     publishHTML(target: [
                         allowMissing         : true,
                         alwaysLinkToLastBuild: true,
@@ -481,9 +501,7 @@ src/app/layouts/public-layout.ts \
                         reportFiles          : 'index.html',
                         reportName           : 'Playwright E2E Report'
                     ])
-
-                    // Archivar screenshots y videos de fallos
-                    archiveArtifacts artifacts: 'frontend/test-results/**/*.{png,webm}',
+                    archiveArtifacts artifacts: 'frontend/test-results/**/*.png,frontend/test-results/**/*.webm',
                                      allowEmptyArchive: true
                 }
             }
@@ -494,20 +512,13 @@ src/app/layouts/public-layout.ts \
     // ── Post pipeline global ───────────────────────────────────────────────────
     post {
         success {
-            echo """
-╔══════════════════════════════════════════════════╗
-║  ✅  PIPELINE COMPLETADO CON ÉXITO               ║
-║  Build #${env.BUILD_NUMBER} — Tierra en Calma    ║
-║  Backend  → ${DOCKER_BACKEND_IMAGE}:${DOCKER_TAG} ║
-║  Frontend → ${DOCKER_FRONTEND_IMAGE}:${DOCKER_TAG}║
-╚══════════════════════════════════════════════════╝
-            """.stripIndent()
+            echo "PIPELINE OK — Build #${env.BUILD_NUMBER} | Backend: ${DOCKER_BACKEND_IMAGE}:${DOCKER_TAG} | Frontend: ${DOCKER_FRONTEND_IMAGE}:${DOCKER_TAG}"
         }
         failure {
-            echo '❌ El pipeline falló. Revisa los logs y los reportes publicados.'
+            echo 'El pipeline fallo. Revisa los logs y los reportes publicados.'
         }
         unstable {
-            echo '⚠️  El pipeline terminó en estado UNSTABLE (umbrales k6 o cobertura límite).'
+            echo 'El pipeline termino en estado UNSTABLE (umbrales k6).'
         }
         always {
             cleanWs()
@@ -517,16 +528,16 @@ src/app/layouts/public-layout.ts \
 } // end pipeline
 
 // =============================================================
-//  FUNCIÓN UTILITARIA: parseLcovCoverage
-//  Lee un archivo lcov.info y calcula el porcentaje de líneas
-//  cubiertas (LH / LF * 100).
+//  FUNCION UTILITARIA: parseLcovCoverage
+//  Lee un archivo lcov.info y retorna el porcentaje de lineas
+//  cubiertas: round(LH / LF * 100)
 // =============================================================
 def parseLcovCoverage(String lcovPath) {
-    def lf = 0  // Lines Found
-    def lh = 0  // Lines Hit
+    def lf = 0
+    def lh = 0
 
     if (!fileExists(lcovPath)) {
-        echo "⚠️  No se encontró el archivo de cobertura: ${lcovPath}"
+        echo "No se encontro el archivo de cobertura: ${lcovPath}"
         return 0
     }
 
