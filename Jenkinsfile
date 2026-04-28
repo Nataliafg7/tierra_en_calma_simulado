@@ -74,13 +74,13 @@ pipeline {
         stage('Setup: Node.js via nvm') {
             steps {
                 sh '''
-                    # ── Instalar Chromium (necesario para Karma y Playwright) ──────
-                    if ! command -v chromium > /dev/null 2>&1 && ! command -v chromium-browser > /dev/null 2>&1; then
-                        echo ">>> Instalando Chromium..."
+                    # ── Instalar Chromium y Docker CLI ──────
+                    if ! command -v chromium > /dev/null 2>&1 || ! command -v docker > /dev/null 2>&1; then
+                        echo ">>> Instalando dependencias (Chromium y Docker)..."
                         apt-get update -qq
-                        apt-get install -y --no-install-recommends chromium
+                        apt-get install -y --no-install-recommends chromium docker.io
                     else
-                        echo ">>> Chromium ya instalado: $(chromium --version 2>/dev/null || chromium-browser --version)"
+                        echo ">>> Dependencias ya instaladas: $(chromium --version 2>/dev/null || chromium-browser --version) | $(docker --version 2>/dev/null)"
                     fi
 
                     # Detectar ruta real de chromium y exportar CHROME_BIN
