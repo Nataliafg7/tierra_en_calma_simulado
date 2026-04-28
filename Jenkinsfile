@@ -247,7 +247,7 @@ pipeline {
                                 [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
                                 nvm use \${NODE_VERSION}
 
-                                npx sonar-scanner \\
+                                npx -y sonar-scanner \\
                                   -Dsonar.projectKey=${SONAR_PROJECT_BACKEND} \\
                                   -Dsonar.projectName="Tierra en Calma - Backend" \\
                                   -Dsonar.sources=. \\
@@ -267,7 +267,7 @@ pipeline {
                                 [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
                                 nvm use \${NODE_VERSION}
 
-                                npx sonar-scanner \\
+                                npx -y sonar-scanner \\
                                   -Dsonar.projectKey=${SONAR_PROJECT_FRONT} \\
                                   -Dsonar.projectName="Tierra en Calma - Frontend" \\
                                   -Dsonar.sources=src \\
