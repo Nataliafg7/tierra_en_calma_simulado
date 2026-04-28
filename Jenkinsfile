@@ -303,16 +303,18 @@ pipeline {
         stage('SonarQube Quality Gate') {
             steps {
                 echo 'Esperando Quality Gate de SonarQube...'
-                try {
-                    timeout(time: 5, unit: 'MINUTES') {
-                        waitForQualityGate abortPipeline: true
+                script {
+                    try {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
+                    } catch (Exception e) {
+                        echo "================================================================"
+                        echo "⚠️  ADVERTENCIA: Falló el Quality Gate de SonarQube"
+                        echo "Es posible que el análisis anterior haya fallado o el servidor de SonarQube no esté respondiendo."
+                        echo "================================================================"
+                        currentBuild.result = 'UNSTABLE'
                     }
-                } catch (Exception e) {
-                    echo "================================================================"
-                    echo "⚠️  ADVERTENCIA: Falló el Quality Gate de SonarQube"
-                    echo "Es posible que el análisis anterior haya fallado o el servidor de SonarQube no esté respondiendo."
-                    echo "================================================================"
-                    currentBuild.result = 'UNSTABLE'
                 }
             }
         }
