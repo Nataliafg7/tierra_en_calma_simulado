@@ -515,6 +515,45 @@ pipeline {
             }
         }
 
+        // ──────────────────────────────────────────────────────────────────────
+        // ETAPA 12: Docker Build & Push
+        //   Construye las imágenes del backend y frontend y las sube a Docker Hub.
+        //   Requiere que el agente Jenkins tenga acceso a docker y la credencial.
+        // ──────────────────────────────────────────────────────────────────────
+        stage('Docker Build & Push') {
+            steps {
+                script {
+                    echo 'Construyendo y subiendo imágenes a Docker Hub...'
+                    withCredentials([usernamePassword(credentialsId: 'DOCKER_CREDENTIALS_ID', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                        sh '''
+                            # Login en Docker Hub
+                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+
+                            # Build & Push Backend
+                            cd backend
+                            docker build -t ${DOCKER_BACKEND_IMAGE}:${DOCKER_TAG} .
+                            docker push ${DOCKER_BACKEND_IMAGE}:${DOCKER_TAG}
+                            
+                            # También lo taggeamos como latest
+                            docker tag ${DOCKER_BACKEND_IMAGE}:${DOCKER_TAG} ${DOCKER_BACKEND_IMAGE}:latest
+                            docker push ${DOCKER_BACKEND_IMAGE}:latest
+                            cd ..
+
+                            # Build & Push Frontend
+                            cd frontend
+                            docker build -t ${DOCKER_FRONTEND_IMAGE}:${DOCKER_TAG} .
+                            docker push ${DOCKER_FRONTEND_IMAGE}:${DOCKER_TAG}
+                            
+                            # También lo taggeamos como latest
+                            docker tag ${DOCKER_FRONTEND_IMAGE}:${DOCKER_TAG} ${DOCKER_FRONTEND_IMAGE}:latest
+                            docker push ${DOCKER_FRONTEND_IMAGE}:latest
+                            cd ..
+                        '''
+                    }
+                }
+            }
+        }
+
     } // end stages
 
     // ── Post pipeline global ───────────────────────────────────────────────────
