@@ -31,7 +31,8 @@ pipeline {
         DOCKER_TAG            = "v${env.BUILD_NUMBER}"
 
         // SonarQube
-        SONAR_HOST            = 'http://sonarqube:9000'
+        // "host.docker.internal" permite al contenedor de Jenkins llegar al SonarQube de tu Windows
+        SONAR_HOST            = 'http://host.docker.internal:9000'
         SONAR_PROJECT_BACKEND = 'tierra-en-calma-backend'
         SONAR_PROJECT_FRONT   = 'tierra-front-monstera'
 
