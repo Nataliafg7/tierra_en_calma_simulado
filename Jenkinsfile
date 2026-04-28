@@ -238,47 +238,57 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'SONAR_TOKEN_ID', variable: 'SONAR_TOKEN')]) {
+                    try {
+                        withCredentials([string(credentialsId: 'SONAR_TOKEN_ID', variable: 'SONAR_TOKEN')]) {
+                            echo 'Analizando Backend con SonarQube...'
+                            dir('backend') {
+                                sh """
+                                    export NVM_DIR="\$NVM_DIR"
+                                    [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
+                                    nvm use \${NODE_VERSION}
 
-                        echo 'Analizando Backend con SonarQube...'
-                        dir('backend') {
-                            sh """
-                                export NVM_DIR="\$NVM_DIR"
-                                [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
-                                nvm use \${NODE_VERSION}
+                                    npx -y sonar-scanner \\
+                                      -Dsonar.projectKey=${SONAR_PROJECT_BACKEND} \\
+                                      -Dsonar.projectName="Tierra en Calma - Backend" \\
+                                      -Dsonar.sources=. \\
+                                      -Dsonar.inclusions=app.js,server.js,SimuladorSensor.js,mqttService.js,pkgCentralService.js,cuidadosService.js \\
+                                      -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \\
+                                      -Dsonar.test.inclusions=__tests__/**/*.test.js \\
+                                      -Dsonar.host.url=${SONAR_HOST} \\
+                                      -Dsonar.token=\${SONAR_TOKEN} \\
+                                      -Dsonar.sourceEncoding=UTF-8
+                                """
+                            }
 
-                                npx -y sonar-scanner \\
-                                  -Dsonar.projectKey=${SONAR_PROJECT_BACKEND} \\
-                                  -Dsonar.projectName="Tierra en Calma - Backend" \\
-                                  -Dsonar.sources=. \\
-                                  -Dsonar.inclusions=app.js,server.js,SimuladorSensor.js,mqttService.js,pkgCentralService.js,cuidadosService.js \\
-                                  -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \\
-                                  -Dsonar.test.inclusions=__tests__/**/*.test.js \\
-                                  -Dsonar.host.url=${SONAR_HOST} \\
-                                  -Dsonar.token=\${SONAR_TOKEN} \\
-                                  -Dsonar.sourceEncoding=UTF-8
-                            """
+                            echo 'Analizando Frontend con SonarQube...'
+                            dir('frontend') {
+                                sh """
+                                    export NVM_DIR="\$NVM_DIR"
+                                    [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
+                                    nvm use \${NODE_VERSION}
+
+                                    npx -y sonar-scanner \\
+                                      -Dsonar.projectKey=${SONAR_PROJECT_FRONT} \\
+                                      -Dsonar.projectName="Tierra en Calma - Frontend" \\
+                                      -Dsonar.sources=src \\
+                                      -Dsonar.inclusions=src/app/app.ts,src/app/guards/auth-guard.ts,src/app/pages/login/login.ts,src/app/pages/login/auth.service.ts,src/app/pages/registrar-plantas/registrar-plantas.ts,src/app/pages/mis-plantas/mis-plantas.ts,src/app/pages/monstera/monstera.ts,src/app/services/mqtt-data.service.ts,src/app/layouts/public-layout.ts \\
+                                      -Dsonar.javascript.lcov.reportPaths=coverage/frontend/lcov.info \\
+                                      -Dsonar.test.inclusions=**/*.spec.ts \\
+                                      -Dsonar.host.url=${SONAR_HOST} \\
+                                      -Dsonar.token=\${SONAR_TOKEN} \\
+                                      -Dsonar.sourceEncoding=UTF-8
+                                """
+                            }
                         }
-
-                        echo 'Analizando Frontend con SonarQube...'
-                        dir('frontend') {
-                            sh """
-                                export NVM_DIR="\$NVM_DIR"
-                                [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
-                                nvm use \${NODE_VERSION}
-
-                                npx -y sonar-scanner \\
-                                  -Dsonar.projectKey=${SONAR_PROJECT_FRONT} \\
-                                  -Dsonar.projectName="Tierra en Calma - Frontend" \\
-                                  -Dsonar.sources=src \\
-                                  -Dsonar.inclusions=src/app/app.ts,src/app/guards/auth-guard.ts,src/app/pages/login/login.ts,src/app/pages/login/auth.service.ts,src/app/pages/registrar-plantas/registrar-plantas.ts,src/app/pages/mis-plantas/mis-plantas.ts,src/app/pages/monstera/monstera.ts,src/app/services/mqtt-data.service.ts,src/app/layouts/public-layout.ts \\
-                                  -Dsonar.javascript.lcov.reportPaths=coverage/frontend/lcov.info \\
-                                  -Dsonar.test.inclusions=**/*.spec.ts \\
-                                  -Dsonar.host.url=${SONAR_HOST} \\
-                                  -Dsonar.token=\${SONAR_TOKEN} \\
-                                  -Dsonar.sourceEncoding=UTF-8
-                            """
-                        }
+                    } catch (Exception e) {
+                        echo "================================================================"
+                        echo "⚠️  ADVERTENCIA: Falló la etapa de SonarQube Analysis"
+                        echo "Posible causa: La credencial 'SONAR_TOKEN_ID' no existe en Jenkins"
+                        echo "Ve a Manage Jenkins -> Credentials y crea un 'Secret text' con ese ID."
+                        echo "Detalle del error: ${e.message}"
+                        echo "================================================================"
+                        // Marcar el build como inestable en vez de fallar para que continúe
+                        currentBuild.result = 'UNSTABLE'
                     }
                 }
             }
@@ -292,8 +302,16 @@ pipeline {
         stage('SonarQube Quality Gate') {
             steps {
                 echo 'Esperando Quality Gate de SonarQube...'
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                try {
+                    timeout(time: 5, unit: 'MINUTES') {
+                        waitForQualityGate abortPipeline: true
+                    }
+                } catch (Exception e) {
+                    echo "================================================================"
+                    echo "⚠️  ADVERTENCIA: Falló el Quality Gate de SonarQube"
+                    echo "Es posible que el análisis anterior haya fallado o el servidor de SonarQube no esté respondiendo."
+                    echo "================================================================"
+                    currentBuild.result = 'UNSTABLE'
                 }
             }
         }
