@@ -75,12 +75,22 @@ pipeline {
             steps {
                 sh '''
                     # ── Instalar Chromium y Docker CLI ──────
-                    if ! command -v chromium > /dev/null 2>&1 || ! command -v docker > /dev/null 2>&1; then
-                        echo ">>> Instalando dependencias (Chromium y Docker)..."
+                    if ! command -v chromium > /dev/null 2>&1; then
+                        echo ">>> Instalando Chromium..."
                         apt-get update -qq
-                        apt-get install -y --no-install-recommends chromium docker.io
+                        apt-get install -y --no-install-recommends chromium
                     else
-                        echo ">>> Dependencias ya instaladas: $(chromium --version 2>/dev/null || chromium-browser --version) | $(docker --version 2>/dev/null)"
+                        echo ">>> Chromium ya instalado: $(chromium --version 2>/dev/null || chromium-browser --version)"
+                    fi
+
+                    if ! command -v docker > /dev/null 2>&1; then
+                        echo ">>> Instalando Docker CLI (Binario estatico)..."
+                        curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-24.0.9.tgz | tar zx
+                        mv docker/docker /usr/bin/docker
+                        chmod +x /usr/bin/docker
+                        rm -rf docker
+                    else
+                        echo ">>> Docker ya instalado: $(docker --version 2>/dev/null)"
                     fi
 
                     # Detectar ruta real de chromium y exportar CHROME_BIN
