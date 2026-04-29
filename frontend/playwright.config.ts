@@ -1,10 +1,13 @@
 import { defineConfig, devices } from '@playwright/test';
+import { defineBddConfig } from 'playwright-bdd';
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
+const testDir = defineBddConfig({
+  features: 'e2e/features/*.feature',
+  steps: 'e2e/steps/*.ts',
+});
+
 export default defineConfig({
-  testDir: './e2e',
+  testDir,
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
   expect: {
@@ -31,10 +34,13 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-    
+
     // Video and screenshot options
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    launchOptions: {
+      slowMo: 1000, // Pausa de 1000ms entre acciones
+    },
   },
 
   /* Configure projects for major browsers */
