@@ -4,6 +4,7 @@
   "main": "server.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test JUNIT_REPORT_PATH=junit.xml jest --runInBand",
+    "test:regression": "npm test && k6 run -e SCENARIO=smoke k6/run_all.js",
     "start": "node server.js"
   },
   "dependencies": {

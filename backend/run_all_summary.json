@@ -1,0 +1,566 @@
+{
+  "root_group": {
+    "groups": [
+      {
+        "name": "F1 — Formulario de Contacto",
+        "path": "::F1 — Formulario de Contacto",
+        "id": "5f380db1e546694ed70425ce33b0678a",
+        "groups": [],
+        "checks": [
+            {
+              "fails": 0,
+              "name": "[F1] POST /api/contacto → 200",
+              "path": "::F1 — Formulario de Contacto::[F1] POST /api/contacto → 200",
+              "id": "561550db8f22e0675788145cc3df2fd8",
+              "passes": 6
+            },
+            {
+              "name": "[F1] latencia < 800ms",
+              "path": "::F1 — Formulario de Contacto::[F1] latencia < 800ms",
+              "id": "152eb0b209fc9852b8c6921b90a227e1",
+              "passes": 0,
+              "fails": 6
+            },
+            {
+              "path": "::F1 — Formulario de Contacto::[F1] payload vacío → 400",
+              "id": "a90021299928948df4c6a470f77ba755",
+              "passes": 6,
+              "fails": 0,
+              "name": "[F1] payload vacío → 400"
+            }
+          ]
+      },
+      {
+        "name": "F2 — Última lectura de Temperatura y Humedad",
+        "path": "::F2 — Última lectura de Temperatura y Humedad",
+        "id": "036f08f712130041a5f0dfeda8da146c",
+        "groups": [],
+        "checks": [
+            {
+              "path": "::F2 — Última lectura de Temperatura y Humedad::[F2] GET /api/datos → 200",
+              "id": "ccd7406f0148744636b68a5ae400b3fb",
+              "passes": 6,
+              "fails": 0,
+              "name": "[F2] GET /api/datos → 200"
+            },
+            {
+              "name": "[F2] body tiene campo \"dato\"",
+              "path": "::F2 — Última lectura de Temperatura y Humedad::[F2] body tiene campo \"dato\"",
+              "id": "3d0079eb41336ee33546cc04b3afb67a",
+              "passes": 6,
+              "fails": 0
+            },
+            {
+              "fails": 0,
+              "name": "[F2] latencia < 100ms",
+              "path": "::F2 — Última lectura de Temperatura y Humedad::[F2] latencia < 100ms",
+              "id": "63374b2975b84b07c88f1b80869e8552",
+              "passes": 6
+            }
+          ]
+      },
+      {
+        "path": "::F3 — Registro de lecturas (activar sensor + historial)",
+        "id": "6cc21a0d7ff9358b3e4af7001310692c",
+        "groups": [],
+        "checks": [
+            {
+              "id": "4095958e88aa47122859822df0e95298",
+              "passes": 6,
+              "fails": 0,
+              "name": "[F3] POST /api/monitorear → 200",
+              "path": "::F3 — Registro de lecturas (activar sensor + historial)::[F3] POST /api/monitorear → 200"
+            },
+            {
+              "name": "[F3] ok=true en respuesta",
+              "path": "::F3 — Registro de lecturas (activar sensor + historial)::[F3] ok=true en respuesta",
+              "id": "cd24e835c11244639c03533b2c1d79dc",
+              "passes": 6,
+              "fails": 0
+            },
+            {
+              "name": "[F3] latencia < 600ms",
+              "path": "::F3 — Registro de lecturas (activar sensor + historial)::[F3] latencia < 600ms",
+              "id": "280b4774ac9d2773eaeb3145a2b95c8f",
+              "passes": 6,
+              "fails": 0
+            },
+            {
+              "passes": 6,
+              "fails": 0,
+              "name": "[F3] GET /api/historial → 200",
+              "path": "::F3 — Registro de lecturas (activar sensor + historial)::[F3] GET /api/historial → 200",
+              "id": "374edf703030aaf046550be4782c42e3"
+            },
+            {
+              "name": "[F3] historial es un arreglo",
+              "path": "::F3 — Registro de lecturas (activar sensor + historial)::[F3] historial es un arreglo",
+              "id": "0be3b5fbab4e69e335f723bea2b1068a",
+              "passes": 6,
+              "fails": 0
+            },
+            {
+              "path": "::F3 — Registro de lecturas (activar sensor + historial)::[F3] latencia < 150ms",
+              "id": "cb119fb138e5f332d11d16c50657bdfd",
+              "passes": 6,
+              "fails": 0,
+              "name": "[F3] latencia < 150ms"
+            }
+          ],
+        "name": "F3 — Registro de lecturas (activar sensor + historial)"
+      },
+      {
+        "name": "F4 — Visualización en tiempo real (polling)",
+        "path": "::F4 — Visualización en tiempo real (polling)",
+        "id": "9c3e1793ba5dd4b3e919670380df8163",
+        "groups": [],
+        "checks": [
+            {
+              "path": "::F4 — Visualización en tiempo real (polling)::[F4] polling → 200",
+              "id": "920918ac0c2a23f0ffc5c3bff2113934",
+              "passes": 18,
+              "fails": 0,
+              "name": "[F4] polling → 200"
+            },
+            {
+              "name": "[F4] polling < 100ms",
+              "path": "::F4 — Visualización en tiempo real (polling)::[F4] polling < 100ms",
+              "id": "bec54bbc723c31255afc8da7fc388d13",
+              "passes": 18,
+              "fails": 0
+            }
+          ]
+      },
+      {
+        "name": "F5 — Verificar condiciones manualmente",
+        "path": "::F5 — Verificar condiciones manualmente",
+        "id": "487931ca77e3e4d337e0563f2e2cb7c1",
+        "groups": [],
+        "checks": [
+            {
+              "name": "[F5] POST /api/verificar-condiciones → 200",
+              "path": "::F5 — Verificar condiciones manualmente::[F5] POST /api/verificar-condiciones → 200",
+              "id": "90f68072feb1988728f038b7ee72536b",
+              "passes": 6,
+              "fails": 0
+            },
+            {
+              "fails": 0,
+              "name": "[F5] body tiene campo \"ok\"",
+              "path": "::F5 — Verificar condiciones manualmente::[F5] body tiene campo \"ok\"",
+              "id": "17f797d0072094614fa477809be38d76",
+              "passes": 6
+            },
+            {
+              "name": "[F5] body tiene campo \"mensaje\"",
+              "path": "::F5 — Verificar condiciones manualmente::[F5] body tiene campo \"mensaje\"",
+              "id": "18d797dbb48530a71d4bac9cc0d4ec68",
+              "passes": 6,
+              "fails": 0
+            },
+            {
+              "fails": 0,
+              "name": "[F5] latencia < 1000ms",
+              "path": "::F5 — Verificar condiciones manualmente::[F5] latencia < 1000ms",
+              "id": "f935c8b61adc644e7061f9d79f10a521",
+              "passes": 6
+            },
+            {
+              "passes": 6,
+              "fails": 0,
+              "name": "[F5] ID inválido → 400",
+              "path": "::F5 — Verificar condiciones manualmente::[F5] ID inválido → 400",
+              "id": "b394cfa543541a70f2b708ea6e86371e"
+            }
+          ]
+      },
+      {
+        "path": "::F6 — Riego Manual",
+        "id": "2f38b93e1c396707a5fa5d9a87b980b7",
+        "groups": [],
+        "checks": [
+            {
+              "name": "[F6] POST /api/regar → 200",
+              "path": "::F6 — Riego Manual::[F6] POST /api/regar → 200",
+              "id": "4aa90d5fd2548392b92ff0a9df8307aa",
+              "passes": 0,
+              "fails": 6
+            },
+            {
+              "fails": 0,
+              "name": "[F6] latencia < 1000ms",
+              "path": "::F6 — Riego Manual::[F6] latencia < 1000ms",
+              "id": "83c2d60399f19334ae5961c109dc2a2f",
+              "passes": 6
+            }
+          ],
+        "name": "F6 — Riego Manual"
+      },
+      {
+        "name": "F7 — Registro de Cuidados",
+        "path": "::F7 — Registro de Cuidados",
+        "id": "f83e3e36bc6ff98f0cdc7b3840103f57",
+        "groups": [],
+        "checks": [
+            {
+              "name": "[F7] POST /api/cuidados → 201",
+              "path": "::F7 — Registro de Cuidados::[F7] POST /api/cuidados → 201",
+              "id": "9712757c92b4b353569d75b64fc0e034",
+              "passes": 0,
+              "fails": 6
+            },
+            {
+              "name": "[F7] latencia < 1000ms",
+              "path": "::F7 — Registro de Cuidados::[F7] latencia < 1000ms",
+              "id": "70f6ab6dfc78010ee433ce1772a10817",
+              "passes": 6,
+              "fails": 0
+            }
+          ]
+      }
+    ],
+    "checks": [],
+    "name": "",
+    "path": "",
+    "id": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "options": {
+    "summaryTrendStats": [
+      "avg",
+      "min",
+      "med",
+      "max",
+      "p(90)",
+      "p(95)"
+    ],
+    "summaryTimeUnit": "",
+    "noColor": false
+  },
+  "state": {
+    "isStdOutTTY": true,
+    "isStdErrTTY": true,
+    "testRunDurationMs": 33226.3341
+  },
+  "metrics": {
+    "http_req_duration{endpoint:contacto}": {
+      "thresholds": {
+        "p(95)<800": {
+          "ok": false
+        }
+      },
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "max": 2303.2204,
+        "p(90)": 2173.2355100000004,
+        "p(95)": 2265.213365,
+        "avg": 859.0043083333331,
+        "min": 1.0168,
+        "med": 679.1505999999999
+      }
+    },
+    "http_req_duration{endpoint:verificar-condiciones}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 38.0345,
+        "p(95)": 41.791095,
+        "avg": 19.06458333333333,
+        "min": 1.0264,
+        "med": 17.647349999999996,
+        "max": 45.9233
+      },
+      "thresholds": {
+        "p(95)<1000": {
+          "ok": true
+        }
+      }
+    },
+    "http_reqs": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 72,
+        "rate": 2.1669558785300964
+      }
+    },
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 10074,
+        "rate": 303.1932433376693
+      }
+    },
+    "vus": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 1,
+        "min": 1,
+        "max": 1
+      }
+    },
+    "http_req_duration{endpoint:historial}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 1.3028,
+        "max": 1.7638,
+        "p(90)": 1.6096,
+        "p(95)": 1.6867,
+        "avg": 1.2716333333333332,
+        "min": 0.6707
+      },
+      "thresholds": {
+        "p(95)<150": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_waiting": {
+      "values": {
+        "avg": 152.5719527777778,
+        "min": 0.5049,
+        "med": 1.49035,
+        "max": 2302.7157,
+        "p(90)": 42.88139999999999,
+        "p(95)": 1390.12984
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "http_req_failed": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0.3333333333333333,
+        "passes": 24,
+        "fails": 48
+      },
+      "thresholds": {
+        "rate<0.01": {
+          "ok": false
+        }
+      }
+    },
+    "http_req_sending": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 0,
+        "p(95)": 0,
+        "avg": 0,
+        "min": 0,
+        "med": 0,
+        "max": 0
+      }
+    },
+    "http_req_blocked": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 0.1336,
+        "min": 0,
+        "med": 0,
+        "max": 9.6192,
+        "p(90)": 0,
+        "p(95)": 0
+      }
+    },
+    "iterations": {
+      "contains": "default",
+      "values": {
+        "count": 6,
+        "rate": 0.18057965654417468
+      },
+      "type": "counter"
+    },
+    "http_req_duration{endpoint:datos}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 1.1074000000000002,
+        "max": 1.8797,
+        "p(90)": 1.5824799999999999,
+        "p(95)": 1.6502849999999998,
+        "avg": 1.1462333333333332,
+        "min": 0.5049
+      },
+      "thresholds": {
+        "p(95)<100": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_receiving": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 0.04916527777777779,
+        "min": 0,
+        "med": 0,
+        "max": 1.0075,
+        "p(90)": 0,
+        "p(95)": 0.5085700000000001
+      }
+    },
+    "checks": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0.8888888888888888,
+        "passes": 144,
+        "fails": 18
+      }
+    },
+    "http_req_tls_handshaking": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 0,
+        "avg": 0,
+        "min": 0,
+        "med": 0,
+        "max": 0,
+        "p(90)": 0
+      }
+    },
+    "iteration_duration": {
+      "contains": "time",
+      "values": {
+        "avg": 5537.72235,
+        "min": 5167.9248,
+        "med": 5339.184,
+        "max": 6123.2207,
+        "p(90)": 6088.6564,
+        "p(95)": 6105.93855
+      },
+      "type": "trend"
+    },
+    "http_req_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 1.5171000000000001,
+        "max": 2303.2204,
+        "p(90)": 42.88139999999999,
+        "p(95)": 1390.36195,
+        "avg": 152.62111805555557,
+        "min": 0.5049
+      },
+      "thresholds": {
+        "p(95)<1000": {
+          "ok": false
+        },
+        "p(99)<3000": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_duration{endpoint:cuidados}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "min": 34.3104,
+        "med": 35.191,
+        "max": 43.3782,
+        "p(90)": 40.21795,
+        "p(95)": 41.798075,
+        "avg": 36.60863333333333
+      },
+      "thresholds": {
+        "p(95)<1000": {
+          "ok": true
+        }
+      }
+    },
+    "vus_max": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 1,
+        "min": 1,
+        "max": 1
+      }
+    },
+    "http_req_duration{expected_response:true}": {
+      "values": {
+        "avg": 223.89885,
+        "min": 0.5049,
+        "med": 1.5171000000000001,
+        "max": 2303.2204,
+        "p(90)": 1365.5312500000002,
+        "p(95)": 1545.4361999999996
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "group_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 532.88805,
+        "max": 2604.7215,
+        "p(90)": 1684.3093099999999,
+        "p(95)": 1924.9198499999989,
+        "avg": 719.6238761904764,
+        "min": 101.499
+      }
+    },
+    "http_req_duration{endpoint:monitorear}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 33.9453,
+        "p(95)": 34.06105,
+        "avg": 31.534166666666664,
+        "min": 29.16,
+        "med": 31.0614,
+        "max": 34.1768
+      },
+      "thresholds": {
+        "p(95)<600": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_connecting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 0,
+        "p(95)": 0,
+        "avg": 0.01277361111111111,
+        "min": 0,
+        "med": 0,
+        "max": 0.9197
+      }
+    },
+    "data_received": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 27905,
+        "rate": 839.8458859775325
+      }
+    },
+    "http_req_duration{endpoint:regar}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "min": 0.6692,
+        "med": 1.41385,
+        "max": 1.6917,
+        "p(90)": 1.6912,
+        "p(95)": 1.6914500000000001,
+        "avg": 1.3162666666666667
+      },
+      "thresholds": {
+        "p(95)<1000": {
+          "ok": true
+        }
+      }
+    }
+  }
+}

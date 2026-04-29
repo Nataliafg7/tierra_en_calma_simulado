@@ -90,13 +90,8 @@
             "styles": [
               "src/styles.scss"
             ],
-            "coverage": true,
-            "coverageReporters": [
-              "html",
-              "text-summary",
-              "lcovonly"
-            ],
-            "runnerConfig": "karma.conf.js"
+            "codeCoverage": true,
+            "karmaConfig": "karma.conf.js"
           }
         }
       }
