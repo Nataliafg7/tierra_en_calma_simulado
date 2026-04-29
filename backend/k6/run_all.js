@@ -78,6 +78,8 @@ export const options = {
     'http_req_duration{endpoint:historial}':             ['p(95)<150'],
     'http_req_duration{endpoint:monitorear}':            ['p(95)<600'],
     'http_req_duration{endpoint:verificar-condiciones}': ['p(95)<1000'],
+    'http_req_duration{endpoint:regar}':                 ['p(95)<1000'],
+    'http_req_duration{endpoint:cuidados}':              ['p(95)<1000'],
   },
 };
 
@@ -235,6 +237,49 @@ export default function () {
     });
 
     sleep(1);
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // FUNCIONALIDAD 6: Riego Manual (HU19, HU20)
+  // ══════════════════════════════════════════════════════════════════════════
+  group('F6 — Riego Manual', () => {
+    const res = http.post(
+      `${BASE_URL}/api/regar`,
+      JSON.stringify({}),
+      { headers: JSON_HEADERS, tags: { endpoint: 'regar' } }
+    );
+
+    check(res, {
+      '[F6] POST /api/regar → 200': (r) => r.status === 200,
+      '[F6] latencia < 1000ms':     (r) => r.timings.duration < 1000,
+    });
+
+    sleep(0.5);
+  });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // FUNCIONALIDAD 7: Registro de Cuidados (HU23)
+  // ══════════════════════════════════════════════════════════════════════════
+  group('F7 — Registro de Cuidados', () => {
+    const cuidadoPayload = {
+      id_planta_usuario: idPlanta,
+      fecha: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+      tipo: 'Poda',
+      detalles: 'Mantenimiento de hojas k6',
+    };
+
+    const res = http.post(
+      `${BASE_URL}/api/cuidados`,
+      JSON.stringify(cuidadoPayload),
+      { headers: JSON_HEADERS, tags: { endpoint: 'cuidados' } }
+    );
+
+    check(res, {
+      '[F7] POST /api/cuidados → 201': (r) => r.status === 201 || r.status === 200,
+      '[F7] latencia < 1000ms':        (r) => r.timings.duration < 1000,
+    });
+
+    sleep(0.5);
   });
 
   // Pausa entre iteraciones completas del flujo
