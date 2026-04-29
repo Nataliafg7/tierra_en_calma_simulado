@@ -212,7 +212,50 @@ pipeline {
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // ETAPA 5: Validación de cobertura mínima (>= 80 %)
+        // ETAPA 5: Security Scan (SCA & SAST)
+        //   Escanea vulnerabilidades con npm audit y Snyk.
+        //   Falla el pipeline solo si hay vulnerabilidades HIGH.
+        // ──────────────────────────────────────────────────────────────────────
+        stage('Security Scan') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'SNYK_TOKEN_ID', variable: 'SNYK_TOKEN')]) {
+                        echo 'Escaneo de seguridad en Backend...'
+                        dir('backend') {
+                            sh '''
+                                export NVM_DIR="$NVM_DIR"
+                                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                                nvm use ${NODE_VERSION}
+
+                                echo ">> Ejecutando npm audit (Solo fallara en HIGH o CRITICAL)..."
+                                npm audit --audit-level=high
+
+                                echo ">> Ejecutando snyk test..."
+                                npx -y snyk test --severity-threshold=high
+                            '''
+                        }
+
+                        echo 'Escaneo de seguridad en Frontend...'
+                        dir('frontend') {
+                            sh '''
+                                export NVM_DIR="$NVM_DIR"
+                                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                                nvm use ${NODE_VERSION}
+
+                                echo ">> Ejecutando npm audit (Solo fallara en HIGH o CRITICAL)..."
+                                npm audit --audit-level=high
+
+                                echo ">> Ejecutando snyk test..."
+                                npx -y snyk test --severity-threshold=high
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        // ──────────────────────────────────────────────────────────────────────
+        // ETAPA 6: Validación de cobertura mínima (>= 80 %)
         //   Se ejecuta ANTES de SonarQube para fallar rápido y ahorrar tiempo.
         // ──────────────────────────────────────────────────────────────────────
         stage('Coverage Gate: >= 80%') {
@@ -320,7 +363,34 @@ pipeline {
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // ETAPA 9: Docker — Build & Push (Backend + Frontend)
+        // ETAPA 9: Pruebas E2E (Playwright BDD)
+        // ──────────────────────────────────────────────────────────────────────
+        stage('E2E Tests (BDD)') {
+            steps {
+                dir('frontend') {
+                    echo 'Ejecutando pruebas E2E con Playwright (BDD)...'
+                    sh '''
+                        export NVM_DIR="$NVM_DIR"
+                        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                        nvm use ${NODE_VERSION}
+
+                        echo ">>> Instalando navegadores de Playwright..."
+                        npx playwright install --with-deps chromium firefox webkit
+
+                        echo ">>> Ejecutando la suite de pruebas..."
+                        npm run e2e:bdd
+                    '''
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'frontend/playwright-report/**', allowEmptyArchive: true
+                }
+            }
+        }
+
+        // ──────────────────────────────────────────────────────────────────────
+        // ETAPA 10: Docker — Build & Push (Backend + Frontend)
         // ──────────────────────────────────────────────────────────────────────
         stage('Docker: Build & Push') {
             steps {
