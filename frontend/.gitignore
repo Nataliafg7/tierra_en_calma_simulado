@@ -38,6 +38,8 @@ testem.log
 /typings
 /test-results
 /playwright-report
+/.features-gen
+/blob-report
 
 # System files
 .DS_Store
