@@ -69,3 +69,5 @@ backend/k6/results/*
 backend/junit.xml
 frontend/test-results/
 frontend/playwright-report/
+frontend/.features-gen/
+frontend/blob-report/
