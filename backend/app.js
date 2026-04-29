@@ -233,15 +233,21 @@ connectString: process.env.ORACLE_CONN || process.env.ORACLE_CONNECT_STRING  };
       },
     });
 
+    const validator = require("validator");
+
+    const nombreSeguro = validator.escape(nombre || "");
+    const correoSeguro = validator.escape(correo || "");
+    const mensajeSeguro = validator.escape(mensaje || "");
+
     const mailOptions = {
       from: `"Tierra en Calma" <${process.env.GMAIL_USER}>`,
       to: "tierraencalma.a@gmail.com",
-      subject: `Nuevo mensaje de contacto de ${nombre}`,
+      subject: `Nuevo mensaje de contacto de ${nombreSeguro}`,
       html: `
         <h3>Nuevo mensaje desde el formulario de contacto</h3>
-        <p><b>Nombre:</b> ${nombre}</p>
-        <p><b>Correo:</b> ${correo}</p>
-        <p><b>Mensaje:</b><br>${mensaje}</p>
+        <p><b>Nombre:</b> ${nombreSeguro}</p>
+        <p><b>Correo:</b> ${correoSeguro}</p>
+        <p><b>Mensaje:</b><br>${mensajeSeguro.replace(/\n/g, "<br>")}</p>
       `,
     };
 
