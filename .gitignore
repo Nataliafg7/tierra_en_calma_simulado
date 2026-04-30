@@ -70,4 +70,6 @@ backend/junit.xml
 frontend/test-results/
 frontend/playwright-report/
 frontend/.features-gen/
-frontend/blob-report/
+frontend/blob-report/
+
+frontend/playwright-report/*

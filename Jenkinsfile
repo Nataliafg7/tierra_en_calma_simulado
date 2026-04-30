@@ -365,10 +365,10 @@ pipeline {
         // ──────────────────────────────────────────────────────────────────────
         // ETAPA 9: Pruebas E2E (Playwright BDD)
         // ──────────────────────────────────────────────────────────────────────
-        stage('E2E Tests (BDD)') {
+        stage('E2E Tests (Standard)') {
             steps {
                 dir('frontend') {
-                    echo 'Ejecutando pruebas E2E con Playwright (BDD)...'
+                    echo 'Ejecutando pruebas E2E con Playwright (Standard Specs)...'
                     sh '''
                         export NVM_DIR="$NVM_DIR"
                         [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
@@ -378,7 +378,7 @@ pipeline {
                         npx playwright install --with-deps chromium firefox webkit
 
                         echo ">>> Ejecutando la suite de pruebas..."
-                        npm run e2e:bdd
+                        npm run e2e
                     '''
                 }
             }
