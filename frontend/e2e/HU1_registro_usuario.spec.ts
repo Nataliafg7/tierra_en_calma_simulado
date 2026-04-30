@@ -4,6 +4,10 @@ test('HU1 - Registro exitoso de usuario', async ({ page }) => {
   const numero = Date.now();
   const correo = `prueba${numero}@gmail.com`;
 
+  await page.route('**/api/register', async route => {
+    await route.fulfill({ status: 200, json: { message: 'Usuario registrado con éxito.' } });
+  });
+
   await page.goto('http://localhost:4200/');
 
   await page.getByRole('link', { name: 'Iniciar sesión' }).click();

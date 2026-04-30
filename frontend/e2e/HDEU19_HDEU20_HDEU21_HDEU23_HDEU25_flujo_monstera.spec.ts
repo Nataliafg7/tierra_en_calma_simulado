@@ -4,6 +4,46 @@ test('Flujo completo Monstera - HDEU19, HDEU20, HDEU21, HDEU23, HDEU25', async (
   // =============================
   // LOGIN
   // =============================
+  await page.route('**/api/login', route => route.fulfill({ 
+    status: 200, 
+    json: { user: { ID_USUARIO: 1, NOMBRE: 'Angie', CORREO_ELECTRONICO: 'adiazabaunza@gmail.com' } } 
+  }));
+
+  await page.route('**/api/mis-plantas', route => route.fulfill({ 
+    status: 200, 
+    json: [{ ID_PLANTA_USUARIO: 1, NOMBRE_COMUN: 'Monstera' }] 
+  }));
+
+  await page.route('**/api/datos', route => route.fulfill({ 
+    status: 200, 
+    json: { dato: 'T:25.0, H:60.0' } 
+  }));
+
+  await page.route('**/api/historial', route => route.fulfill({ 
+    status: 200, 
+    json: { historial: [] } 
+  }));
+
+  await page.route('**/api/regar', route => route.fulfill({ 
+    status: 200, 
+    json: { message: 'Riego activado correctamente' } 
+  }));
+
+  await page.route('**/api/cuidados', route => route.fulfill({ 
+    status: 200, 
+    json: { message: 'Cuidado registrado con éxito' } 
+  }));
+
+  await page.route('**/api/monitorear', route => route.fulfill({ 
+    status: 200, 
+    json: { ok: true, id_sensor: 'SENSOR-123' } 
+  }));
+
+  await page.route('**/api/verificar-condiciones', route => route.fulfill({ 
+    status: 200, 
+    json: { ok: true, mensaje: 'Condiciones óptimas' } 
+  }));
+
   await page.goto('http://localhost:4200/');
 
   await page.getByRole('link', { name: 'Iniciar sesión' }).click();
@@ -25,8 +65,8 @@ test('Flujo completo Monstera - HDEU19, HDEU20, HDEU21, HDEU23, HDEU25', async (
   // =============================
   // HDEU21 - Validar lecturas
   // =============================
-  await expect(page.getByText('Temperatura:', { exact: true })).toBeVisible();
-  await expect(page.getByText(/Humedad/i).first()).toBeVisible();
+  await expect(page.locator('.monit-sensor-value')).toContainText('Temperatura:');
+  await expect(page.locator('.monit-sensor-value')).toContainText('Humedad del suelo:');
 
   // =============================
   // HDEU25 - Validar gráfico

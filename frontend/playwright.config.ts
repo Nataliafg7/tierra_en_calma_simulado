@@ -1,22 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
-import { defineBddConfig } from 'playwright-bdd';
-
-const testDir = defineBddConfig({
-  features: 'e2e/features/*.feature',
-  steps: 'e2e/steps/*.ts',
-});
 
 export default defineConfig({
-  testDir,
-  /* Maximum time one test can run for. */
-  timeout: 30 * 1000,
-  expect: {
-    /**
-     * Maximum time expect() should wait for the condition to be met.
-     * For example in `await expect(locator).toHaveText();`
-     */
-    timeout: 5000
-  },
+  testDir: './e2e',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -34,12 +19,10 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-
-    // Video and screenshot options
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     launchOptions: {
-      slowMo: 1000, // Pausa de 1000ms entre acciones
+      slowMo: 500,
     },
   },
 
