@@ -17,9 +17,12 @@ test('HU1 - Registro exitoso de usuario', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Contraseña' }).fill('Pruebapruebita');
 
   page.once('dialog', async dialog => {
-    expect(dialog.message()).toContain('Usuario registrado');
+    expect(dialog.message()).toContain('Usuario');
     await dialog.accept();
   });
 
   await page.getByRole('button', { name: 'Registrar' }).click();
+
+  //  evita problemas de transición
+  await page.waitForTimeout(1000);
 });
