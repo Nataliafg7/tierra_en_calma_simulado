@@ -17,7 +17,6 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "browser": "src/main.ts",
             "polyfills": [
               "zone.js"
             ],
@@ -30,7 +29,7 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "./styles.scss"
             ]
           },
           "configurations": {
