@@ -1,0 +1,43 @@
+{
+  "prueba": "A11Y-ANGIE-01",
+  "pantalla": "Monstera - monitoreo y cuidado",
+  "historiasUsuario": [
+    "HU19",
+    "HU20",
+    "HU21",
+    "HU23",
+    "HU25"
+  ],
+  "herramienta": "Cypress con cypress-axe",
+  "estandarEvaluado": [
+    "WCAG 2.0 A",
+    "WCAG 2.0 AA"
+  ],
+  "totalHallazgos": 1,
+  "hallazgos": [
+    {
+      "id": "color-contrast",
+      "impacto": "serious",
+      "descripcion": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "ayuda": "Elements must meet minimum color contrast ratio thresholds",
+      "referencia": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=axeAPI",
+      "elementosAfectados": 3,
+      "selectores": [
+        [
+          ".sobre-tu-monstera > .title-flower"
+        ],
+        [
+          ".tips-cuidado > .title-flower"
+        ],
+        [
+          ".historial-titulo > .title-flower"
+        ]
+      ],
+      "resumenFalla": [
+        "Fix any of the following:\n  Element has insufficient color contrast of 1.73 (foreground color: #cda686, background color: #f4dfcc, font size: 30.0pt (40px), font weight: normal). Expected contrast ratio of 3:1",
+        "Fix any of the following:\n  Element has insufficient color contrast of 1.77 (foreground color: #cbae93, background color: #f0ece2, font size: 30.0pt (40px), font weight: normal). Expected contrast ratio of 3:1",
+        "Fix any of the following:\n  Element has insufficient color contrast of 1.75 (foreground color: #cda792, background color: #f4e1e0, font size: 30.0pt (40px), font weight: normal). Expected contrast ratio of 3:1"
+      ]
+    }
+  ]
+}
