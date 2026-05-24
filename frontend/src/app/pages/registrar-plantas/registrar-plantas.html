@@ -1,54 +1,133 @@
-/// <reference types="cypress" />
+<div class="registrar-plantas-container">
+  <header class="registro-header">
+    <h1 class="titulo-principal">
+      Registrar<br><span class="Subtitle">Plantas</span>
+    </h1>
+  </header>
 
-describe('HU11 – Navegación Mis Plantas → Registrar Plantas', () => {
-  it('debe navegar automáticamente y agregar una planta usando el popup', () => {
-    const correo = 'jjuliana@gmail.com';
-    const contrasena = 'Casasjuliana28';
-    const nombrePersonalizado = 'Mi Potus Test';
+  <section class="planta-section izquierda potus-section">
+    <div class="planta-content">
+      <div class="planta-imagen">
+        <div class="imagen-planta"></div>
+        <div class="decoracion"></div>
+      </div>
 
-    // Interceptar login
-    cy.intercept('POST', '**/api/login').as('login');
+      <div class="planta-info">
+        <h2 class="planta-nombre">Potus</h2>
+        <p class="planta-cientifico">Epipremnum aureum</p>
+        <div class="planta-descripcion">
+          <p>Crece sin pedir mucho a cambio. Purifica el aire y te recuerda que la belleza estÃ¡ en la sencillez.</p>
+        </div>
+        <button class="btn-anadir" (click)="anadirPlanta('potus')">
+          <i class='bx bx-plus'></i>
+          AÃ±adir
+        </button>
+      </div>
+    </div>
+  </section>
 
-    // Interceptar catálogo y POST de registrar planta
-    cy.intercept('GET', '**/api/plantas').as('catalogoPlantas');
-    cy.intercept('POST', '**/api/registrar-planta').as('registrarPlanta');
+  <section class="planta-section derecha lengua-suegra-section">
+    <div class="planta-content">
+      <div class="planta-imagen">
+        <div class="imagen-planta"></div>
+        <div class="decoracion"></div>
+      </div>
 
-    // 1. LOGIN
-    cy.visit('http://localhost:4200/');
-    cy.contains('Iniciar sesión').click();
+      <div class="planta-info">
+        <h2 class="planta-nombre">Lengua de suegra</h2>
+        <p class="planta-cientifico">Sansevieria trifasciata</p>
+        <div class="planta-descripcion">
+          <p>Fuerte, resistente y purificadora. Ideal para quienes buscan una planta que les recuerde que incluso en la adversidad se puede florecer.</p>
+        </div>
+        <button class="btn-anadir" (click)="anadirPlanta('lengua-de-suegra')">
+          <i class='bx bx-plus'></i>
+          AÃ±adir
+        </button>
+      </div>
+    </div>
+  </section>
 
-    cy.get('input[placeholder="Correo"]').first().type(correo);
-    cy.get('input[placeholder="Contraseña"]').first().type(contrasena);
-    cy.get('button[type="submit"]').first().click();
-    cy.wait('@login').its('response.statusCode').should('eq', 200);
+  <section class="planta-section izquierda ceriman-section">
+    <div class="planta-content">
+      <div class="planta-imagen">
+        <div class="imagen-planta"></div>
+        <div class="decoracion"></div>
+      </div>
 
-    // 2. VALIDAR QUE ESTAMOS EN MIS PLANTAS
-    cy.get('.planta-card', { timeout: 10000 }).should('exist');
+      <div class="planta-info">
+        <h2 class="planta-nombre">CerimÃ¡n</h2>
+        <p class="planta-cientifico">Monstera deliciosa</p>
+        <div class="planta-descripcion">
+          <p>Con sus hojas amplias y perforadas, invita a aceptar la imperfecciÃ³n como belleza y crecimiento.</p>
+        </div>
+        <button class="btn-anadir" (click)="anadirPlanta('ceriman')">
+          <i class='bx bx-plus'></i>
+          AÃ±adir
+        </button>
+      </div>
+    </div>
+  </section>
 
-    // 3. NAVEGAR AL MENÚ REGISTRAR PLANTAS
-    cy.contains(/Registrar plantas/i, { timeout: 10000 }).click({ force: true });
-    cy.url({ timeout: 10000 }).should('include', '/registrar-plantas');
+  <section class="planta-section derecha dolar-section">
+    <div class="planta-content">
+      <div class="planta-imagen">
+        <div class="imagen-planta"></div>
+        <div class="decoracion"></div>
+      </div>
 
-    // 4. ESPERAR CARGA DEL CATALOGO DE PLANTAS
-    cy.wait('@catalogoPlantas').then(({ response }) => {
-      expect(response.statusCode).to.eq(200);
-      expect(response.body).to.be.an('array').and.not.be.empty;
-    });
+      <div class="planta-info">
+        <h2 class="planta-nombre">DÃ³lar</h2>
+        <p class="planta-cientifico">Aglaonema</p>
+        <div class="planta-descripcion">
+          <p>Representa la abundancia y la prosperidad. Recuerda que la constancia atrae buenos frutos.</p>
+        </div>
+        <button class="btn-anadir" (click)="anadirPlanta('dolar')">
+          <i class='bx bx-plus'></i>
+          AÃ±adir
+        </button>
+      </div>
+    </div>
+  </section>
 
-    // 5. HACER CLICK EN EL PRIMER BOTÓN AGREGAR (ej: Potus)
-    cy.get('.potus-section .btn-anadir', { timeout: 10000 })
-      .should('be.visible')
-      .click({ force: true });
+  <section class="planta-section izquierda hoja-violin-section">
+    <div class="planta-content">
+      <div class="planta-imagen">
+        <div class="imagen-planta"></div>
+        <div class="decoracion"></div>
+      </div>
 
-    // 6. POPUP PARA NOMBRAR LA PLANTA
-    cy.get('#popup-nombre', { timeout: 10000 }).should('be.visible');
-    cy.get('.input-nombre').type(nombrePersonalizado, { force: true });
-    cy.get('.btn-confirmar').click({ force: true });
+      <div class="planta-info">
+        <h2 class="planta-nombre">Hoja de violÃ­n</h2>
+        <p class="planta-cientifico">Ficus lyrata</p>
+        <div class="planta-descripcion">
+          <p>Con sus hojas grandes y elegantes, simboliza la armonÃ­a y la conexiÃ³n entre el arte y la naturaleza.</p>
+        </div>
+        <button class="btn-anadir" (click)="anadirPlanta('hoja-de-violin')">
+          <i class='bx bx-plus'></i>
+          AÃ±adir
+        </button>
+      </div>
+    </div>
+  </section>
 
-    // 7. VALIDAR QUE REDIRIGE A MIS PLANTAS
-    cy.url({ timeout: 10000 }).should('include', '/mis-plantas');
+  <section class="planta-section derecha palma-areca-section">
+    <div class="planta-content">
+      <div class="planta-imagen">
+        <div class="imagen-planta"></div>
+        <div class="decoracion"></div>
+      </div>
 
-    // 8. VALIDAR QUE LA PLANTA PERSONALIZADA APARECE
-    cy.get('.planta-card', { timeout: 10000 }).contains(nombrePersonalizado).should('exist');
-  });
-});
+      <div class="planta-info">
+        <h2 class="planta-nombre">Palma Areca</h2>
+        <p class="planta-cientifico">Dypsis lutescens</p>
+        <div class="planta-descripcion">
+          <p>Es una planta ideal para meditar sobre el desapego, el fluir y la renovaciÃ³n. Perfecta para aligerar el alma.</p>
+        </div>
+        <button class="btn-anadir" (click)="anadirPlanta('palma-areca')">
+          <i class='bx bx-plus'></i>
+          AÃ±adir
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
