@@ -73,3 +73,6 @@ frontend/.features-gen/
 frontend/blob-report/
 
 frontend/playwright-report/*
+
+frontend/cypress/e2e/screenshots/*
+frontend/cypress/e2e/videos/*
