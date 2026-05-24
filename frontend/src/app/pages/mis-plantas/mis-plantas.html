@@ -7,7 +7,7 @@
     <div class="hero-texto">
       <div class="hero-linea"></div>
       <div class="hero-contenido">
-        <h2 class="hero-titulo">Consejo del mes</h2>
+        <p class="hero-titulo">Consejo del mes</p>
         <p class="hero-descripcion">
           Hablar o poner música suave a tus plantas parece un mito, pero estudios demuestran que el sonido y la vibración
           favorecen su crecimiento.
@@ -35,7 +35,7 @@
       [ngClass]="plantClass(p)">
       <div class="card-overlay"></div>
       <div class="card-content">
-        <h3 class="planta-nombre">{{ p.NOMBRE_COMUN }}</h3>
+        <h2 class="planta-nombre">{{ p.NOMBRE_COMUN }}</h2>
         <p class="planta-descripcion" [innerHTML]="desc(p)"></p>
         <button class="btn-monitorear" (click)="monitorear(p)">Monitorear</button>
       </div>
