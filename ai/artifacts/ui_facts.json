@@ -1,0 +1,146 @@
+{
+  "meta": {
+    "generatedAt": "2026-05-24T17:58:18.960Z",
+    "baseUrl": "http://localhost:4200",
+    "apiBaseUrl": "http://localhost:3000",
+    "browserHeadless": true
+  },
+  "flows": {
+    "contact": {
+      "request": {
+        "nombre": "Stagehand QA",
+        "correo": "stagehand.qa@example.com",
+        "mensaje": "Quiero validar el formulario de contacto con IA."
+      },
+      "response": {
+        "message": "Mensaje enviado correctamente"
+      },
+      "observedActions": [],
+      "extraction": {
+        "formTitle": "Nosotros te contactamos",
+        "nameLabel": "Nombre completo",
+        "emailLabel": "Correo electrónico",
+        "messageLabel": "Mensaje",
+        "submitText": "Enviar mensaje"
+      },
+      "alertMessages": [],
+      "url": "http://localhost:4200/"
+    },
+    "login": {
+      "request": {
+        "correo_electronico": "stagehand.qa@example.com",
+        "contrasena": "Stagehand123!"
+      },
+      "response": {
+        "message": "Login exitoso",
+        "user": {
+          "ID_USUARIO": 901,
+          "NOMBRE": "Stagehand QA",
+          "APELLIDO": "User",
+          "TELEFONO": "3000000000",
+          "CORREO_ELECTRONICO": "stagehand.qa@example.com"
+        },
+        "role": "user"
+      },
+      "observedActions": [],
+      "alertMessages": [],
+      "url": "http://localhost:4200/mis-plantas"
+    },
+    "monitoring": {
+      "monitoredPlantId": null,
+      "request": null,
+      "response": null,
+      "observedActions": [],
+      "sensorExtraction": {
+        "connectionState": "Desconectado",
+        "temperature": "---",
+        "soilHumidity": "---",
+        "pollingInterval": "Actualización cada 2s"
+      },
+      "actionExtraction": {
+        "waterButtonText": "Regar ahora",
+        "verifyButtonText": "Verificar condiciones"
+      },
+      "url": "http://localhost:4200/monstera?pu=101"
+    },
+    "verifyConditions": {
+      "request": {
+        "id_planta_usuario": 101
+      },
+      "response": {
+        "ok": true,
+        "mensaje": "Condiciones optimas para monitoreo."
+      },
+      "observedActions": [],
+      "alertMessages": [
+        "Condiciones optimas para monitoreo."
+      ],
+      "url": "http://localhost:4200/monstera?pu=101"
+    },
+    "dialogs": [
+      {
+        "type": "alert",
+        "message": "Condiciones optimas para monitoreo."
+      }
+    ]
+  },
+  "summary": {
+    "contact": {
+      "request": {
+        "nombre": "Stagehand QA",
+        "correo": "stagehand.qa@example.com",
+        "mensaje": "Quiero validar el formulario de contacto con IA."
+      },
+      "response": {
+        "message": "Mensaje enviado correctamente"
+      },
+      "alertMessage": null
+    },
+    "login": {
+      "request": {
+        "correo_electronico": "stagehand.qa@example.com",
+        "contrasena": "Stagehand123!"
+      },
+      "response": {
+        "message": "Login exitoso",
+        "user": {
+          "ID_USUARIO": 901,
+          "NOMBRE": "Stagehand QA",
+          "APELLIDO": "User",
+          "TELEFONO": "3000000000",
+          "CORREO_ELECTRONICO": "stagehand.qa@example.com"
+        },
+        "role": "user"
+      },
+      "alertMessage": null,
+      "url": "http://localhost:4200/mis-plantas"
+    },
+    "monitoring": {
+      "monitoredPlantId": null,
+      "request": null,
+      "response": null,
+      "sensor": {
+        "connectionState": "Desconectado",
+        "temperature": "---",
+        "soilHumidity": "---",
+        "pollingInterval": "Actualización cada 2s"
+      },
+      "actions": {
+        "waterButtonText": "Regar ahora",
+        "verifyButtonText": "Verificar condiciones"
+      },
+      "url": "http://localhost:4200/monstera?pu=101"
+    },
+    "verifyConditions": {
+      "request": {
+        "id_planta_usuario": 101
+      },
+      "response": {
+        "ok": true,
+        "mensaje": "Condiciones optimas para monitoreo."
+      },
+      "alertMessage": "Condiciones optimas para monitoreo.",
+      "url": "http://localhost:4200/monstera?pu=101"
+    }
+  }
+}
