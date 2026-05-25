@@ -1,6 +1,6 @@
 import { defineConfig } from 'cypress';
-
-export default defineConfig({
+import eyesPlugin from '@applitools/eyes-cypress';
+export default eyesPlugin(defineConfig({
   projectId: 'uaxddz',
   allowCypressEnv: false,
 
@@ -13,4 +13,4 @@ export default defineConfig({
       return config;
     },
   },
-});
+}));

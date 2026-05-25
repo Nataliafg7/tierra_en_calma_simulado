@@ -13,6 +13,11 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-// Import commands.js using ES2015 syntax:
-import './commands'
+// Comandos personalizados del proyecto.
+import './commands';
+
+// Soporte para pruebas automatizadas de accesibilidad.
 import 'cypress-axe';
+
+// Soporte para pruebas visuales con Applitools Eyes.
+import '@applitools/eyes-cypress/commands';
