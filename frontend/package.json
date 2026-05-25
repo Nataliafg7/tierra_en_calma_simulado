@@ -8,6 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:coverage": "ng test --code-coverage --no-watch --browsers=ChromeHeadlessNoSandbox",
+    "e2e:cypress": "cypress run",
+    "e2e:cypress:open": "cypress open",
     "e2e": "playwright test",
     "e2e:bdd": "bddgen && playwright test",
     "e2e:bdd:ui": "bddgen && playwright test --ui",

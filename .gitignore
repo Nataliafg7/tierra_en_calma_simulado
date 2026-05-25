@@ -73,3 +73,10 @@ frontend/.features-gen/
 frontend/blob-report/
 
 frontend/playwright-report/*
+
+frontend/cypress/e2e/screenshots/*
+frontend/cypress/e2e/videos/*
+.python_deps/
+.venv/
+.pytest_cache/
+__pycache__/
