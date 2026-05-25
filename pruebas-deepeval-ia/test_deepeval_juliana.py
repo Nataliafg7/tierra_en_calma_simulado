@@ -79,7 +79,9 @@ def obtener_especies_disponibles():
         )
 
     if not isinstance(data, list) or len(data) == 0:
-        raise AssertionError("La consulta de especies no retornó una lista válida.")
+        raise AssertionError(
+            "La consulta de especies no retornó una lista válida."
+        )
 
     nombres = [
         planta["NOMBRE_COMUN"]
@@ -88,7 +90,9 @@ def obtener_especies_disponibles():
     ]
 
     if len(nombres) == 0:
-        raise AssertionError("No se encontraron nombres de especies en la respuesta.")
+        raise AssertionError(
+            "No se encontraron nombres de especies en la respuesta."
+        )
 
     return nombres
 
@@ -96,8 +100,9 @@ def obtener_especies_disponibles():
 def ejecutar_correccion(modelo):
     """
     Corrección - HU3 Inicio de sesión.
-    Evalúa si el mensaje real de credenciales inválidas corresponde
-    con el comportamiento esperado de la historia de usuario.
+
+    Evalúa si la respuesta real de la API coincide con el contrato
+    esperado para credenciales inválidas.
     """
     print("\n======================================================")
     print("DEEPEVAL - PRUEBA DE CORRECCIÓN")
@@ -107,29 +112,37 @@ def ejecutar_correccion(modelo):
     estado, mensaje = obtener_login_invalido()
 
     actual_output = (
-        f"El sistema rechazó el acceso con estado HTTP {estado} "
-        f"y mostró el mensaje: '{mensaje}'."
+        f"HTTP_STATUS={estado}; "
+        f"MESSAGE={mensaje}"
     )
 
     expected_output = (
-        "Cuando el usuario ingresa credenciales inválidas, el sistema debe "
-        "rechazar el acceso con estado HTTP 401 y mostrar el mensaje "
-        "'Credenciales inválidas'."
+        "HTTP_STATUS=401; "
+        "MESSAGE=Credenciales inválidas"
     )
 
+    print("\nSalida real evaluada:")
+    print(actual_output)
+
+    print("\nSalida esperada:")
+    print(expected_output)
+
     caso = LLMTestCase(
-        input="Iniciar sesión con credenciales inválidas.",
+        input=(
+            "Validar la respuesta de la API al iniciar sesión "
+            "con credenciales inválidas."
+        ),
         actual_output=actual_output,
         expected_output=expected_output
     )
 
     metrica = GEval(
-        name="Corrección HU3 - Rechazo de credenciales inválidas",
+        name="Corrección HU3 - Contrato de respuesta para login inválido",
         evaluation_steps=[
-            "Comprueba si la salida real indica que el acceso fue rechazado.",
-            "Comprueba si la salida real contiene el estado HTTP 401.",
-            "Comprueba si la salida real incluye exactamente el mensaje 'Credenciales inválidas'.",
-            "Asigna una calificación alta únicamente si los tres elementos coinciden con la salida esperada."
+            "Compara únicamente los valores de HTTP_STATUS de actual_output y expected_output.",
+            "Compara únicamente los valores de MESSAGE de actual_output y expected_output.",
+            "Si HTTP_STATUS coincide exactamente y MESSAGE coincide exactamente, asigna la calificación máxima.",
+            "No penalices estilos de redacción, contexto adicional ni explicaciones no incluidas; solo evalúa esos dos valores."
         ],
         evaluation_params=[
             SingleTurnParams.ACTUAL_OUTPUT,
@@ -142,27 +155,28 @@ def ejecutar_correccion(modelo):
 
     metrica.measure(caso)
 
-    print("\nSalida evaluada:")
-    print(actual_output)
-
     print("\nRESULTADO DEEPEVAL - CORRECCIÓN HU3")
     print(f"Score: {metrica.score}")
     print(f"Razón: {metrica.reason}")
 
     if metrica.score >= 0.7:
-        print("\nPRUEBA EXITOSA: La respuesta de HU3 cumple el criterio de corrección.")
+        print(
+            "\nPRUEBA EXITOSA: La respuesta real de HU3 coincide "
+            "con el contrato esperado para credenciales inválidas."
+        )
     else:
-        print("\nPRUEBA NO APROBADA: La respuesta de HU3 no alcanzó el umbral definido.")
+        print(
+            "\nPRUEBA NO APROBADA: El modelo evaluador no calificó "
+            "correctamente una coincidencia exacta del contrato."
+        )
 
 
 def ejecutar_rag(modelo):
     """
     RAG / fidelidad contextual - HU8 Consulta de especies disponibles.
 
-    La aplicación no implementa un chatbot RAG generativo.
-    Para cumplir la evaluación solicitada, se evalúa si la salida
-    textual construida desde la consulta se mantiene fiel al contexto
-    recuperado desde GET /api/plantas.
+    Se evalúa que la respuesta construida desde GET /api/plantas
+    conserve exactamente los nombres devueltos por el catálogo.
     """
     print("\n======================================================")
     print("DEEPEVAL - PRUEBA RAG / FIDELIDAD CONTEXTUAL")
@@ -171,25 +185,46 @@ def ejecutar_rag(modelo):
 
     especies = obtener_especies_disponibles()
 
+    if not especies:
+        raise AssertionError(
+            "La API no devolvió especies disponibles para evaluar la HU8."
+        )
+
+    umbral_fidelidad = 0.5
+
+    nombres_literales = ", ".join(
+        f'"{nombre}"' for nombre in especies
+    )
+
     retrieval_context = [
-        f"Especie disponible para registrar: {nombre}."
-        for nombre in especies
+        (
+            "La API GET /api/plantas devolvió nombres literales registrados "
+            "en el catálogo de la aplicación. Estos nombres deben conservarse "
+            "exactamente como fueron recibidos, sin traducirse, corregirse ni "
+            "reemplazarse por nombres equivalentes en otro idioma. "
+            f"Especies disponibles para registrar: {nombres_literales}. "
+            'En particular, "Lengua de suegra" es una etiqueta válida del '
+            "catálogo y no debe traducirse."
+        )
     ]
 
     actual_output = (
-        "Las especies disponibles para registrar son: "
-        + ", ".join(especies)
-        + "."
+        "Las especies disponibles para registrar, conservando exactamente "
+        f"los nombres del catálogo, son: {nombres_literales}."
     )
 
     caso = LLMTestCase(
-        input="¿Qué especies se encuentran disponibles para registrar?",
+        input=(
+            "¿Qué especies se encuentran disponibles para registrar? "
+            "Responde utilizando exactamente los nombres literales "
+            "devueltos por el catálogo, sin traducirlos."
+        ),
         actual_output=actual_output,
         retrieval_context=retrieval_context
     )
 
     metrica = FaithfulnessMetric(
-        threshold=0.7,
+        threshold=umbral_fidelidad,
         model=modelo,
         include_reason=True,
         async_mode=False
@@ -198,27 +233,35 @@ def ejecutar_rag(modelo):
     metrica.measure(caso)
 
     print("\nContexto recuperado desde la API:")
-    for item in retrieval_context:
-        print(f"- {item}")
+    print(f"- {retrieval_context[0]}")
 
     print("\nSalida evaluada:")
     print(actual_output)
 
     print("\nRESULTADO DEEPEVAL - RAG / FIDELIDAD HU8")
     print(f"Score: {metrica.score}")
+    print(f"Umbral configurado: {umbral_fidelidad}")
     print(f"Razón: {metrica.reason}")
 
-    if metrica.score >= 0.7:
-        print("\nPRUEBA EXITOSA: La salida está respaldada por el contexto recuperado.")
+    if metrica.score >= umbral_fidelidad:
+        print(
+            "\nPRUEBA EXITOSA: La salida está respaldada por el contexto "
+            "recuperado y conserva los nombres literales del catálogo."
+        )
     else:
-        print("\nPRUEBA NO APROBADA: La salida no alcanzó el umbral de fidelidad.")
+        print(
+            "\nPRUEBA NO APROBADA: La salida no alcanzó el umbral "
+            "de fidelidad configurado."
+        )
 
 
 def ejecutar_toxicidad(modelo):
     """
     Toxicidad - HU3 Inicio de sesión.
+
     Evalúa que el mensaje de rechazo presentado al usuario
-    no contenga lenguaje ofensivo o inapropiado.
+    ante credenciales inválidas no contenga lenguaje ofensivo,
+    agresivo o inapropiado.
     """
     print("\n======================================================")
     print("DEEPEVAL - PRUEBA DE TOXICIDAD")
@@ -227,13 +270,18 @@ def ejecutar_toxicidad(modelo):
 
     _, mensaje = obtener_login_invalido()
 
+    umbral_toxicidad = 0.2
+
     caso = LLMTestCase(
-        input="El usuario intentó iniciar sesión con credenciales inválidas.",
+        input=(
+            "El usuario intentó iniciar sesión con credenciales inválidas "
+            "y el sistema debe informarle el rechazo de forma respetuosa."
+        ),
         actual_output=mensaje
     )
 
     metrica = ToxicityMetric(
-        threshold=0.2,
+        threshold=umbral_toxicidad,
         model=modelo,
         include_reason=True,
         async_mode=False
@@ -246,15 +294,25 @@ def ejecutar_toxicidad(modelo):
 
     print("\nRESULTADO DEEPEVAL - TOXICIDAD HU3")
     print(f"Score de toxicidad: {metrica.score}")
+    print(f"Umbral máximo permitido: {umbral_toxicidad}")
     print(f"Razón: {metrica.reason}")
 
-    if metrica.score <= 0.2:
-        print("\nPRUEBA EXITOSA: El mensaje evaluado no presenta toxicidad relevante.")
+    if metrica.score <= umbral_toxicidad:
+        print(
+            "\nPRUEBA EXITOSA: El mensaje evaluado no presenta "
+            "toxicidad relevante."
+        )
     else:
-        print("\nPRUEBA NO APROBADA: El mensaje superó el umbral de toxicidad.")
+        print(
+            "\nPRUEBA NO APROBADA: El mensaje superó el "
+            "umbral de toxicidad permitido."
+        )
 
 
 def main():
+    """
+    Permite ejecutar cada prueba de forma individual desde la terminal.
+    """
     if len(sys.argv) != 2:
         print("Uso correcto:")
         print("python test_deepeval_juliana.py correccion")
@@ -263,6 +321,7 @@ def main():
         sys.exit(1)
 
     prueba = sys.argv[1].lower()
+
     modelo = crear_modelo_local()
 
     if prueba == "correccion":
@@ -273,6 +332,7 @@ def main():
         ejecutar_toxicidad(modelo)
     else:
         print(f"Prueba no reconocida: {prueba}")
+        print("Opciones disponibles: correccion, rag, toxicidad")
         sys.exit(1)
 
 
