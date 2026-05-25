@@ -11,7 +11,7 @@ const ARTIFACT_DIR = path.join(ROOT, 'ai', 'artifacts');
 const ARTIFACT_FILE = path.join(ARTIFACT_DIR, 'ui_facts.json');
 const BACKEND_ENV = path.join(ROOT, 'backend', '.env');
 
-dotenv.config({ path: BACKEND_ENV, override: true });
+dotenv.config({ path: BACKEND_ENV, override: true, quiet: true });
 
 const BASE_URL = process.env.AI_UI_BASE_URL || 'http://localhost:4200';
 const API_BASE_URL = process.env.AI_API_BASE_URL || 'http://localhost:3000';
@@ -86,6 +86,11 @@ function suppressAiSdkSystemMessageWarnings() {
     if (args.some(shouldSuppress)) return;
     nativeError(...args);
   };
+}
+
+function logStagehandFallback(kind, instruction, error) {
+  if (process.env.AI_STAGEHAND_DEBUG !== '1') return;
+  console.warn(`[stagehand] ${kind} fallback for "${instruction}":`, error?.message || error);
 }
 
 function normalizeText(value) {
@@ -212,7 +217,7 @@ async function safeObserve(stagehand, page, instruction, options) {
     const result = await stagehand.observe(instruction, options);
     return mapActions(result);
   } catch (error) {
-    console.warn(`[stagehand] observe fallback for "${instruction}":`, error?.message || error);
+    logStagehandFallback('observe', instruction, error);
     return [];
   }
 }
@@ -222,7 +227,7 @@ async function safeExtract(stagehand, page, instruction, schema, options, fallba
     const result = await stagehand.extract(instruction, schema, options);
     return result;
   } catch (error) {
-    console.warn(`[stagehand] extract fallback for "${instruction}":`, error?.message || error);
+    logStagehandFallback('extract', instruction, error);
     return fallback;
   }
 }
