@@ -1,6 +1,7 @@
-import { defineConfig } from "cypress";
+import { defineConfig } from 'cypress';
 
 export default defineConfig({
+  projectId: 'uaxddz',
   allowCypressEnv: false,
 
   e2e: {
@@ -17,6 +18,9 @@ export default defineConfig({
           return null;
         }
       });
+    supportFile: 'cypress/support/e2e.ts',
+
+    setupNodeEvents(on, config) {
       return config;
     },
   },

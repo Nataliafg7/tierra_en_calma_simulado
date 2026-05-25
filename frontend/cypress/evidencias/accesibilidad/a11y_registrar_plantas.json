@@ -1,0 +1,18 @@
+[
+  {
+    "regla": "color-contrast",
+    "impacto": "serious",
+    "descripcion": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    "ayuda": "Elements must meet minimum color contrast ratio thresholds",
+    "cantidadElementos": 7,
+    "elementos": [
+      ".titulo-principal",
+      ".potus-section > .planta-content > .planta-info > .planta-cientifico",
+      ".lengua-suegra-section > .planta-content > .planta-info > .planta-cientifico",
+      ".ceriman-section > .planta-content > .planta-info > .planta-cientifico",
+      ".dolar-section > .planta-content > .planta-info > .planta-cientifico",
+      ".hoja-violin-section > .planta-content > .planta-info > .planta-cientifico",
+      ".palma-areca-section > .planta-content > .planta-info > .planta-cientifico"
+    ]
+  }
+]
